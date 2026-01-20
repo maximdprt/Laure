@@ -87,11 +87,11 @@ export default function MassageSportif() {
                   <path
                     d="M 50 200 L 50 50 M 30 80 L 20 100 L 40 110 M 70 90 L 80 120 L 60 130"
                     fill="none"
-                    stroke="#7FB3A3"
+                    stroke="#8DA089"
                     strokeWidth="2"
                   />
-                  <ellipse cx="25" cy="105" rx="8" ry="15" fill="#7FB3A3" opacity="0.4" />
-                  <ellipse cx="75" cy="125" rx="8" ry="15" fill="#7FB3A3" opacity="0.4" />
+                  <ellipse cx="25" cy="105" rx="8" ry="15" fill="#8DA089" opacity="0.4" />
+                  <ellipse cx="75" cy="125" rx="8" ry="15" fill="#8DA089" opacity="0.4" />
                 </svg>
               </div>
               <img

@@ -37,14 +37,14 @@ export default function Contact() {
             <path
               d="M 0 200 Q 50 150, 100 200 Q 150 250, 200 200"
               fill="none"
-              stroke="#F7A7A7"
+              stroke="#8DA089"
               strokeWidth="3"
               opacity="0.5"
             />
             <path
               d="M 20 180 L 20 220 M 40 160 L 40 240 M 60 140 L 60 260"
               fill="none"
-              stroke="#F7A7A7"
+              stroke="#8DA089"
               strokeWidth="2"
               opacity="0.4"
             />
@@ -67,7 +67,7 @@ export default function Contact() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <button className="bg-white text-black px-8 py-4 border-2 border-black font-semibold uppercase hover:bg-gray-100 transition-colors">
+              <button className="bg-coral-DEFAULT text-white px-8 py-4 border-2 border-coral-DEFAULT font-semibold uppercase hover:bg-coral-light transition-colors">
                 CONTACTEZ-NOUS
               </button>
             </motion.a>
@@ -80,7 +80,7 @@ export default function Contact() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="mt-8 max-w-3xl"
           >
-            <div className="bg-white/90 text-gray-900 rounded-xl p-4 md:p-5 shadow-md border border-white/60">
+            <div className="bg-soft-cream/95 text-gray-900 rounded-xl p-4 md:p-5 shadow-md border border-coral-pale/60">
               <p className="text-sm md:text-base leading-relaxed">
                 <span className="font-semibold">⚠️ Réservation :</span>{' '}
                 Pour valider votre créneau horaire, un acompte de réservation vous sera demandé
@@ -114,7 +114,7 @@ export default function Contact() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="bg-white/90 backdrop-blur-sm rounded-lg p-10 md:p-12"
+            className="bg-soft-cream/95 backdrop-blur-sm rounded-lg p-10 md:p-12 border border-coral-pale/30"
           >
             <p className="text-xl md:text-2xl text-gray-800 leading-relaxed mb-6">
               Que vous soyez un enfant, un adolescent ou un adulte, mon objectif reste identique :
@@ -127,7 +127,7 @@ export default function Contact() {
       </section>
 
       {/* Formulaire de contact */}
-      <section id="formulaire" className="py-20 bg-white">
+      <section id="formulaire" className="py-20 bg-soft-cream">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.h2
             initial={{ opacity: 0, y: 30 }}

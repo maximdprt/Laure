@@ -7,23 +7,22 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Couleurs du nouveau design selon les images
+        // Palette demandée : corail / poudré / vieux rose / beige sable / taupe / vert sauge
         coral: {
-          DEFAULT: '#F7A7A7',
-          light: '#FFB6C1',
-          pale: '#FFE5E5',
+          DEFAULT: '#E56E73',   // Rose corail plus soutenu pour que les boutons soient bien visibles
+          light: '#F99B95',     // Rose Corail Doux – survol / variantes claires
+          pale: '#F4E9E2',      // Beige Sable rosé – blocs doux
         },
-        // Teintes beige-rosé douces (remplace l'ancien bleu-gris)
         'blue-grey': {
-          DEFAULT: '#C8B5A6', // beige rosé doux
-          light: '#F5E9DD',   // beige clair
+          DEFAULT: '#5A5A5A',   // Gris Taupe – texte principal si besoin
+          light: '#F4E9E2',     // Beige Sable – fonds de cartes
         },
         soft: {
-          pink: '#FF6B9D',
-          'pink-light': '#FFB6C1',
-          cream: '#FFF8F0',
-          'green-muted': '#7FB3A3',
-          'green-light': '#A8D5BA',
+          pink: '#E6A8A8',
+          'pink-light': '#F4E9E2',
+          cream: '#F4E9E2',     // Beige Sable – fond de page
+          'green-muted': '#8DA089', // Vert Sauge / Olive – dessins floraux
+          'green-light': '#B7C7B2',
         },
         // Dégradés subtils évoquant la lumière et l'énergie
         light: {

@@ -23,28 +23,21 @@ export default function Button({
 
   const variantClasses = {
     primary:
-      'bg-gradient-to-r from-energy-blue via-energy-violet to-energy-gold text-white hover:shadow-glow-violet focus:ring-energy-violet shadow-lg hover:shadow-xl',
+      'bg-coral-DEFAULT text-white shadow-lg hover:bg-coral-light hover:shadow-xl focus:ring-coral-DEFAULT',
     secondary:
-      'bg-gradient-to-r from-energy-green to-energy-blue text-white hover:shadow-glow-green focus:ring-energy-green shadow-lg hover:shadow-xl',
+      'bg-coral-light text-white shadow-md hover:bg-coral-DEFAULT hover:shadow-lg focus:ring-coral-DEFAULT',
     outline:
-      'border-2 border-gray-300 text-gray-700 hover:bg-gradient-to-r hover:from-light-blue hover:to-light-violet hover:border-transparent focus:ring-energy-blue bg-white hover:shadow-lg',
+      'border-2 border-coral-DEFAULT text-coral-DEFAULT bg-white hover:bg-coral-pale/60 hover:text-coral-DEFAULT focus:ring-coral-DEFAULT',
     soft:
-      'bg-gradient-to-r from-light-violet to-light-blue text-gray-800 hover:from-light-blue hover:to-light-green focus:ring-energy-violet shadow-md hover:shadow-lg',
+      'bg-coral-pale text-coral-DEFAULT shadow-md hover:bg-coral-light hover:text-white focus:ring-coral-DEFAULT',
     glow:
-      'bg-gradient-to-r from-energy-blue via-energy-violet to-energy-gold text-white shadow-glow-violet hover:shadow-glow-soft focus:ring-energy-violet relative',
+      'bg-coral-DEFAULT text-white shadow-glow-soft hover:bg-coral-light focus:ring-coral-DEFAULT relative',
   }
 
   const classes = `${baseClasses} ${variantClasses[variant]} ${className}`
 
-  // Effet de brillance pour les boutons glow et primary
-  const ShineEffect = variant === 'glow' || variant === 'primary' ? (
-    <motion.div
-      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-      initial={{ x: '-100%' }}
-      whileHover={{ x: '100%' }}
-      transition={{ duration: 0.6 }}
-    />
-  ) : null
+  // Effet de brillance désactivé pour garder les boutons bien pleins et lisibles
+  const ShineEffect = null
 
   const buttonContent = (
     <motion.button

@@ -16,7 +16,7 @@ export default function Navbar() {
   const isActive = (path: string) => location.pathname === path
 
   return (
-    <nav className="backdrop-blur-md bg-white/80 border-b border-white/60 sticky top-0 z-50">
+    <nav className="backdrop-blur-md bg-soft-cream/90 border-b border-coral-pale/50 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo + Branding */}
@@ -37,20 +37,23 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`text-sm font-sans font-medium transition-colors ${
-                  isActive(link.path)
-                    ? 'text-coral-DEFAULT'
-                    : 'text-gray-700 hover:text-coral-DEFAULT'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="hidden md:flex items-center space-x-3">
+            {navLinks.map((link) => {
+              const active = isActive(link.path)
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`px-4 py-2 rounded-full text-sm font-sans font-medium transition-colors ${
+                    active
+                      ? 'bg-coral-DEFAULT text-white shadow-md'
+                      : 'text-gray-700 hover:text-coral-DEFAULT hover:bg-coral-pale/40'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              )
+            })}
             {/* Icône de recherche */}
             <button
               className="text-gray-700 hover:text-coral-DEFAULT transition-colors"
@@ -102,20 +105,23 @@ export default function Navbar() {
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden pb-4 space-y-2"
           >
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`block px-4 py-2 rounded-lg text-base font-medium transition-colors ${
-                  isActive(link.path)
-                    ? 'text-coral-DEFAULT'
-                    : 'text-gray-700 hover:text-coral-DEFAULT'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const active = isActive(link.path)
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`block px-4 py-2 rounded-full text-base font-medium transition-colors ${
+                    active
+                      ? 'bg-coral-DEFAULT text-white shadow-md'
+                      : 'text-gray-700 hover:text-coral-DEFAULT hover:bg-coral-pale/40'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              )
+            })}
           </motion.div>
         )}
       </div>

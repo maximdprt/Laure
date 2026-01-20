@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-soft-cream">
       {/* Hero : performance & océan */}
       <section className="relative overflow-hidden py-20">
         <div className="absolute inset-0">
@@ -15,7 +15,7 @@ export default function Home() {
               e.currentTarget.style.opacity = '0'
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/60" />
+          <div className="absolute inset-0 bg-gradient-to-r from-coral-pale via-soft-cream to-white/70" />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -50,7 +50,7 @@ export default function Home() {
                   </button>
                 </Link>
                 <Link to="/offres-tarifs">
-                  <button className="px-8 py-4 rounded-full border border-gray-900 text-gray-900 font-semibold text-sm tracking-wide bg-white/70 hover:bg-gray-50 transition-colors">
+                  <button className="px-8 py-4 rounded-full bg-coral-light text-white font-semibold text-sm tracking-wide shadow-lg hover:bg-coral-DEFAULT transition-colors">
                     Voir les tarifs
                   </button>
                 </Link>
@@ -90,7 +90,7 @@ export default function Home() {
       </section>
 
       {/* Section split : Performance sportive / Soin holistique */}
-      <section className="py-20 bg-soft-cream">
+      <section className="py-20 bg-gradient-to-r from-soft-cream via-white to-coral-pale/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
@@ -109,7 +109,7 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7 }}
-              className="bg-white rounded-3xl p-8 shadow-lg border border-white"
+              className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-coral-pale/50"
             >
               <h3 className="text-2xl font-serif font-semibold text-gray-900 mb-4">
                 Performance sportive
@@ -137,7 +137,7 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: 0.1 }}
-              className="bg-white rounded-3xl p-8 shadow-lg border border-white"
+              className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-coral-pale/50"
             >
               <h3 className="text-2xl font-serif font-semibold text-gray-900 mb-4">
                 Soin holistique &amp; vibratoire
@@ -151,7 +151,7 @@ export default function Home() {
                 <li>• OCEAN LUMINA – 90’ : soin d&apos;exception aux couleurs, cristaux &amp; huiles Aura-Soma®</li>
               </ul>
               <Link to="/offres-tarifs">
-                <button className="px-6 py-3 rounded-full border border-gray-900 text-gray-900 text-sm font-semibold bg-white hover:bg-gray-50 transition-colors">
+                <button className="px-6 py-3 rounded-full bg-coral-light text-white text-sm font-semibold hover:bg-coral-DEFAULT transition-colors">
                   Voir les soins énergétiques
                 </button>
               </Link>
@@ -161,7 +161,7 @@ export default function Home() {
       </section>
 
       {/* Section lieu : Espace HEAL LO Lacanau */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-soft-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
             <motion.div

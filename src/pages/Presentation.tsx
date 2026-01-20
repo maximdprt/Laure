@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 
 export default function Presentation() {
   return (
-    <div className="min-h-screen bg-white py-20">
+    <div className="min-h-screen bg-soft-cream py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Colonne gauche - Photo */}
@@ -13,10 +13,10 @@ export default function Presentation() {
             transition={{ duration: 0.8 }}
             className="relative"
           >
-            {/* Barre bleu-gris verticale */}
+            {/* Barre verticale couleur sable rosé */}
             <div className="absolute -left-4 top-0 bottom-0 w-2 bg-blue-grey-light"></div>
             <img
-              src="/images/laure-portrait.jpg"
+              src="/images/lauredupuch-dupuch-portrait.jpg"
               alt="Laure Dupuch - Praticienne holistique"
               className="w-full rounded-lg shadow-lg"
               onError={(e) => {
@@ -33,7 +33,7 @@ export default function Presentation() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="relative"
           >
-            {/* Forme bleu-gris en arrière-plan */}
+            {/* Forme beige rosé en arrière-plan */}
             <div className="absolute top-0 right-0 w-64 h-96 bg-blue-grey-light opacity-20 rounded-lg -z-10"></div>
             
             <h1 className="text-5xl md:text-6xl font-serif font-light text-blue-grey mb-6">

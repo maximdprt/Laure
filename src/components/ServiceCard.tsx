@@ -23,9 +23,9 @@ export default function ServiceCard({
   }
 
   const buttonColors = {
-    'blue-grey': 'border-white text-white',
-    peach: 'border-coral-light text-white bg-coral-light',
-    coral: 'border-white text-white',
+    'blue-grey': 'border-coral-DEFAULT bg-coral-DEFAULT text-white',
+    peach: 'border-coral-DEFAULT bg-coral-DEFAULT text-white',
+    coral: 'border-coral-DEFAULT bg-coral-DEFAULT text-white',
   }
 
   const cardContent = (
@@ -39,7 +39,7 @@ export default function ServiceCard({
       <h3 className="text-2xl font-bold text-gray-800 mb-4">{title}</h3>
       <p className="text-gray-600 mb-6 leading-relaxed">{description}</p>
       <div
-        className={`px-6 py-2 rounded border-2 ${buttonColors[bgColor]} font-medium text-sm transition-all hover:opacity-90 inline-block`}
+        className={`px-6 py-2 rounded border-2 ${buttonColors[bgColor]} font-medium text-sm transition-all hover:bg-coral-light inline-block`}
       >
         En savoir plus
       </div>

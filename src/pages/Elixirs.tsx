@@ -18,35 +18,35 @@ export default function Elixirs() {
               <path
                 d="M 100 600 L 100 300 M 120 600 L 120 320 M 140 600 L 140 310 M 160 600 L 160 300 M 180 600 L 180 315"
                 fill="none"
-                stroke="#A8B8C8"
+                stroke="#8DA089"
                 strokeWidth="3"
                 strokeLinecap="round"
               />
               {/* Fleurs de lavande (clusters) */}
               <g transform="translate(100, 300)">
-                <ellipse cx="0" cy="0" rx="15" ry="8" fill="#D0D8E0" opacity="0.8" />
-                <ellipse cx="0" cy="-10" rx="12" ry="6" fill="#D0D8E0" opacity="0.8" />
-                <ellipse cx="0" cy="-20" rx="10" ry="5" fill="#D0D8E0" opacity="0.8" />
+                <ellipse cx="0" cy="0" rx="15" ry="8" fill="#8DA089" opacity="0.8" />
+                <ellipse cx="0" cy="-10" rx="12" ry="6" fill="#8DA089" opacity="0.8" />
+                <ellipse cx="0" cy="-20" rx="10" ry="5" fill="#8DA089" opacity="0.8" />
               </g>
               <g transform="translate(120, 320)">
-                <ellipse cx="0" cy="0" rx="18" ry="10" fill="#D0D8E0" opacity="0.8" />
-                <ellipse cx="0" cy="-12" rx="15" ry="8" fill="#D0D8E0" opacity="0.8" />
-                <ellipse cx="0" cy="-24" rx="12" ry="6" fill="#D0D8E0" opacity="0.8" />
+                <ellipse cx="0" cy="0" rx="18" ry="10" fill="#8DA089" opacity="0.8" />
+                <ellipse cx="0" cy="-12" rx="15" ry="8" fill="#8DA089" opacity="0.8" />
+                <ellipse cx="0" cy="-24" rx="12" ry="6" fill="#8DA089" opacity="0.8" />
               </g>
               <g transform="translate(140, 310)">
-                <ellipse cx="0" cy="0" rx="16" ry="9" fill="#D0D8E0" opacity="0.8" />
-                <ellipse cx="0" cy="-11" rx="13" ry="7" fill="#D0D8E0" opacity="0.8" />
-                <ellipse cx="0" cy="-22" rx="11" ry="6" fill="#D0D8E0" opacity="0.8" />
+                <ellipse cx="0" cy="0" rx="16" ry="9" fill="#8DA089" opacity="0.8" />
+                <ellipse cx="0" cy="-11" rx="13" ry="7" fill="#8DA089" opacity="0.8" />
+                <ellipse cx="0" cy="-22" rx="11" ry="6" fill="#8DA089" opacity="0.8" />
               </g>
               <g transform="translate(160, 300)">
-                <ellipse cx="0" cy="0" rx="14" ry="8" fill="#D0D8E0" opacity="0.8" />
-                <ellipse cx="0" cy="-10" rx="11" ry="6" fill="#D0D8E0" opacity="0.8" />
-                <ellipse cx="0" cy="-20" rx="9" ry="5" fill="#D0D8E0" opacity="0.8" />
+                <ellipse cx="0" cy="0" rx="14" ry="8" fill="#8DA089" opacity="0.8" />
+                <ellipse cx="0" cy="-10" rx="11" ry="6" fill="#8DA089" opacity="0.8" />
+                <ellipse cx="0" cy="-20" rx="9" ry="5" fill="#8DA089" opacity="0.8" />
               </g>
               <g transform="translate(180, 315)">
-                <ellipse cx="0" cy="0" rx="17" ry="9" fill="#D0D8E0" opacity="0.8" />
-                <ellipse cx="0" cy="-12" rx="14" ry="7" fill="#D0D8E0" opacity="0.8" />
-                <ellipse cx="0" cy="-24" rx="12" ry="6" fill="#D0D8E0" opacity="0.8" />
+                <ellipse cx="0" cy="0" rx="17" ry="9" fill="#8DA089" opacity="0.8" />
+                <ellipse cx="0" cy="-12" rx="14" ry="7" fill="#8DA089" opacity="0.8" />
+                <ellipse cx="0" cy="-24" rx="12" ry="6" fill="#8DA089" opacity="0.8" />
               </g>
             </svg>
           </motion.div>
@@ -71,16 +71,16 @@ export default function Elixirs() {
               </p>
               <p>
                 Les élixirs harmonisent les{' '}
-                <strong style={{ color: '#F7A7A7' }}>émotions et attitudes</strong> qui entravent
+                <strong style={{ color: '#C56B6B' }}>émotions et attitudes</strong> qui entravent
                 votre épanouissement personnel et perturbent votre santé.
               </p>
               <p>
                 Ils viennent rétablir un dysfonctionnement énergétique et agissent sur{' '}
-                <strong style={{ color: '#F7A7A7' }}>3 plans : physique, mental et spirituel</strong>.
+                <strong style={{ color: '#C56B6B' }}>3 plans : physique, mental et spirituel</strong>.
               </p>
               <p>
                 N.L.I.G.H.T. vous propose des{' '}
-                <strong style={{ color: '#F7A7A7' }}>préparations personnalisées</strong> qui
+                <strong style={{ color: '#C56B6B' }}>préparations personnalisées</strong> qui
                 peuvent être utilisées occasionnellement ou sur de plus longues périodes suivant la
                 problématique.
               </p>

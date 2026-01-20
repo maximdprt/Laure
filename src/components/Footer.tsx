@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 export default function Footer() {
   return (
-    <footer className="bg-white border-t border-gray-200 mt-20">
+    <footer className="bg-soft-cream border-t border-coral-pale/50 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Coordonnées */}
@@ -15,20 +15,32 @@ export default function Footer() {
                 <strong>Téléphone :</strong>
                 <br />
                 <a
-                  href="tel:+33600000000"
+                  href="tel:+33662099417"
                   className="hover:text-coral-DEFAULT transition-colors"
                 >
-                  06 00 00 00 00
+                  06 62 09 94 17
                 </a>
               </p>
               <p>
                 <strong>Email :</strong>
                 <br />
                 <a
-                  href="mailto:contact.massages.aura.performance@gmail.com"
+                  href="mailto:contact.nlight@gmail.com"
                   className="hover:text-coral-DEFAULT transition-colors"
                 >
-                  contact.massages.aura.performance@gmail.com
+                  contact.nlight@gmail.com
+                </a>
+              </p>
+              <p>
+                <strong>Site du centre :</strong>
+                <br />
+                <a
+                  href="https://heal-lo.fr"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-coral-DEFAULT transition-colors"
+                >
+                  heal-lo.fr
                 </a>
               </p>
             </div>
@@ -40,8 +52,11 @@ export default function Footer() {
               Horaires
             </h3>
             <div className="text-gray-600 text-sm">
-              <p>Lundi - Vendredi</p>
-              <p>8h - 20h</p>
+              <p>Lundi - Dimanche</p>
+              <p>07h30 - 20h00</p>
+              <p className="mt-2 text-xs text-gray-500">
+                Horaires basés sur le centre de bien-être Heal.LO - Lacanau.
+              </p>
             </div>
           </div>
 

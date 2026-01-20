@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 
 export default function OffresTarifs() {
   return (
-    <div className="min-h-screen bg-white py-20">
+    <div className="min-h-screen bg-soft-cream py-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         {/* Titre principal */}
         <motion.header
@@ -21,7 +22,7 @@ export default function OffresTarifs() {
         </motion.header>
 
         {/* Section Massages Aura Performance */}
-        <section className="space-y-8">
+        <section className="space-y-8 bg-white/80 rounded-3xl shadow-sm border border-white/80 p-6 md:p-10">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -148,7 +149,7 @@ export default function OffresTarifs() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="mt-8 bg-blue-grey-light/20 border border-blue-grey-light/40 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+            className="mt-8 bg-coral-pale/70 border border-coral-light/70 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
           >
             <div>
               <h3 className="text-lg md:text-xl font-serif font-semibold text-gray-900 mb-1">
@@ -164,15 +165,24 @@ export default function OffresTarifs() {
               </p>
             </div>
             <div className="shrink-0">
-              <span className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-coral-DEFAULT text-white text-sm font-semibold shadow-md">
+              <span className="inline-flex items-center justify-center px-4 py-2 rounded-full border border-coral-DEFAULT bg-white/90 text-coral-DEFAULT text-sm font-semibold shadow-md">
                 Option +20€
               </span>
             </div>
           </motion.div>
+
+          {/* CTA global massages */}
+          <div className="mt-8 flex justify-end">
+            <Link to="/contact">
+              <button className="px-8 py-3 rounded-full bg-coral-DEFAULT text-white text-sm font-semibold shadow-md hover:bg-coral-light transition-colors">
+                Réserver un massage sportif
+              </button>
+            </Link>
+          </div>
         </section>
 
         {/* Section Soins énergétiques */}
-        <section className="space-y-8">
+        <section className="space-y-8 bg-white/90 rounded-3xl shadow-sm border border-white/80 p-6 md:p-10">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -194,7 +204,7 @@ export default function OffresTarifs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="bg-white/80 backdrop-blur-md border border-white/80 shadow-lg rounded-3xl p-8 flex flex-col justify-between"
+              className="bg-soft-cream backdrop-blur-md border border-white/80 shadow-lg rounded-3xl p-8 flex flex-col justify-between"
             >
               <div>
                 <h3 className="text-xl font-serif font-semibold text-gray-900 mb-1">
@@ -265,9 +275,17 @@ export default function OffresTarifs() {
               </div>
             </motion.article>
           </div>
+
+          {/* CTA global soins énergétiques */}
+          <div className="mt-8 flex justify-end">
+            <Link to="/contact">
+              <button className="px-8 py-3 rounded-full bg-coral-DEFAULT text-white text-sm font-semibold shadow-md hover:bg-coral-light transition-colors">
+                Réserver un soin énergétique
+              </button>
+            </Link>
+          </div>
         </section>
       </div>
     </div>
   )
 }
-

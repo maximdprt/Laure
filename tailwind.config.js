@@ -13,9 +13,10 @@ export default {
           light: '#FFB6C1',
           pale: '#FFE5E5',
         },
+        // Teintes beige-rosé douces (remplace l'ancien bleu-gris)
         'blue-grey': {
-          DEFAULT: '#A8B8C8',
-          light: '#D0D8E0',
+          DEFAULT: '#C8B5A6', // beige rosé doux
+          light: '#F5E9DD',   // beige clair
         },
         soft: {
           pink: '#FF6B9D',

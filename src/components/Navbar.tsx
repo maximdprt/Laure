@@ -8,29 +8,32 @@ export default function Navbar() {
 
   const navLinks = [
     { path: '/', label: 'Accueil' },
+    { path: '/offres-tarifs', label: 'Offres & Tarifs' },
     { path: '/presentation', label: 'Présentation' },
-    { path: '/massage-sportif', label: 'Massage sportif' },
-    { path: '/prestations', label: 'Prestations' },
-    { path: '/tarifs', label: 'Tarifs' },
     { path: '/contact', label: 'Contact' },
   ]
 
   const isActive = (path: string) => location.pathname === path
 
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50">
+    <nav className="backdrop-blur-md bg-white/80 border-b border-white/60 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
+          {/* Logo + Branding */}
           <Link to="/" className="flex items-center space-x-3">
             <img
-              src="/images/Gemini_Generated_Image_enhx3nenhx3nenhx%20(1).png"
-              alt="NLIGHT Logo"
+              src="/images/Gemini_Generated_Image_xspuf8xspuf8xspu_cleanup.png"
+              alt="Massage Aura Performance Lacanau - Logo"
               className="h-12 w-auto"
             />
-            <span className="text-lg font-sans font-medium text-gray-800">
-              N.L.I.G.H.T.
-            </span>
+            <div className="flex flex-col leading-tight">
+              <span className="text-sm font-semibold tracking-[0.18em] uppercase text-gray-700">
+                MASSAGE AURA
+              </span>
+              <span className="text-xs font-medium tracking-[0.22em] uppercase text-gray-500">
+                PERFORMANCE LACANAU
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}

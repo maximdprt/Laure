@@ -6,6 +6,8 @@ export default function Contact() {
     name: '',
     email: '',
     phone: '',
+    typeMassage: '',
+    location: '',
     message: '',
   })
 
@@ -70,6 +72,23 @@ export default function Contact() {
               </button>
             </motion.a>
           </div>
+
+          {/* Bannière information acompte */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="mt-8 max-w-3xl"
+          >
+            <div className="bg-white/90 text-gray-900 rounded-xl p-4 md:p-5 shadow-md border border-white/60">
+              <p className="text-sm md:text-base leading-relaxed">
+                <span className="font-semibold">⚠️ Réservation :</span>{' '}
+                Pour valider votre créneau horaire, un acompte de réservation vous sera demandé
+                après confirmation de notre part. Cela permet de garantir votre rendez-vous et
+                d&apos;optimiser le planning.
+              </p>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -170,6 +189,59 @@ export default function Contact() {
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral-DEFAULT focus:border-transparent"
               />
+            </div>
+
+            <div>
+              <label htmlFor="typeMassage" className="block text-gray-700 font-medium mb-2">
+                Type de massage ou soin choisi *
+              </label>
+              <select
+                id="typeMassage"
+                name="typeMassage"
+                required
+                value={formData.typeMassage}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-coral-DEFAULT focus:border-transparent"
+              >
+                <option value="">Sélectionnez une option</option>
+                <option value="OCEAN PERFORMANCE 30">OCEAN PERFORMANCE – Activation 30’</option>
+                <option value="OCEAN RECOVERY 30">OCEAN RECOVERY – Detox 30’</option>
+                <option value="OCEAN ATHLETIC 60">OCEAN ATHLETIC – 60’</option>
+                <option value="OCEAN ELITE 90">OCEAN ELITE – 90’</option>
+                <option value="OCEAN FLOW">OCEAN FLOW – Soin énergétique</option>
+                <option value="OCEAN LUMINA">OCEAN LUMINA – 90’</option>
+                <option value="autre">Je ne sais pas encore / Autre</option>
+              </select>
+            </div>
+
+            <div>
+              <span className="block text-gray-700 font-medium mb-2">Lieu souhaité *</span>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <label className="flex items-center space-x-2 text-gray-700">
+                  <input
+                    type="radio"
+                    name="location"
+                    value="cabinet"
+                    checked={formData.location === 'cabinet'}
+                    onChange={handleChange}
+                    className="text-coral-DEFAULT focus:ring-coral-DEFAULT"
+                    required
+                  />
+                  <span>Cabinet – Espace HEAL LO LACANAU</span>
+                </label>
+                <label className="flex items-center space-x-2 text-gray-700">
+                  <input
+                    type="radio"
+                    name="location"
+                    value="domicile"
+                    checked={formData.location === 'domicile'}
+                    onChange={handleChange}
+                    className="text-coral-DEFAULT focus:ring-coral-DEFAULT"
+                    required
+                  />
+                  <span>Domicile (selon disponibilités)</span>
+                </label>
+              </div>
             </div>
 
             <div>

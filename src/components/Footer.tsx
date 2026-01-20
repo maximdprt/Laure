@@ -15,20 +15,20 @@ export default function Footer() {
                 <strong>Téléphone :</strong>
                 <br />
                 <a
-                  href="tel:0662099417"
+                  href="tel:+33600000000"
                   className="hover:text-coral-DEFAULT transition-colors"
                 >
-                  06 62 09 94 17
+                  06 00 00 00 00
                 </a>
               </p>
               <p>
                 <strong>Email :</strong>
                 <br />
                 <a
-                  href="mailto:contact@nlight-lauredupuch.fr"
+                  href="mailto:contact.massages.aura.performance@gmail.com"
                   className="hover:text-coral-DEFAULT transition-colors"
                 >
-                  contact@nlight-lauredupuch.fr
+                  contact.massages.aura.performance@gmail.com
                 </a>
               </p>
             </div>
@@ -51,9 +51,14 @@ export default function Footer() {
               Localisation
             </h3>
             <div className="space-y-2 text-gray-600 text-sm">
-              <p>Lacanau</p>
-              <p>Pessac</p>
-              <p>Andernos</p>
+              <p>
+                Espace HEAL LO LACANAU
+                <br />
+                7 rue Jean Michel
+                <br />
+                33680 LACANAU
+              </p>
+              <p className="mt-2">Séances au cabinet ou à domicile</p>
             </div>
           </div>
 
@@ -64,16 +69,22 @@ export default function Footer() {
             </h3>
             <nav className="space-y-2">
               <Link
+                to="/"
+                className="block text-gray-600 hover:text-coral-DEFAULT text-sm transition-colors"
+              >
+                Accueil
+              </Link>
+              <Link
+                to="/offres-tarifs"
+                className="block text-gray-600 hover:text-coral-DEFAULT text-sm transition-colors"
+              >
+                Offres &amp; Tarifs
+              </Link>
+              <Link
                 to="/presentation"
                 className="block text-gray-600 hover:text-coral-DEFAULT text-sm transition-colors"
               >
                 Présentation
-              </Link>
-              <Link
-                to="/prestations"
-                className="block text-gray-600 hover:text-coral-DEFAULT text-sm transition-colors"
-              >
-                Prestations
               </Link>
               <Link
                 to="/contact"
@@ -88,10 +99,10 @@ export default function Footer() {
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-gray-200 text-center text-gray-500 text-xs">
           <p>
-            © {new Date().getFullYear()} NLIGHT - Laure Dupuch. Tous droits réservés.
+            © {new Date().getFullYear()} MASSAGE AURA PERFORMANCE LACANAU. Tous droits réservés.
           </p>
           <p className="mt-2">
-            Praticienne en Chromobioénergie® - Mentions légales
+            Massages sportifs &amp; soins énergétiques - Espace HEAL LO LACANAU
           </p>
         </div>
       </div>

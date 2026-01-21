@@ -44,16 +44,22 @@ export default function Navbar() {
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`px-4 py-2 rounded-full text-sm font-sans font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-200 ${
                     active
-                      ? 'bg-coral-DEFAULT text-white shadow-md'
-                      : 'text-gray-700 hover:text-coral-DEFAULT hover:bg-coral-pale/40'
+                      ? 'bg-coral-DEFAULT border-coral-DEFAULT text-white shadow-lg shadow-coral-DEFAULT/30'
+                      : 'text-gray-800 border-coral-pale/70 hover:border-coral-DEFAULT hover:bg-coral-pale/60 hover:text-coral-DEFAULT hover:shadow-md hover:shadow-coral-DEFAULT/25'
                   }`}
                 >
                   {link.label}
                 </Link>
               )
             })}
+            <Link
+              to="/reservation"
+              className="px-5 py-2.5 rounded-full text-sm font-bold text-white bg-gradient-to-r from-coral-DEFAULT to-amber-400 shadow-lg shadow-coral-DEFAULT/35 hover:shadow-xl hover:from-coral-500 hover:to-amber-500 transition-transform duration-200 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-coral-200"
+            >
+              Réserver
+            </Link>
             {/* Icône de recherche */}
             <button
               className="text-gray-700 hover:text-coral-DEFAULT transition-colors"
@@ -112,16 +118,23 @@ export default function Navbar() {
                   key={link.path}
                   to={link.path}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-4 py-2 rounded-full text-base font-medium transition-colors ${
+                  className={`block px-4 py-2 rounded-full text-base font-semibold border transition-all ${
                     active
-                      ? 'bg-coral-DEFAULT text-white shadow-md'
-                      : 'text-gray-700 hover:text-coral-DEFAULT hover:bg-coral-pale/40'
+                      ? 'bg-coral-DEFAULT border-coral-DEFAULT text-white shadow-md'
+                      : 'text-gray-800 border-coral-pale/70 hover:border-coral-DEFAULT hover:bg-coral-pale/60 hover:text-coral-DEFAULT hover:shadow-md'
                   }`}
                 >
                   {link.label}
                 </Link>
               )
             })}
+            <Link
+              to="/reservation"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block px-4 py-2 rounded-full text-base font-bold text-white bg-gradient-to-r from-coral-DEFAULT to-amber-400 shadow-lg hover:shadow-xl hover:from-coral-500 hover:to-amber-500 transition-transform duration-200 transform hover:-translate-y-0.5"
+            >
+              Réserver
+            </Link>
           </motion.div>
         )}
       </div>

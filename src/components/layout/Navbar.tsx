@@ -71,15 +71,6 @@ const Navbar = () => {
               )}
             </Link>
           ))}
-          {/* CTA Button - Fond sage avec texte or */}
-          <Link
-            to="/reservation"
-            className="ml-2 px-6 py-2.5 rounded-full font-body font-bold text-sm transition-all duration-300 
-                     bg-sage text-gold border-2 border-gold 
-                     hover:bg-sage-dark shadow-soft"
-          >
-            Réserver
-          </Link>
         </div>
 
         {/* Mobile Menu Button - en or */}
@@ -114,14 +105,6 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                to="/reservation"
-                onClick={() => setMobileMenuOpen(false)}
-                className="bg-sage text-gold border-2 border-gold font-body font-bold px-6 py-3 rounded-lg text-center mt-4
-                         transition-all duration-300 hover:bg-sage-dark"
-              >
-                Réserver maintenant
-              </Link>
             </div>
           </motion.div>
         )}

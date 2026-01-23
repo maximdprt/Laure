@@ -7,91 +7,73 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Palette demandée : corail / poudré / vieux rose / beige sable / taupe / vert sauge
-        coral: {
-          DEFAULT: '#E56E73',   // Rose corail plus soutenu pour que les boutons soient bien visibles
-          light: '#F99B95',     // Rose Corail Doux – survol / variantes claires
-          pale: '#F4E9E2',      // Beige Sable rosé – blocs doux
+        // Palette Aura Massage
+        sage: {
+          DEFAULT: '#5E7D7E',  // Vert Sauge (Fond)
+          light: '#7A9596',
+          dark: '#4A6364',
         },
-        'blue-grey': {
-          DEFAULT: '#5A5A5A',   // Gris Taupe – texte principal si besoin
-          light: '#F4E9E2',     // Beige Sable – fonds de cartes
+        gold: {
+          DEFAULT: '#C5A367',  // Or Mat / Ocre
+          light: '#D4B87D',
+          dark: '#A88A4F',
         },
-        soft: {
-          pink: '#E6A8A8',
-          'pink-light': '#F4E9E2',
-          cream: '#F4E9E2',     // Beige Sable – fond de page
-          'green-muted': '#8DA089', // Vert Sauge / Olive – dessins floraux
-          'green-light': '#B7C7B2',
+        sand: {
+          DEFAULT: '#E5D3B3',  // Beige Sable
+          light: '#EFE4CE',
+          dark: '#D4C09A',
         },
-        // Dégradés subtils évoquant la lumière et l'énergie
-        light: {
-          blue: '#E8F4F8',
-          'blue-soft': '#D6EBF5',
-          green: '#E8F5E9',
-          'green-mint': '#D4F1E8',
-          violet: '#F3E5F5',
-          'violet-soft': '#E8DAF0',
-          gold: '#FFF8E1',
-          'gold-soft': '#FFE8D6',
+        cream: {
+          DEFAULT: '#F2E8D5',  // Crème Clair
+          light: '#FAF6EC',
+          dark: '#E8DBBF',
         },
-        energy: {
-          blue: '#4A90E2',
-          'blue-dark': '#357ABD',
-          green: '#52B788',
-          'green-dark': '#40916C',
-          violet: '#9D4EDD',
-          'violet-dark': '#7B2CBF',
-          gold: '#F4A261',
-          'gold-dark': '#E76F51',
+        dark: {
+          DEFAULT: '#1A1A1A',  // Noir Doux
+          light: '#2D2D2D',
+          muted: '#4A4A4A',
         },
-        // Pastels zen et couleurs arc-en-ciel
-        pastel: {
-          pink: '#FFE5E5',
-          orange: '#FFE8D6',
-          yellow: '#FFF8E1',
-          green: '#E8F5E9',
-          blue: '#E3F2FD',
-          indigo: '#E8EAF6',
-          purple: '#F3E5F5',
-          rose: '#FCE4EC',
-        },
-        accent: {
-          pink: '#F8BBD0',
-          orange: '#FFCCBC',
-          yellow: '#FFF9C4',
-          green: '#C5E1A5',
-          blue: '#90CAF9',
-          indigo: '#9FA8DA',
-          purple: '#CE93D8',
-        },
-        'off-white': '#F9F9F9',
+        // Utilitaires
+        white: '#FFFFFF',
+        success: '#5E9F7E',
+        error: '#C26E6E',
+        warning: '#C5A367',
       },
       boxShadow: {
-        'glow-blue': '0 0 20px rgba(74, 144, 226, 0.3)',
-        'glow-green': '0 0 20px rgba(82, 183, 136, 0.3)',
-        'glow-violet': '0 0 20px rgba(157, 78, 221, 0.3)',
-        'glow-gold': '0 0 20px rgba(244, 162, 97, 0.3)',
-        'glow-soft': '0 0 30px rgba(255, 255, 255, 0.5)',
+        'soft': '0 4px 20px rgba(30, 30, 30, 0.08)',
+        'soft-lg': '0 8px 40px rgba(30, 30, 30, 0.12)',
+        'gold': '0 4px 20px rgba(197, 163, 103, 0.25)',
+        'card': '0 2px 12px rgba(30, 30, 30, 0.06)',
+        'card-hover': '0 8px 30px rgba(30, 30, 30, 0.1)',
       },
       fontFamily: {
-        serif: ['Playfair Display', 'serif'],
-        sans: ['Montserrat', 'sans-serif'],
+        heading: ['Cormorant Garamond', 'Georgia', 'serif'],
+        body: ['Lato', 'sans-serif'],
       },
       backdropBlur: {
         xs: '2px',
       },
       animation: {
-        'fade-in': 'fadeIn 0.5s ease-in-out',
+        'fade-in': 'fadeIn 0.6s ease-out',
+        'fade-in-up': 'fadeInUp 0.6s ease-out',
         'slide-up': 'slideUp 0.5s ease-out',
+        'slide-down': 'slideDown 0.3s ease-out',
       },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
+        fadeInUp: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
         slideUp: {
           '0%': { transform: 'translateY(20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideDown: {
+          '0%': { transform: 'translateY(-10px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
         },
       },

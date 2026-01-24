@@ -1,6 +1,159 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { ChevronDown, Sparkles, Heart, Waves, Star } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ChevronDown, ChevronLeft, ChevronRight, Waves } from 'lucide-react'
+
+const carouselItems = [
+  {
+    image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=800&q=80',
+    title: 'Massage Sportif',
+    words: 'Performance · Récupération · Énergie'
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1600334129128-685c5582fd35?auto=format&fit=crop&w=800&q=80',
+    title: 'Soins Énergétiques',
+    words: 'Harmonie · Équilibre · Sérénité'
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=800&q=80',
+    title: 'Chromothérapie',
+    words: 'Couleurs · Lumière · Bien-être'
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=800&q=80',
+    title: 'Massage aux Huiles',
+    words: 'Détente · Douceur · Relaxation'
+  }
+]
+
+const ServicesCarousel = () => {
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [direction, setDirection] = useState(0)
+
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 300 : -300,
+      opacity: 0
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? 300 : -300,
+      opacity: 0
+    })
+  }
+
+  const paginate = (newDirection: number) => {
+    setDirection(newDirection)
+    setCurrentIndex((prev) => {
+      if (newDirection === 1) {
+        return prev === carouselItems.length - 1 ? 0 : prev + 1
+      }
+      return prev === 0 ? carouselItems.length - 1 : prev - 1
+    })
+  }
+
+  return (
+    <section className="section-padding bg-sage overflow-hidden">
+      <div className="container-custom">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <h2 className="font-heading font-bold text-3xl sm:text-4xl text-gold mb-4">
+            Mes spécialités
+          </h2>
+        </motion.div>
+
+        {/* Carousel Container */}
+        <div className="relative max-w-md mx-auto">
+          {/* Navigation Buttons */}
+          <button
+            onClick={() => paginate(-1)}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 sm:-translate-x-12 z-10
+                     w-12 h-12 rounded-full bg-gold/20 backdrop-blur-sm flex items-center justify-center
+                     hover:bg-gold/40 transition-all duration-300"
+            aria-label="Image précédente"
+          >
+            <ChevronLeft className="w-6 h-6 text-gold" />
+          </button>
+          
+          <button
+            onClick={() => paginate(1)}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 sm:translate-x-12 z-10
+                     w-12 h-12 rounded-full bg-gold/20 backdrop-blur-sm flex items-center justify-center
+                     hover:bg-gold/40 transition-all duration-300"
+            aria-label="Image suivante"
+          >
+            <ChevronRight className="w-6 h-6 text-gold" />
+          </button>
+
+          {/* Carousel Slide */}
+          <div className="relative aspect-[3/4] overflow-hidden rounded-2xl shadow-soft-lg">
+            <AnimatePresence initial={false} custom={direction}>
+              <motion.div
+                key={currentIndex}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: 'spring', stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.2 }
+                }}
+                className="absolute inset-0"
+              >
+                <img
+                  src={carouselItems[currentIndex].image}
+                  alt={carouselItems[currentIndex].title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-dark/80 via-dark/20 to-transparent" />
+                
+                {/* Text Content */}
+                <div className="absolute bottom-0 left-0 right-0 p-8 text-center">
+                  <h3 className="font-heading font-bold text-2xl sm:text-3xl text-gold mb-3">
+                    {carouselItems[currentIndex].title}
+                  </h3>
+                  <p className="text-cream font-body text-base">
+                    {carouselItems[currentIndex].words}
+                  </p>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Dots Indicator */}
+          <div className="flex justify-center gap-3 mt-6">
+            {carouselItems.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setDirection(index > currentIndex ? 1 : -1)
+                  setCurrentIndex(index)
+                }}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index === currentIndex 
+                    ? 'bg-gold w-8' 
+                    : 'bg-gold/30 hover:bg-gold/50'
+                }`}
+                aria-label={`Aller à l'image ${index + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
 
 const Home = () => {
   return (
@@ -73,30 +226,6 @@ const Home = () => {
               Une approche holistique pour votre récupération et votre bien-être.
             </motion.p>
 
-            {/* CTA Buttons - Fond sage avec texte or pour visibilité */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.8 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-            >
-              <Link
-                to="/reservation"
-                className="group bg-sage text-gold border-2 border-gold font-body font-bold text-lg px-10 py-4 rounded-full 
-                         shadow-soft hover:bg-sage-dark hover:scale-105 transition-all duration-300
-                         flex items-center gap-2"
-              >
-                <Star className="w-5 h-5 text-gold group-hover:rotate-12 transition-transform" />
-                Réserver un soin
-              </Link>
-              <Link
-                to="/massage-sportif"
-                className="border-2 border-gold text-gold font-body font-semibold text-lg px-10 py-4 
-                         rounded-full hover:bg-gold hover:text-dark hover:scale-105 transition-all duration-300"
-              >
-                Découvrir les soins
-              </Link>
-            </motion.div>
           </motion.div>
 
           {/* Scroll Indicator */}
@@ -177,83 +306,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Services Overview */}
-      <section className="section-padding bg-sage">
-        <div className="container-custom">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <span className="inline-block px-4 py-1 bg-gold/20 text-gold text-sm font-body font-medium rounded-full mb-4">
-              Nos soins
-            </span>
-            <h2 className="font-heading font-bold text-3xl sm:text-4xl text-cream mb-4">
-              Mes <span className="text-gold">spécialités</span>
-            </h2>
-            <p className="text-cream/70 max-w-2xl mx-auto font-body">
-              Des soins d'exception inspirés par la puissance de l'océan et la sagesse des traditions ancestrales.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Waves,
-                title: 'Massages Sportifs',
-                description: 'Préparation, récupération et performance. Des techniques adaptées aux sportifs et personnes actives.',
-                color: 'gold'
-              },
-              {
-                icon: Sparkles,
-                title: 'Soins Énergétiques',
-                description: 'Rééquilibrage, harmonisation et élévation. Une approche subtile pour votre bien-être profond.',
-                color: 'sand'
-              },
-              {
-                icon: Heart,
-                title: 'Chromothérapie',
-                description: 'Le pouvoir des couleurs au service de votre équilibre. Huiles Aura-Soma et élixirs floraux.',
-                color: 'cream'
-              }
-            ].map((service, index) => (
-              <motion.div
-                key={service.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-dark/20 backdrop-blur-sm rounded-2xl p-8 text-center group hover:bg-dark/30 transition-all duration-300 border border-cream/10"
-              >
-                <div className={`w-16 h-16 mx-auto mb-6 rounded-full bg-${service.color}/20 
-                              flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                  <service.icon className={`w-8 h-8 text-${service.color}`} />
-                </div>
-                <h3 className="font-heading font-bold text-xl text-cream mb-3">
-                  {service.title}
-                </h3>
-                <p className="text-cream/70 font-body text-sm">
-                  {service.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mt-12"
-          >
-            <Link to="/massage-sportif" className="inline-flex items-center gap-2 bg-dark text-gold border-2 border-gold font-body font-bold px-8 py-4 rounded-full hover:bg-sage-dark transition-all duration-300">
-              Découvrir tous les soins
-            </Link>
-          </motion.div>
-        </div>
-      </section>
+      {/* Services Carousel */}
+      <ServicesCarousel />
 
       {/* Qui je suis Section */}
       <section className="section-padding bg-sand">
@@ -293,12 +347,15 @@ const Home = () => {
                   un accompagnement sérieux et durable.
                 </p>
               </div>
-              <div className="mt-8 flex flex-wrap gap-4">
-                <Link to="/contact" className="btn-primary">
+              <div className="mt-8">
+                <Link 
+                  to="/contact" 
+                  className="inline-flex items-center gap-3 bg-sage text-gold border-2 border-gold 
+                           font-body font-bold px-8 py-4 rounded-full shadow-soft
+                           hover:bg-sage-dark hover:shadow-lg transition-all duration-300"
+                >
                   Me contacter
-                </Link>
-                <Link to="/reservation" className="btn-secondary">
-                  Prendre rendez-vous
+                  <ChevronRight className="w-5 h-5" />
                 </Link>
               </div>
             </motion.div>
@@ -328,30 +385,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="section-padding bg-gold">
-        <div className="container-custom">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center max-w-3xl mx-auto"
-          >
-            <h2 className="font-heading font-bold text-3xl sm:text-4xl text-dark mb-4">
-              Offrez à votre corps l'exigence qu'il mérite
-            </h2>
-            <p className="text-dark/80 mb-8 font-body text-lg">
-              Une signature bien-être haut de gamme. Réservez votre soin et découvrez 
-              une approche unique du massage sportif et de l'énergie.
-            </p>
-            <Link to="/reservation" className="inline-flex items-center gap-2 bg-sage text-gold border-2 border-gold font-body font-bold text-lg px-10 py-4 rounded-full hover:bg-sage-dark transition-all duration-300 shadow-soft">
-              <Star className="w-5 h-5 text-gold" />
-              Réserver maintenant
-            </Link>
-          </motion.div>
-        </div>
-      </section>
     </div>
   )
 }

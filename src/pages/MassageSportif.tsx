@@ -1,18 +1,311 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Clock, Check, Sparkles, Star } from 'lucide-react'
+import { Clock, Check, Sparkles, Star, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
+import { AnimatePresence } from 'framer-motion'
 import { massagesSportifs, soinsEnergetiques, PREMIUM_OPTION_PRICE } from '../constants/services'
 
-const benefits = [
-  'Améliorer la récupération musculaire',
-  'Soulager les tensions profondes',
-  'Prévenir les blessures liées à l\'effort',
-  'Optimiser la mobilité et la souplesse',
-  'Favoriser un état de bien-être durable',
-  'Accompagner la préparation et la performance',
-  'Offrir un véritable moment de lâcher-prise',
-  'Harmonisation de l\'aura et de l\'énergie'
+const benefitsCards = [
+  {
+    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&q=80',
+    title: 'Récupération',
+    description: 'Améliorer la récupération musculaire après l\'effort'
+  },
+  {
+    image: '/Gemini_Generated_Image_7ptbup7ptbup7ptb.png',
+    title: 'Détente',
+    description: 'Soulager les tensions profondes du corps'
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=600&q=80',
+    title: 'Prévention',
+    description: 'Prévenir les blessures liées à l\'effort'
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=600&q=80',
+    title: 'Mobilité',
+    description: 'Optimiser la souplesse et la mobilité'
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=600&q=80',
+    title: 'Bien-être',
+    description: 'Favoriser un état de bien-être durable'
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1591343395082-e120087004b4?auto=format&fit=crop&w=600&q=80',
+    title: 'Énergie',
+    description: 'Harmonisation de l\'aura et de l\'énergie'
+  }
 ]
+
+const BenefitsCarousel3D = () => {
+  const [currentIndex, setCurrentIndex] = useState(0)
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % benefitsCards.length)
+  }
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - 1 + benefitsCards.length) % benefitsCards.length)
+  }
+
+  const getCardStyle = (index: number) => {
+    const diff = index - currentIndex
+    const normalizedDiff = ((diff + benefitsCards.length) % benefitsCards.length)
+    
+    // Calcul de la position pour effet 3D
+    let translateX = 0
+    let translateZ = 0
+    let rotateY = 0
+    let opacity = 1
+    let scale = 1
+    let zIndex = 0
+
+    if (normalizedDiff === 0) {
+      // Carte centrale
+      translateX = 0
+      translateZ = 0
+      rotateY = 0
+      opacity = 1
+      scale = 1
+      zIndex = 3
+    } else if (normalizedDiff === 1 || normalizedDiff === benefitsCards.length - 1) {
+      // Cartes adjacentes
+      translateX = normalizedDiff === 1 ? 220 : -220
+      translateZ = -100
+      rotateY = normalizedDiff === 1 ? -25 : 25
+      opacity = 0.7
+      scale = 0.85
+      zIndex = 2
+    } else if (normalizedDiff === 2 || normalizedDiff === benefitsCards.length - 2) {
+      // Cartes plus éloignées
+      translateX = normalizedDiff === 2 ? 380 : -380
+      translateZ = -200
+      rotateY = normalizedDiff === 2 ? -35 : 35
+      opacity = 0.4
+      scale = 0.7
+      zIndex = 1
+    } else {
+      // Cartes cachées
+      opacity = 0
+      scale = 0.5
+      zIndex = 0
+    }
+
+    return {
+      transform: `translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`,
+      opacity,
+      zIndex,
+    }
+  }
+
+  return (
+    <section className="section-padding bg-sand overflow-hidden">
+      <div className="container-custom">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
+        >
+          <h2 className="font-heading font-semibold text-3xl text-dark mb-4">
+            Les <span className="text-gold">bénéfices</span> du massage sportif
+          </h2>
+        </motion.div>
+
+        {/* Carousel 3D */}
+        <div className="relative h-[450px] flex items-center justify-center" style={{ perspective: '1000px' }}>
+          {/* Navigation */}
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 sm:left-8 z-20 w-12 h-12 rounded-full bg-sage/80 backdrop-blur-sm 
+                     flex items-center justify-center hover:bg-sage transition-all duration-300 shadow-soft"
+            aria-label="Précédent"
+          >
+            <ChevronLeft className="w-6 h-6 text-gold" />
+          </button>
+
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 sm:right-8 z-20 w-12 h-12 rounded-full bg-sage/80 backdrop-blur-sm 
+                     flex items-center justify-center hover:bg-sage transition-all duration-300 shadow-soft"
+            aria-label="Suivant"
+          >
+            <ChevronRight className="w-6 h-6 text-gold" />
+          </button>
+
+          {/* Cards Container */}
+          <div className="relative w-full h-full flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
+            {benefitsCards.map((card, index) => {
+              const style = getCardStyle(index)
+              return (
+                <motion.div
+                  key={index}
+                  className="absolute w-64 sm:w-72 cursor-pointer"
+                  animate={style}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  onClick={() => setCurrentIndex(index)}
+                  style={{ transformStyle: 'preserve-3d' }}
+                >
+                  <div className="bg-white rounded-2xl overflow-hidden shadow-card-hover">
+                    {/* Image */}
+                    <div className="aspect-[4/3] overflow-hidden">
+                      <img
+                        src={card.image}
+                        alt={card.title}
+                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                      />
+                    </div>
+                    {/* Content */}
+                    <div className="p-6 text-center">
+                      <h3 className="font-heading font-bold text-xl text-gold mb-2">
+                        {card.title}
+                      </h3>
+                      <p className="text-dark/70 font-body text-sm">
+                        {card.description}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Dots Indicator */}
+        <div className="flex justify-center gap-2 mt-8">
+          {benefitsCards.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                index === currentIndex 
+                  ? 'bg-gold w-8' 
+                  : 'bg-gold/30 hover:bg-gold/50'
+              }`}
+              aria-label={`Aller à la carte ${index + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+const MassagesAccordion = () => {
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
+
+  const toggleAccordion = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index)
+  }
+
+  return (
+    <section className="section-padding bg-cream">
+      <div className="container-custom">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
+        >
+          <h2 className="font-heading font-semibold text-3xl text-dark mb-4">
+            Massages <span className="text-gold">Sportifs</span>
+          </h2>
+          <p className="text-dark/60 font-body">Préparation & Récupération</p>
+        </motion.div>
+
+        <div className="max-w-3xl mx-auto space-y-4">
+          {massagesSportifs.map((massage, index) => (
+            <motion.div
+              key={massage.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              className="overflow-hidden"
+            >
+              {/* Accordion Header */}
+              <button
+                onClick={() => toggleAccordion(index)}
+                className={`w-full flex items-center justify-between p-5 rounded-xl transition-all duration-300
+                          ${openIndex === index 
+                            ? 'bg-sage text-cream rounded-b-none' 
+                            : 'bg-white hover:bg-sand shadow-soft'
+                          }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="text-left">
+                    <div className="flex items-center gap-3">
+                      <h3 className={`font-heading font-semibold text-lg ${openIndex === index ? 'text-gold' : 'text-dark'}`}>
+                        {massage.name}
+                      </h3>
+                      {massage.popular && (
+                        <span className="bg-gold text-dark text-xs font-body font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <Star className="w-3 h-3" /> Populaire
+                        </span>
+                      )}
+                    </div>
+                    <p className={`text-sm font-body ${openIndex === index ? 'text-cream/80' : 'text-sage'}`}>
+                      {massage.subtitle}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <span className={`font-heading font-bold text-2xl ${openIndex === index ? 'text-gold' : 'text-gold'}`}>
+                      {massage.price}€
+                    </span>
+                    <p className={`text-xs font-body ${openIndex === index ? 'text-cream/70' : 'text-dark/50'}`}>
+                      {massage.duration} min
+                    </p>
+                  </div>
+                  <motion.div
+                    animate={{ rotate: openIndex === index ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ChevronDown className={`w-6 h-6 ${openIndex === index ? 'text-gold' : 'text-sage'}`} />
+                  </motion.div>
+                </div>
+              </button>
+
+              {/* Accordion Content */}
+              <AnimatePresence>
+                {openIndex === index && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    className="overflow-hidden"
+                  >
+                    <div className="bg-white p-6 rounded-b-xl shadow-soft border-t-0">
+                      <p className="text-dark/70 font-body mb-6 leading-relaxed">
+                        {massage.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-dark/60">
+                          <Clock className="w-5 h-5" />
+                          <span className="font-body">{massage.duration} minutes</span>
+                        </div>
+                        <Link
+                          to={`/reservation?soin=${massage.id}`}
+                          className="inline-flex items-center gap-2 bg-sage text-cream font-body font-semibold 
+                                   px-6 py-3 rounded-full hover:bg-sage-dark transition-all duration-300 shadow-soft"
+                        >
+                          Réserver
+                        </Link>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
 
 const MassageSportif = () => (
   <div className="min-h-screen pt-24">
@@ -77,92 +370,11 @@ const MassageSportif = () => (
       </div>
     </section>
 
-    {/* Bénéfices */}
-    <section className="section-padding bg-sand">
-      <div className="container-custom">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-12"
-        >
-          <h2 className="font-heading font-semibold text-3xl text-dark mb-4">
-            Les <span className="text-gold">bénéfices</span> du massage sportif
-          </h2>
-        </motion.div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {benefits.map((benefit, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
-              className="flex items-start gap-3 p-4 bg-white rounded-xl"
-            >
-              <Check className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
-              <span className="text-dark/80 text-sm font-body">{benefit}</span>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
+    {/* Bénéfices - Carousel 3D */}
+    <BenefitsCarousel3D />
 
-    {/* Massages Sportifs */}
-    <section className="section-padding bg-cream">
-      <div className="container-custom">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-12"
-        >
-          <h2 className="font-heading font-semibold text-3xl text-dark mb-4">
-            Massages <span className="text-gold">Sportifs</span>
-          </h2>
-          <p className="text-dark/60 font-body">Préparation & Récupération</p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {massagesSportifs.map((massage, i) => (
-            <motion.div
-              key={massage.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className={`card p-6 relative ${massage.popular ? 'ring-2 ring-gold' : ''}`}
-            >
-              {massage.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="bg-gold text-dark text-xs font-body font-semibold px-3 py-1 rounded-full flex items-center gap-1">
-                    <Star className="w-3 h-3" /> Populaire
-                  </span>
-                </div>
-              )}
-              <div className="text-center mb-4">
-                <h3 className="font-heading font-semibold text-lg text-dark">{massage.name}</h3>
-                <p className="text-sage text-sm font-body">{massage.subtitle}</p>
-              </div>
-              <div className="flex items-center justify-center gap-2 text-dark/60 text-sm mb-4">
-                <Clock className="w-4 h-4" />
-                <span>{massage.duration} min</span>
-              </div>
-              <div className="text-center mb-4">
-                <span className="font-heading font-semibold text-3xl text-gold">{massage.price}€</span>
-              </div>
-              <p className="text-dark/70 text-sm text-center font-body">{massage.description}</p>
-              <Link
-                to={`/reservation?soin=${massage.id}`}
-                className="mt-6 block w-full text-center py-2 rounded-lg bg-sage text-cream font-body font-medium hover:bg-sage-dark transition-colors"
-              >
-                Réserver
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
+    {/* Massages Sportifs - Accordion */}
+    <MassagesAccordion />
 
     {/* Option Premium */}
     <section className="py-12 bg-gold">

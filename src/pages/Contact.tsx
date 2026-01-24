@@ -127,18 +127,18 @@ const Contact = () => {
                 <div className="bg-sage rounded-2xl p-6 mt-6">
                   <h3 className="font-heading font-semibold text-cream mb-4">Suivez-moi</h3>
                   <div className="flex gap-3">
-                    <a 
-                      href="https://www.instagram.com/laure_dupuch/" 
-                      target="_blank" 
+                    <a
+                      href="https://www.instagram.com/laure_dupuch/"
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 px-5 py-3 rounded-xl bg-cream/10 hover:bg-gold transition-colors group"
                     >
                       <Instagram className="w-5 h-5 text-cream group-hover:text-dark" />
                       <span className="text-cream group-hover:text-dark font-body text-sm font-medium">@laure_dupuch</span>
                     </a>
-                    <a 
-                      href="https://www.linkedin.com/in/laure-dupuch/" 
-                      target="_blank" 
+                    <a
+                      href="https://www.linkedin.com/in/laure-dupuch/"
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 px-5 py-3 rounded-xl bg-cream/10 hover:bg-gold transition-colors group"
                     >
@@ -210,7 +210,7 @@ const Contact = () => {
       {/* Map Section */}
       <section className="h-80 bg-sand relative">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d11338.!2d-1.19!3d44.98!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd54a3!2sLacanau!5e0!3m2!1sfr!2sfr!4v1700000000!5m2!1sfr!2sfr"
+          src="https://maps.google.com/maps?q=HEAL%20LO%20LACANAU%207%20rue%20Jean%20Michel%2033680%20LACANAU&t=&z=16&ie=UTF8&iwloc=&output=embed"
           width="100%" height="100%" style={{ border: 0 }} allowFullScreen loading="lazy"
           referrerPolicy="no-referrer-when-downgrade" title="Localisation Aura Massage"
         />

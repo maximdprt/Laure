@@ -20,9 +20,12 @@ const PageLoader = () => (
   </div>
 )
 
+import ScrollToTop from './components/layout/ScrollToTop'
+
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-grow">

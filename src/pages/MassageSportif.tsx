@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Clock, Check, Sparkles, Star, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Clock, Check, Star, ChevronLeft, ChevronRight } from 'lucide-react'
 import { massagesSportifs, soinsEnergetiques, PREMIUM_OPTION_PRICE } from '../constants/services'
 
 const benefitsCards = [
@@ -497,7 +497,7 @@ const MassageSportif = () => (
                   {soin.benefits && (
                     <div className="mb-8">
                       <h4 className="font-heading font-semibold text-dark mb-4 flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-gold" />
+                        <Check className="w-5 h-5 text-gold" />
                         Bienfaits
                       </h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

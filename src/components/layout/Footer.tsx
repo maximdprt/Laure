@@ -138,9 +138,6 @@ const Footer = () => {
             <p className="text-cream/70 text-sm font-body">
               <strong className="text-gold">Massage à domicile</strong> : Lacanau · Lacanau Océan · Le Porge · Carcans · Hourtin · Saumos · Le Temple · Sainte-Hélène
             </p>
-            <p className="text-cream/50 text-xs mt-2">
-              Mots-clés : massage lacanau, masseur lacanau, massage sportif lacanau océan, massage bien-être lacanau, masseuse lacanau
-            </p>
           </div>
         </div>
 

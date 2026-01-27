@@ -402,9 +402,9 @@ const Home = () => {
             </h2>
             <div className="flex items-center justify-center gap-2 mb-4">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-6 h-6 fill-gold text-gold" />
+                <Star key={i} className={`w-6 h-6 ${i < 4 ? 'fill-gold text-gold' : 'fill-gold/50 text-gold/50'}`} />
               ))}
-              <span className="ml-2 text-dark/70 font-body">5/5 basé sur 47 avis</span>
+              <span className="ml-2 text-dark/70 font-body">4,7/5 basé sur 47 avis</span>
             </div>
           </motion.div>
 
@@ -412,19 +412,19 @@ const Home = () => {
             {[
               {
                 name: "Sophie M.",
-                text: "Excellent massage sportif à Lacanau ! Après une semaine de surf intensive, Laure a su détendre toutes mes tensions. Je recommande vivement ce massage à Lacanau Océan.",
+                text: "J'avais le dos en compote après ma semaine de surf... Laure m'a vraiment sauvée ! Elle a pris le temps de comprendre où j'avais mal et le massage était top. Je suis ressortie légère, ça faisait longtemps.",
                 rating: 5,
                 date: "Décembre 2025"
               },
               {
                 name: "Thomas L.",
-                text: "Enfin un bon massage à Lacanau ! Praticienne très professionnelle, ambiance zen. Le massage sportif m'a fait un bien fou. Cabinet facile d'accès près de la plage.",
+                text: "Très bon moment, l'ambiance est apaisante et Laure sait ce qu'elle fait. Mon massage sportif m'a bien détendu les jambes après mes sessions vélo. Je recommande, et le cabinet est facile à trouver !",
                 rating: 5,
                 date: "Novembre 2025"
               },
               {
                 name: "Marie-Claire D.",
-                text: "Superbe découverte de la chromothérapie. Ce massage à Lacanau Océan était une expérience unique. Laure est à l'écoute et très compétente. Je reviendrai !",
+                text: "C'était ma première chromothérapie et j'étais un peu sceptique au départ, mais finalement j'ai adoré. Laure explique bien ce qu'elle fait et on se sent vraiment en confiance. J'y retournerai c'est sûr.",
                 rating: 5,
                 date: "Octobre 2025"
               }

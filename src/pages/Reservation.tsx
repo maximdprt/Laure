@@ -6,7 +6,7 @@ import { allSoins, PREMIUM_OPTION_PRICE, DEPOSIT_PERCENTAGE, DEFAULT_TIME_SLOTS,
 import type { Soin, ClientInfo } from '../types'
 
 interface BookingData {
-  soin: Soin | null
+  soins: Soin[]
   premiumOption: boolean
   date: Date | null
   timeSlot: string | null
@@ -14,7 +14,7 @@ interface BookingData {
 }
 
 const steps = [
-  { id: 1, label: 'Soin' },
+  { id: 1, label: 'Soins' },
   { id: 2, label: 'Date' },
   { id: 3, label: 'Coordonnées' },
   { id: 4, label: 'Acompte' }
@@ -28,7 +28,7 @@ const Reservation = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [formData, setFormData] = useState<ClientInfo>({ firstName: '', lastName: '', email: '', phone: '' })
   const [bookingData, setBookingData] = useState<BookingData>({
-    soin: null, premiumOption: false, date: null, timeSlot: null, clientInfo: null
+    soins: [], premiumOption: false, date: null, timeSlot: null, clientInfo: null
   })
 
   // Pre-select soin from URL
@@ -36,9 +36,21 @@ const Reservation = () => {
     const soinId = searchParams.get('soin')
     if (soinId) {
       const soin = getSoinById(soinId)
-      if (soin) setBookingData(prev => ({ ...prev, soin }))
+      if (soin) setBookingData(prev => ({ ...prev, soins: [soin] }))
     }
   }, [searchParams])
+
+  // Toggle soin selection
+  const toggleSoin = (soin: Soin) => {
+    setBookingData(prev => {
+      const isSelected = prev.soins.some(s => s.id === soin.id)
+      if (isSelected) {
+        return { ...prev, soins: prev.soins.filter(s => s.id !== soin.id) }
+      } else {
+        return { ...prev, soins: [...prev.soins, soin] }
+      }
+    })
+  }
 
   // Calendar generation
   const calendarDays = useMemo(() => {
@@ -63,13 +75,16 @@ const Reservation = () => {
   const isSameDay = (d1: Date, d2: Date | null) => d2 && d1.toDateString() === d2.toDateString()
 
   // Price calculations
-  const totalPrice = (bookingData.soin?.price || 0) + (premiumOption && bookingData.soin?.category === 'sportif' ? PREMIUM_OPTION_PRICE : 0)
+  const soinsTotal = bookingData.soins.reduce((sum, soin) => sum + soin.price, 0)
+  const hasSportifSoin = bookingData.soins.some(s => s.category === 'sportif')
+  const totalPrice = soinsTotal + (premiumOption && hasSportifSoin ? PREMIUM_OPTION_PRICE : 0)
   const depositAmount = Math.ceil(totalPrice * DEPOSIT_PERCENTAGE / 100)
+  const totalDuration = bookingData.soins.reduce((sum, soin) => sum + soin.duration, 0)
 
   // Step validation
   const canProceed = () => {
     switch (currentStep) {
-      case 1: return bookingData.soin !== null
+      case 1: return bookingData.soins.length > 0
       case 2: return bookingData.date && bookingData.timeSlot
       case 3: return formData.firstName && formData.lastName && formData.email && formData.phone
       default: return true
@@ -99,10 +114,16 @@ const Reservation = () => {
             </div>
             <h2 className="font-heading font-semibold text-2xl text-dark mb-4">Réservation confirmée !</h2>
             <p className="text-dark/70 mb-6 font-body">
-              Merci {bookingData.clientInfo?.firstName} ! Votre rendez-vous pour <span className="font-semibold text-dark">{bookingData.soin?.name}</span> a bien été enregistré.
+              Merci {bookingData.clientInfo?.firstName} ! Votre rendez-vous a bien été enregistré.
             </p>
             <div className="bg-sand rounded-lg p-4 mb-6 text-left">
               <div className="space-y-2 text-sm font-body">
+                <div className="mb-3 pb-3 border-b border-dark/10">
+                  <span className="text-dark/60 block mb-2">Soins réservés :</span>
+                  {bookingData.soins.map(soin => (
+                    <div key={soin.id} className="font-medium text-dark">{soin.name}</div>
+                  ))}
+                </div>
                 <div className="flex justify-between">
                   <span className="text-dark/60">Date</span>
                   <span className="font-medium text-dark">{bookingData.date?.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
@@ -165,10 +186,12 @@ const Reservation = () => {
             <AnimatePresence mode="wait">
               <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 
-                {/* Step 1: Select Soin */}
+                {/* Step 1: Select Soins */}
                 {currentStep === 1 && (
                   <div>
-                    <h2 className="font-heading font-semibold text-xl text-dark mb-6">Choisissez votre soin</h2>
+                    <h2 className="font-heading font-semibold text-xl text-dark mb-2">Choisissez vos soins</h2>
+                    <p className="text-dark/60 text-sm font-body mb-6">Vous pouvez sélectionner plusieurs soins</p>
+                    
                     {['sportif', 'energie'].map(category => (
                       <div key={category} className="mb-6">
                         <h3 className="font-body font-medium text-sage text-sm uppercase tracking-wider mb-3">
@@ -176,38 +199,52 @@ const Reservation = () => {
                         </h3>
                         <div className="space-y-2">
                           {allSoins.filter(s => s.category === category).map(soin => {
-                            const isSelected = bookingData.soin?.id === soin.id
+                            const isSelected = bookingData.soins.some(s => s.id === soin.id)
                             return (
-                              <button
+                              <motion.button
                                 key={soin.id}
-                                onClick={() => { setBookingData(prev => ({ ...prev, soin })); setPremiumOption(false) }}
-                                className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
-                                  isSelected ? 'border-sage bg-sage/5' : 'border-sand hover:border-sage/50'
-                                } ${soin.popular || soin.premium ? 'ring-2 ring-gold ring-offset-2' : ''}`}
+                                onClick={() => toggleSoin(soin)}
+                                whileTap={{ scale: 0.98 }}
+                                className={`w-full p-4 rounded-xl border-2 text-left transition-all duration-300 ${
+                                  isSelected 
+                                    ? 'border-sage bg-sage text-cream shadow-lg scale-[1.02]' 
+                                    : 'border-sand hover:border-sage/50 bg-white'
+                                }`}
                               >
                                 <div className="flex items-center justify-between">
-                                  <div>
-                                    <div className="flex items-center gap-2">
-                                      <span className="font-heading font-semibold text-dark">{soin.name}</span>
-                                      {isSelected && <Check className="w-4 h-4 text-sage" />}
+                                  <div className="flex items-center gap-3">
+                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                                      isSelected ? 'bg-gold border-gold' : 'border-dark/30'
+                                    }`}>
+                                      {isSelected && <Check className="w-4 h-4 text-dark" />}
                                     </div>
-                                    <span className="text-dark/60 text-sm font-body">{soin.subtitle}</span>
+                                    <div>
+                                      <span className={`font-heading font-semibold block ${isSelected ? 'text-cream' : 'text-dark'}`}>
+                                        {soin.name}
+                                      </span>
+                                      <span className={`text-sm font-body ${isSelected ? 'text-cream/80' : 'text-dark/60'}`}>
+                                        {soin.subtitle}
+                                      </span>
+                                    </div>
                                   </div>
                                   <div className="text-right">
-                                    <span className="font-heading font-semibold text-gold">{soin.price}€</span>
-                                    <div className="text-xs text-dark/50 font-body flex items-center gap-1">
+                                    <span className={`font-heading font-semibold ${isSelected ? 'text-gold' : 'text-gold'}`}>
+                                      {soin.price}€
+                                    </span>
+                                    <div className={`text-xs font-body flex items-center gap-1 ${isSelected ? 'text-cream/70' : 'text-dark/50'}`}>
                                       <Clock className="w-3 h-3" /> {soin.duration} min
                                     </div>
                                   </div>
                                 </div>
-                              </button>
+                              </motion.button>
                             )
                           })}
                         </div>
                       </div>
                     ))}
-                    {bookingData.soin?.category === 'sportif' && (
-                      <div className="p-4 rounded-xl bg-gold/10 border border-gold/30">
+
+                    {hasSportifSoin && (
+                      <div className="mt-4 p-4 rounded-xl bg-gold/10 border border-gold/30">
                         <label className="flex items-center gap-3 cursor-pointer">
                           <input type="checkbox" checked={premiumOption} onChange={(e) => setPremiumOption(e.target.checked)}
                             className="w-5 h-5 rounded border-gold text-gold focus:ring-gold" />
@@ -218,6 +255,39 @@ const Reservation = () => {
                         </label>
                       </div>
                     )}
+
+                    {/* Total */}
+                    <div className="mt-6 pt-6 border-t-2 border-sage/20">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="font-heading font-bold text-lg text-dark">TOTAL</span>
+                          {bookingData.soins.length > 0 && (
+                            <span className="text-dark/50 text-sm ml-2">
+                              ({bookingData.soins.length} soin{bookingData.soins.length > 1 ? 's' : ''} · {totalDuration} min)
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <span className="font-heading font-bold text-3xl text-gold">{totalPrice}€</span>
+                        </div>
+                      </div>
+                      {bookingData.soins.length > 0 && (
+                        <div className="mt-3 space-y-1">
+                          {bookingData.soins.map(soin => (
+                            <div key={soin.id} className="flex justify-between text-sm text-dark/60">
+                              <span>{soin.name}</span>
+                              <span>{soin.price}€</span>
+                            </div>
+                          ))}
+                          {premiumOption && hasSportifSoin && (
+                            <div className="flex justify-between text-sm text-dark/60">
+                              <span>Option Premium</span>
+                              <span>+{PREMIUM_OPTION_PRICE}€</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -332,10 +402,16 @@ const Reservation = () => {
                     <div className="bg-sand rounded-xl p-6 mb-6">
                       <h3 className="font-heading font-semibold text-dark mb-4">Récapitulatif</h3>
                       <div className="space-y-2 text-sm font-body">
-                        <div className="flex justify-between"><span className="text-dark/60">{bookingData.soin?.name}</span><span className="text-dark">{bookingData.soin?.price}€</span></div>
-                        {premiumOption && bookingData.soin?.category === 'sportif' && (
+                        {bookingData.soins.map(soin => (
+                          <div key={soin.id} className="flex justify-between">
+                            <span className="text-dark/60">{soin.name}</span>
+                            <span className="text-dark">{soin.price}€</span>
+                          </div>
+                        ))}
+                        {premiumOption && hasSportifSoin && (
                           <div className="flex justify-between"><span className="text-dark/60">Option Premium</span><span className="text-dark">+{PREMIUM_OPTION_PRICE}€</span></div>
                         )}
+                        <div className="flex justify-between"><span className="text-dark/60">Durée totale</span><span className="text-dark">{totalDuration} min</span></div>
                         <div className="flex justify-between"><span className="text-dark/60">Date</span><span className="text-dark">{bookingData.date?.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}</span></div>
                         <div className="flex justify-between"><span className="text-dark/60">Heure</span><span className="text-dark">{bookingData.timeSlot}</span></div>
                         <div className="border-t border-dark/10 pt-3 mt-3">

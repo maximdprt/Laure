@@ -28,13 +28,14 @@ const Contact = () => {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gold/20 text-gold text-sm font-body font-medium rounded-full mb-6">
               <Waves className="w-4 h-4" />
-              Lacanau Océan
+              Massage Lacanau Océan
             </div>
             <h1 className="font-heading font-bold text-4xl sm:text-5xl mb-4">
-              Me <span className="text-gold">Contacter</span>
+              Contact <span className="text-gold">Massage Lacanau</span>
             </h1>
             <p className="text-cream/80 text-lg font-body">
-              Une question ? Besoin d'informations ? N'hésitez pas à me contacter.
+              Besoin d'un massage à Lacanau ? Contactez-moi pour réserver votre séance 
+              au cabinet ou à domicile sur Lacanau et ses environs.
             </p>
           </motion.div>
         </div>
@@ -212,7 +213,7 @@ const Contact = () => {
         <iframe
           src="https://maps.google.com/maps?q=HEAL%20LO%20LACANAU%207%20rue%20Jean%20Michel%2033680%20LACANAU&t=&z=16&ie=UTF8&iwloc=&output=embed"
           width="100%" height="100%" style={{ border: 0 }} allowFullScreen loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade" title="Localisation Aura Massage"
+          referrerPolicy="no-referrer-when-downgrade" title="Massage Lacanau - Localisation du cabinet Aura Massage à Lacanau Océan"
         />
       </section>
     </div>

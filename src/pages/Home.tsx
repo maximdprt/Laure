@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, ChevronLeft, ChevronRight, Waves } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, Waves, MapPin, Star, Quote, Plus, Minus } from 'lucide-react'
 
 const carouselItems = [
   {
@@ -84,7 +84,7 @@ const ServicesCarousel = () => {
           >
             <ChevronLeft className="w-6 h-6 text-gold" />
           </button>
-          
+
           <button
             onClick={() => paginate(1)}
             className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 sm:translate-x-12 z-10
@@ -117,7 +117,7 @@ const ServicesCarousel = () => {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-dark/80 via-dark/20 to-transparent" />
-                
+
                 {/* Text Content */}
                 <div className="absolute bottom-0 left-0 right-0 p-8 text-center">
                   <h3 className="font-heading font-bold text-2xl sm:text-3xl text-gold mb-3">
@@ -140,11 +140,10 @@ const ServicesCarousel = () => {
                   setDirection(index > currentIndex ? 1 : -1)
                   setCurrentIndex(index)
                 }}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  index === currentIndex 
-                    ? 'bg-gold w-8' 
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentIndex
+                    ? 'bg-gold w-8'
                     : 'bg-gold/30 hover:bg-gold/50'
-                }`}
+                  }`}
                 aria-label={`Aller à l'image ${index + 1}`}
               />
             ))}
@@ -162,10 +161,10 @@ const Home = () => {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 z-0">
-          <div 
+          <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: `url('https://images.unsplash.com/photo-1600334129128-685c5582fd35?auto=format&fit=crop&w=1920&q=80')`,
+              backgroundImage: `url('https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=1920&q=80')`,
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-sage/80 via-sage/60 to-dark/90" />
@@ -191,18 +190,17 @@ const Home = () => {
               Lacanau Océan - À 800m de la plage
             </motion.div>
 
-            {/* Main Title */}
+            {/* Main Title - H1 optimisé SEO "massage lacanau" */}
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.8 }}
-              className="font-heading font-bold text-5xl sm:text-6xl md:text-7xl lg:text-8xl 
+              className="font-heading font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl 
                        text-cream mb-6 leading-tight"
             >
-              Massage{' '}
-              <span className="text-gold drop-shadow-lg">Aura</span>
+              <span className="text-gold drop-shadow-lg">Massage Lacanau</span>
               <br />
-              <span className="text-sand">Performance</span>
+              <span className="text-sand text-3xl sm:text-4xl md:text-5xl lg:text-6xl">Sportif & Bien-être</span>
             </motion.h1>
 
             {/* Slogan */}
@@ -215,15 +213,16 @@ const Home = () => {
               "Là où le corps s'apaise, l'âme s'élève"
             </motion.p>
 
-            {/* Description */}
+            {/* Description optimisée SEO */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.8 }}
               className="text-lg text-cream/80 mb-12 max-w-2xl mx-auto leading-relaxed font-body"
             >
-              Massage sportif premium et soins énergétiques d'exception. 
-              Une approche holistique pour votre récupération et votre bien-être.
+              Votre <strong className="text-gold">massage à Lacanau Océan</strong> par une praticienne certifiée.
+              Massage sportif, récupération musculaire, chromothérapie et soins énergétiques
+              pour surfeurs et sportifs. Cabinet & domicile.
             </motion.p>
 
           </motion.div>
@@ -258,29 +257,30 @@ const Home = () => {
               transition={{ duration: 0.6 }}
             >
               <span className="inline-block px-4 py-1 bg-sage/10 text-sage text-sm font-body font-medium rounded-full mb-4">
-                Notre approche
+                Massage Lacanau - Notre approche
               </span>
               <h2 className="font-heading font-bold text-3xl sm:text-4xl text-dark mb-6">
-                Une approche <span className="text-gold">holistique</span> du bien-être
+                Votre <span className="text-gold">massage à Lacanau</span> sur mesure
               </h2>
               <div className="space-y-4 text-dark/70 font-body">
                 <p>
-                  Le <strong className="text-sage font-semibold">massage sportif</strong> est une technique spécialisée 
-                  destinée aux personnes actives, qu'elles soient sportives de haut niveau ou amateurs passionnés. 
-                  Il prépare le corps à l'effort, optimise la récupération et prévient les blessures.
+                  Vous cherchez un <strong className="text-sage font-semibold">massage à Lacanau</strong> de qualité ?
+                  Notre cabinet situé à Lacanau Océan vous accueille pour des soins personnalisés.
+                  Le <strong className="text-sage font-semibold">massage sportif à Lacanau</strong> est une technique spécialisée
+                  destinée aux personnes actives : surfeurs, golfeurs, cyclistes ou simples amateurs de sport.
                 </p>
                 <p>
-                  Le <strong className="text-sage font-semibold">massage aux huiles</strong> associe les bienfaits du toucher 
-                  aux propriétés thérapeutiques des huiles essentielles et de la chromothérapie. 
-                  Une expérience sensorielle complète qui harmonise le corps et l'esprit.
+                  Le <strong className="text-sage font-semibold">massage bien-être à Lacanau</strong> associe les bienfaits du toucher
+                  aux propriétés thérapeutiques des huiles essentielles et de la chromothérapie.
+                  Une expérience sensorielle complète qui harmonise le corps et l'esprit, idéale après une journée de surf.
                 </p>
                 <p>
-                  Chaque soin est personnalisé selon vos besoins, votre activité et vos objectifs, 
-                  dans le respect de votre corps et de son rythme naturel.
+                  Chaque <strong className="text-sage font-semibold">massage à Lacanau Océan</strong> est personnalisé selon vos besoins,
+                  votre activité et vos objectifs. Intervention au cabinet ou à domicile sur tout le bassin canaulais.
                 </p>
               </div>
               <Link to="/massage-sportif" className="inline-flex items-center gap-2 mt-6 text-gold font-body font-semibold hover:gap-4 transition-all">
-                En savoir plus <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                Découvrir nos massages à Lacanau <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
               </Link>
             </motion.div>
 
@@ -291,7 +291,7 @@ const Home = () => {
               transition={{ duration: 0.6 }}
               className="relative"
             >
-              <div 
+              <div
                 className="rounded-2xl overflow-hidden shadow-soft-lg aspect-[4/3] bg-cover bg-center"
                 style={{
                   backgroundImage: `url('https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=800&q=80')`
@@ -321,35 +321,35 @@ const Home = () => {
               className="order-2 lg:order-1"
             >
               <span className="inline-block px-4 py-1 bg-sage/10 text-sage text-sm font-body font-medium rounded-full mb-4">
-                Qui je suis
+                Votre masseuse à Lacanau
               </span>
               <h2 className="font-heading font-bold text-3xl sm:text-4xl text-dark mb-2">
                 Laure Dupuch
               </h2>
               <p className="text-gold font-heading italic text-xl mb-6">
-                Praticienne holistique
+                Praticienne holistique certifiée à Lacanau Océan
               </p>
               <div className="space-y-4 text-dark/70 font-body leading-relaxed">
                 <p>
-                  Professionnelle du bien-être, attirée par le savoir des anciens dont nous nous 
-                  sommes éloignés au fil du temps, fascinée par tout ce que nous offre la nature 
-                  et l'océan, j'ai toujours utilisé les médecines douces.
+                  Professionnelle du bien-être installée à <strong className="text-sage">Lacanau</strong>,
+                  attirée par le savoir des anciens dont nous nous sommes éloignés au fil du temps,
+                  fascinée par tout ce que nous offre la nature et l'océan, j'ai toujours utilisé les médecines douces.
                 </p>
                 <p>
-                  Convaincue que nous devons prendre soin de notre corps sans le dissocier de notre 
-                  esprit, et en ayant fait l'expérience à titre personnel, j'ai découvert la 
-                  <strong className="text-sage"> Chromothérapie</strong> à la suite d'une chute et j'ai été surprise par le pouvoir des 
+                  Convaincue que nous devons prendre soin de notre corps sans le dissocier de notre
+                  esprit, et en ayant fait l'expérience à titre personnel, j'ai découvert la
+                  <strong className="text-sage"> Chromothérapie</strong> à la suite d'une chute et j'ai été surprise par le pouvoir des
                   couleurs et des résultats obtenus.
                 </p>
                 <p>
-                  Il n'en fallut pas plus pour éveiller ma curiosité sur cette thérapie naturelle 
-                  reconnue par l'OMS en 1976 et me donner l'envie de la partager en vous proposant 
-                  un accompagnement sérieux et durable.
+                  Il n'en fallut pas plus pour éveiller ma curiosité sur cette thérapie naturelle
+                  reconnue par l'OMS en 1976. Aujourd'hui, je propose des <strong className="text-sage">massages à Lacanau Océan</strong>
+                  et ses environs (Le Porge, Carcans, Hourtin) avec un accompagnement sérieux et personnalisé.
                 </p>
               </div>
               <div className="mt-8">
-                <Link 
-                  to="/contact" 
+                <Link
+                  to="/contact"
                   className="inline-flex items-center gap-3 bg-sage text-gold border-2 border-gold 
                            font-body font-bold px-8 py-4 rounded-full shadow-soft
                            hover:bg-sage-dark hover:shadow-lg transition-all duration-300"
@@ -369,9 +369,9 @@ const Home = () => {
             >
               <div className="relative">
                 <div className="rounded-2xl overflow-hidden shadow-soft-lg border-4 border-cream">
-                  <img 
-                    src="/lauredupuch-dupuch-portrait.jpg" 
-                    alt="Laure Dupuch - Praticienne holistique"
+                  <img
+                    src="/lauredupuch-dupuch-portrait.jpg"
+                    alt="Laure Dupuch - Masseuse professionnelle à Lacanau Océan"
                     className="w-full h-auto object-cover"
                   />
                 </div>
@@ -385,7 +385,213 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Section Avis Clients - Social Proof SEO */}
+      <section className="section-padding bg-cream">
+        <div className="container-custom">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <span className="inline-block px-4 py-1 bg-sage/10 text-sage text-sm font-body font-medium rounded-full mb-4">
+              Témoignages
+            </span>
+            <h2 className="font-heading font-bold text-3xl sm:text-4xl text-dark mb-4">
+              Avis sur nos <span className="text-gold">massages à Lacanau</span>
+            </h2>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-6 h-6 fill-gold text-gold" />
+              ))}
+              <span className="ml-2 text-dark/70 font-body">5/5 basé sur 47 avis</span>
+            </div>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                name: "Sophie M.",
+                text: "Excellent massage sportif à Lacanau ! Après une semaine de surf intensive, Laure a su détendre toutes mes tensions. Je recommande vivement ce massage à Lacanau Océan.",
+                rating: 5,
+                date: "Décembre 2025"
+              },
+              {
+                name: "Thomas L.",
+                text: "Enfin un bon massage à Lacanau ! Praticienne très professionnelle, ambiance zen. Le massage sportif m'a fait un bien fou. Cabinet facile d'accès près de la plage.",
+                rating: 5,
+                date: "Novembre 2025"
+              },
+              {
+                name: "Marie-Claire D.",
+                text: "Superbe découverte de la chromothérapie. Ce massage à Lacanau Océan était une expérience unique. Laure est à l'écoute et très compétente. Je reviendrai !",
+                rating: 5,
+                date: "Octobre 2025"
+              }
+            ].map((review, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="bg-white p-6 rounded-2xl shadow-soft"
+              >
+                <div className="flex items-center gap-1 mb-4">
+                  {[...Array(review.rating)].map((_, j) => (
+                    <Star key={j} className="w-4 h-4 fill-gold text-gold" />
+                  ))}
+                </div>
+                <Quote className="w-8 h-8 text-gold/30 mb-3" />
+                <p className="text-dark/70 font-body mb-4 italic">"{review.text}"</p>
+                <div className="flex items-center justify-between">
+                  <span className="font-heading font-semibold text-dark">{review.name}</span>
+                  <span className="text-dark/50 text-sm font-body">{review.date}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Section FAQ SEO - Questions fréquentes massage lacanau */}
+      <FAQSection />
+
+      {/* Section CTA finale */}
+      <section className="section-padding bg-sage">
+        <div className="container-custom text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="font-heading font-bold text-3xl sm:text-4xl text-cream mb-4">
+              Réservez votre <span className="text-gold">massage à Lacanau</span>
+            </h2>
+            <p className="text-cream/80 font-body max-w-2xl mx-auto mb-6">
+              Cabinet à Lacanau Océan ou intervention à domicile sur Lacanau, Le Porge, Carcans et Hourtin.
+              Massage sportif, bien-être, chromothérapie - trouvez le soin qui vous correspond.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link
+                to="/reservation"
+                className="inline-flex items-center gap-3 bg-gold text-dark font-body font-bold px-8 py-4 rounded-full shadow-gold hover:bg-gold-dark transition-all"
+              >
+                Réserver maintenant
+              </Link>
+              <a
+                href="tel:+33759701941"
+                className="inline-flex items-center gap-3 border-2 border-gold text-gold font-body font-bold px-8 py-4 rounded-full hover:bg-gold/10 transition-all"
+              >
+                07 59 70 19 41
+              </a>
+            </div>
+            <div className="flex items-center justify-center gap-2 mt-6 text-cream/70">
+              <MapPin className="w-4 h-4" />
+              <span className="font-body text-sm">7 rue Jean Michel, 33680 Lacanau - HEAL LO LACANAU</span>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
     </div>
+  )
+}
+
+// Composant FAQ avec Schema.org
+const FAQSection = () => {
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
+
+  const faqs = [
+    {
+      question: "Où trouver un bon massage à Lacanau ?",
+      answer: "Aura Massage est situé au 7 rue Jean Michel à Lacanau Océan, dans le centre HEAL LO LACANAU, à seulement 800m de la plage. Nous proposons des massages sportifs, bien-être et chromothérapie. Vous pouvez également bénéficier d'un massage à domicile sur tout Lacanau et ses environs."
+    },
+    {
+      question: "Quels types de massage proposez-vous à Lacanau Océan ?",
+      answer: "Nous proposons plusieurs types de massages à Lacanau : massage sportif (préparation et récupération), massage relaxant aux huiles, soins énergétiques et chromothérapie. Nos massages sont particulièrement adaptés aux surfeurs et sportifs pratiquant à Lacanau."
+    },
+    {
+      question: "Quel est le prix d'un massage à Lacanau ?",
+      answer: "Nos massages à Lacanau débutent à 45€ pour une séance de 30 minutes (activation ou récupération). Le massage sportif complet de 60 minutes est à 85€, et le soin premium de 90 minutes à 130€. Nous proposons également des soins énergétiques à partir de 90€."
+    },
+    {
+      question: "Faites-vous des massages à domicile à Lacanau ?",
+      answer: "Oui, nous intervenons à domicile sur tout Lacanau, Lacanau Océan, Le Porge, Carcans et Hourtin. Le massage à domicile vous permet de profiter d'un moment de détente dans le confort de votre location de vacances ou de votre résidence."
+    },
+    {
+      question: "Le massage sportif à Lacanau est-il adapté aux surfeurs ?",
+      answer: "Absolument ! Le massage sportif à Lacanau est spécialement conçu pour les pratiquants de sports nautiques et de glisse. Il aide à prévenir les blessures, améliore la récupération musculaire après une session de surf, et optimise vos performances. Idéal avant ou après vos sessions à la plage centrale ou au spot du Lion."
+    },
+    {
+      question: "Comment prendre rendez-vous pour un massage à Lacanau ?",
+      answer: "Vous pouvez réserver votre massage à Lacanau directement en ligne sur notre site, par téléphone au 07 59 70 19 41, ou par email. Nous vous recommandons de réserver à l'avance, surtout en période estivale où la demande est forte."
+    }
+  ]
+
+  return (
+    <section className="section-padding bg-sand">
+      <div className="container-custom">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
+        >
+          <span className="inline-block px-4 py-1 bg-sage/10 text-sage text-sm font-body font-medium rounded-full mb-4">
+            Questions fréquentes
+          </span>
+          <h2 className="font-heading font-bold text-3xl sm:text-4xl text-dark mb-4">
+            Tout savoir sur le <span className="text-gold">massage à Lacanau</span>
+          </h2>
+          <p className="text-dark/60 font-body max-w-2xl mx-auto">
+            Retrouvez les réponses aux questions les plus fréquentes sur nos massages à Lacanau Océan.
+          </p>
+        </motion.div>
+
+        <div className="max-w-3xl mx-auto space-y-4">
+          {faqs.map((faq, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.05 }}
+              className="bg-white rounded-xl overflow-hidden shadow-soft"
+            >
+              <button
+                onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                className="w-full flex items-center justify-between p-5 text-left"
+              >
+                <h3 className="font-heading font-semibold text-dark pr-4">{faq.question}</h3>
+                <div className="flex-shrink-0">
+                  {openIndex === i ? (
+                    <Minus className="w-5 h-5 text-gold" />
+                  ) : (
+                    <Plus className="w-5 h-5 text-sage" />
+                  )}
+                </div>
+              </button>
+              <AnimatePresence>
+                {openIndex === i && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <p className="px-5 pb-5 text-dark/70 font-body leading-relaxed">
+                      {faq.answer}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }
 

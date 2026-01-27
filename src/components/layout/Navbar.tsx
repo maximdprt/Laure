@@ -5,10 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import useScroll from '../../hooks/useScroll'
 
 const navLinks = [
-  { path: '/', label: 'Accueil' },
-  { path: '/massage-sportif', label: 'Massage Sportif' },
-  { path: '/contact', label: 'Contact' },
-  { path: '/reservation', label: 'Réservation' },
+  { path: '/', label: 'Accueil', title: 'Massage Lacanau - Accueil' },
+  { path: '/massage-sportif', label: 'Nos Massages', title: 'Massage Sportif Lacanau' },
+  { path: '/contact', label: 'Contact', title: 'Contact Massage Lacanau' },
+  { path: '/reservation', label: 'Réserver', title: 'Réserver un massage à Lacanau' },
 ]
 
 const Navbar = () => {
@@ -26,12 +26,12 @@ const Navbar = () => {
         }`}
     >
       <nav className="container-custom flex items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-4 group">
+        {/* Logo - SEO optimisé */}
+        <Link to="/" className="flex items-center gap-4 group" title="Massage Lacanau - Accueil">
           <div className={`relative transition-all duration-300 ${scrolled ? 'w-14 h-14' : 'w-16 h-16 sm:w-20 sm:h-20'}`}>
             <img
               src="/Logo-site.png"
-              alt="Aura Massage Logo"
+              alt="Massage Lacanau - Aura Massage Logo"
               className="w-full h-full object-cover rounded-full"
             />
           </div>
@@ -39,12 +39,12 @@ const Navbar = () => {
             {/* Texte TOUJOURS en or mat */}
             <span
               className={`font-heading font-bold text-gold transition-all duration-300 ${scrolled ? 'text-xl' : 'text-2xl sm:text-3xl drop-shadow-lg'
-                } group-hover:text-gold-dark`}
+                } group-hover:text-gold-dark uppercase tracking-wide`}
             >
               Aura Massage
             </span>
             <span className="text-xs font-body text-gold/80">
-              Lacanau Océan
+              Massage Lacanau - Lacanau Océan
             </span>
           </div>
         </Link>
@@ -55,6 +55,7 @@ const Navbar = () => {
             <Link
               key={link.path}
               to={link.path}
+              title={link.title}
               className={`font-body font-medium text-sm lg:text-base text-gold transition-all duration-300 relative py-2 
                         hover:text-gold-dark ${isActive(link.path) ? 'font-bold' : ''}`}
             >
@@ -96,6 +97,7 @@ const Navbar = () => {
                 <Link
                   key={link.path}
                   to={link.path}
+                  title={link.title}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`font-body font-medium py-3 px-4 rounded-lg transition-all duration-300 text-gold
                             ${isActive(link.path) ? 'bg-gold/10 font-bold' : 'hover:bg-gold/5'}`}

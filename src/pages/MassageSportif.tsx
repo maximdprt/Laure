@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Clock, Check, Star, ChevronLeft, ChevronRight } from 'lucide-react'
-import { massagesSportifs, soinsEnergetiques, PREMIUM_OPTION_PRICE } from '../constants/services'
+import { massagesSportifs, soinsEnergetiques } from '../constants/services'
 
 const benefitsCards = [
   {

@@ -226,33 +226,25 @@ const MassagesList = () => {
               <div className={`relative overflow-hidden rounded-3xl transition-all duration-500 
                             ${hoveredIndex === index ? 'shadow-2xl scale-[1.02]' : 'shadow-soft'}`}>
                 
-                {/* Fond avec dégradé animé */}
+                {/* Fond avec dégradé élégant */}
                 <div className="absolute inset-0 bg-gradient-to-br from-sage via-sage-dark to-sage opacity-95" />
                 
-                {/* Cercles décoratifs animés */}
+                {/* Ligne décorative en haut */}
                 <motion.div 
-                  className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-gold/10"
+                  className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold/40 to-transparent"
                   animate={{ 
-                    scale: hoveredIndex === index ? 1.2 : 1,
-                    rotate: hoveredIndex === index ? 45 : 0
+                    opacity: hoveredIndex === index ? 1 : 0.5
                   }}
-                  transition={{ duration: 0.6 }}
+                  transition={{ duration: 0.4 }}
                 />
+                
+                {/* Effet de lumière subtil */}
                 <motion.div 
-                  className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-cream/10"
+                  className="absolute inset-0 bg-gradient-to-tr from-transparent via-cream/5 to-gold/10"
                   animate={{ 
-                    scale: hoveredIndex === index ? 1.3 : 1,
-                    rotate: hoveredIndex === index ? -30 : 0
+                    opacity: hoveredIndex === index ? 1 : 0.3
                   }}
-                  transition={{ duration: 0.6 }}
-                />
-                <motion.div 
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border border-gold/20"
-                  animate={{ 
-                    scale: hoveredIndex === index ? [1, 1.5, 1] : 1,
-                    opacity: hoveredIndex === index ? [0.2, 0.5, 0.2] : 0.2
-                  }}
-                  transition={{ duration: 2, repeat: hoveredIndex === index ? Infinity : 0 }}
+                  transition={{ duration: 0.5 }}
                 />
 
                 {/* Contenu */}
@@ -413,187 +405,136 @@ const MassageSportif = () => (
     {/* Massages Sportifs - Liste */}
     <MassagesList />
 
-    {/* Soins Énergétiques - Design Premium */}
-    <section className="relative py-24 overflow-hidden">
-      {/* Fond avec dégradé mystique */}
-      <div className="absolute inset-0 bg-gradient-to-b from-sage via-sage-dark to-dark" />
-      
-      {/* Particules flottantes animées */}
-      <div className="absolute inset-0 overflow-hidden">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-gold/30 rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -30, 0],
-              opacity: [0.2, 0.6, 0.2],
-              scale: [1, 1.5, 1],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Cercles lumineux en arrière-plan */}
-      <motion.div 
-        className="absolute top-1/4 -left-32 w-96 h-96 bg-gold/10 rounded-full blur-3xl"
-        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-        transition={{ duration: 8, repeat: Infinity }}
-      />
-      <motion.div 
-        className="absolute bottom-1/4 -right-32 w-80 h-80 bg-cream/10 rounded-full blur-3xl"
-        animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.4, 0.2] }}
-        transition={{ duration: 6, repeat: Infinity }}
-      />
-
-      <div className="container-custom relative z-10">
+    {/* Soins Énergétiques - Design avec Images */}
+    <section className="py-24 bg-cream">
+      <div className="container-custom">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-20"
+          className="text-center mb-16"
         >
-          <motion.div
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ type: "spring", delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-5 py-2 bg-gold/20 backdrop-blur-sm rounded-full border border-gold/30 mb-6"
-          >
-            <Sparkles className="w-5 h-5 text-gold" />
-            <span className="text-gold font-body font-medium">Expériences uniques</span>
-          </motion.div>
-          <h2 className="font-heading font-bold text-4xl sm:text-5xl text-cream mb-4">
+          <span className="inline-block px-4 py-1 bg-sage/10 text-sage text-sm font-body font-medium rounded-full mb-4">
+            Soins Holistiques
+          </span>
+          <h2 className="font-heading font-bold text-4xl sm:text-5xl text-dark mb-4">
             Soins <span className="text-gold">Énergétiques</span>
           </h2>
-          <p className="text-cream/70 font-body max-w-2xl mx-auto text-lg">
+          <p className="text-dark/70 font-body max-w-2xl mx-auto text-lg">
             Des soins d'exception pour harmoniser corps et esprit, 
             dans une dimension de bien-être profond.
           </p>
         </motion.div>
 
-        {/* Cartes des soins */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
+        {/* Soins avec images alternées */}
+        <div className="space-y-20">
           {soinsEnergetiques.map((soin, i) => (
             <motion.div
               key={soin.id}
-              initial={{ opacity: 0, y: 50, rotateX: -10 }}
-              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: i * 0.2 }}
-              className="group relative"
+              transition={{ duration: 0.6 }}
+              className={`grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center ${
+                i % 2 === 1 ? 'lg:flex-row-reverse' : ''
+              }`}
             >
-              <div className={`relative overflow-hidden rounded-3xl backdrop-blur-xl 
-                            ${soin.premium 
-                              ? 'bg-gradient-to-br from-gold/20 via-cream/10 to-gold/10 border-2 border-gold/50' 
-                              : 'bg-cream/10 border border-cream/20'
-                            } p-8 sm:p-10 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl`}
+              {/* Image */}
+              <motion.div 
+                className={`relative ${i % 2 === 1 ? 'lg:order-2' : ''}`}
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.4 }}
               >
-                {/* Effet de brillance au survol */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent 
-                              -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-[4/3]">
+                  <img 
+                    src={i === 0 
+                      ? 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&w=800&q=80'
+                      : 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=800&q=80'
+                    }
+                    alt={soin.name}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-dark/40 via-transparent to-transparent" />
+                  
+                  {/* Badge prix */}
+                  <div className="absolute top-6 right-6 bg-gold text-dark px-5 py-3 rounded-2xl shadow-gold">
+                    <span className="font-heading font-bold text-2xl">{soin.price}€</span>
+                    <span className="block text-xs text-dark/70">{soin.duration} min</span>
+                  </div>
+                </div>
+                
+                {/* Décoration */}
+                <div className={`absolute -z-10 w-full h-full rounded-3xl bg-sage/20 
+                              ${i % 2 === 0 ? '-bottom-4 -right-4' : '-bottom-4 -left-4'}`} />
+              </motion.div>
 
-                {/* Header de la carte */}
-                <div className="mb-8">
-                  <h3 className="font-heading font-bold text-3xl text-cream mb-3">
+              {/* Contenu */}
+              <div className={`${i % 2 === 1 ? 'lg:order-1' : ''}`}>
+                <motion.div
+                  initial={{ opacity: 0, x: i % 2 === 0 ? 30 : -30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                >
+                  <h3 className="font-heading font-bold text-3xl sm:text-4xl text-dark mb-3">
                     {soin.name}
                   </h3>
-                  <p className="text-gold font-body text-sm mb-4">{soin.subtitle}</p>
+                  <p className="text-gold font-body font-medium mb-4">{soin.subtitle}</p>
+                  
                   {soin.tagline && (
-                    <motion.p 
-                      className="text-cream/80 font-heading italic text-lg border-l-2 border-gold pl-4"
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.3 + i * 0.2 }}
-                    >
+                    <p className="text-dark/60 font-heading italic text-lg border-l-4 border-gold pl-4 mb-6">
                       "{soin.tagline}"
-                    </motion.p>
+                    </p>
                   )}
-                </div>
 
-                {/* Description */}
-                <p className="text-cream/70 font-body leading-relaxed mb-8">
-                  {soin.description}
-                </p>
+                  <p className="text-dark/70 font-body leading-relaxed mb-8 text-lg">
+                    {soin.description}
+                  </p>
 
-                {/* Bienfaits avec animation */}
-                {soin.benefits && (
-                  <div className="mb-8">
-                    <h4 className="font-heading font-semibold text-gold mb-4 flex items-center gap-2">
-                      <motion.span
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                      >
-                        ✦
-                      </motion.span>
-                      Bienfaits
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {soin.benefits.map((benefit, j) => (
-                        <motion.div 
-                          key={j}
-                          initial={{ opacity: 0, x: -20 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: 0.1 * j }}
-                          className="flex items-start gap-3 bg-cream/5 rounded-xl p-3 border border-cream/10"
-                        >
-                          <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <Check className="w-3 h-3 text-gold" />
-                          </div>
-                          <span className="text-cream/80 font-body text-sm">{benefit}</span>
-                        </motion.div>
-                      ))}
+                  {/* Bienfaits */}
+                  {soin.benefits && (
+                    <div className="mb-8">
+                      <h4 className="font-heading font-semibold text-dark mb-4 flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-gold" />
+                        Bienfaits
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {soin.benefits.map((benefit, j) => (
+                          <motion.div 
+                            key={j}
+                            initial={{ opacity: 0, x: -20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.1 * j }}
+                            className="flex items-start gap-3"
+                          >
+                            <div className="w-6 h-6 rounded-full bg-sage flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <Check className="w-3 h-3 text-cream" />
+                            </div>
+                            <span className="text-dark/70 font-body text-sm">{benefit}</span>
+                          </motion.div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Footer avec prix et durée */}
-                <div className="flex items-center justify-between pt-6 border-t border-cream/20 mb-6">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 bg-cream/10 px-4 py-2 rounded-full">
-                      <Clock className="w-4 h-4 text-gold" />
-                      <span className="text-cream font-body text-sm">{soin.duration} min</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-heading font-bold text-4xl text-gold">{soin.price}</span>
-                    <span className="text-gold/70 text-xl">€</span>
-                  </div>
-                </div>
-
-                {/* Bouton de réservation */}
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Link
-                    to={`/reservation?soin=${soin.id}`}
-                    className={`flex items-center justify-center gap-3 w-full py-4 rounded-2xl font-body font-bold 
-                              transition-all duration-300 group/btn
-                              ${soin.premium 
-                                ? 'bg-gold text-dark hover:bg-gold-dark' 
-                                : 'bg-cream/20 text-cream border border-cream/30 hover:bg-cream/30'
-                              }`}
+                  {/* Bouton */}
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    Réserver cette expérience
-                    <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-                  </Link>
+                    <Link
+                      to={`/reservation?soin=${soin.id}`}
+                      className="inline-flex items-center gap-3 bg-sage text-cream font-body font-bold px-8 py-4 rounded-full 
+                               hover:bg-sage-dark transition-all duration-300 shadow-soft group"
+                    >
+                      Réserver ce soin
+                      <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </motion.div>
                 </motion.div>
-
-                {/* Décoration de coin */}
-                <div className="absolute top-0 left-0 w-20 h-20 border-l-2 border-t-2 border-gold/30 rounded-tl-3xl" />
-                <div className="absolute bottom-0 right-0 w-20 h-20 border-r-2 border-b-2 border-gold/30 rounded-br-3xl" />
               </div>
             </motion.div>
           ))}

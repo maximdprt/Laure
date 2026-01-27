@@ -73,7 +73,7 @@ const Admin = () => {
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md px-4">
           <div className="card p-8">
             <div className="flex justify-center mb-6">
-              <img src="/Gemini_Generated_Image_h1myfqh1myfqh1my.png" alt="Logo" className="w-16 h-16 rounded-full" />
+              <img src="/Logo-site.png" alt="Logo" className="w-48 h-48 object-cover rounded-full" />
             </div>
             <h1 className="font-heading font-semibold text-2xl text-dark text-center mb-2">Espace Administration</h1>
             <p className="text-dark/60 text-center mb-8 font-body text-sm">Entrez votre code d'accès</p>

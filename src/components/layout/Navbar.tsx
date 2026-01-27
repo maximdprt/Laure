@@ -20,28 +20,26 @@ const Navbar = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled 
-          ? 'bg-cream/95 backdrop-blur-md shadow-soft py-2' 
-          : 'bg-transparent py-4'
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+        ? 'bg-cream/95 backdrop-blur-md shadow-soft py-2'
+        : 'bg-transparent py-4'
+        }`}
     >
       <nav className="container-custom flex items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-4 group">
           <div className={`relative transition-all duration-300 ${scrolled ? 'w-14 h-14' : 'w-16 h-16 sm:w-20 sm:h-20'}`}>
-            <img 
-              src="/Gemini_Generated_Image_h1myfqh1myfqh1my.png" 
-              alt="Aura Massage Logo" 
-              className="w-full h-full object-contain rounded-full shadow-soft border-2 border-gold/30"
+            <img
+              src="/Logo-site.png"
+              alt="Aura Massage Logo"
+              className="w-full h-full object-cover rounded-full"
             />
           </div>
           <div className="flex flex-col">
             {/* Texte TOUJOURS en or mat */}
-            <span 
-              className={`font-heading font-bold text-gold transition-all duration-300 ${
-                scrolled ? 'text-xl' : 'text-2xl sm:text-3xl drop-shadow-lg'
-              } group-hover:text-gold-dark`}
+            <span
+              className={`font-heading font-bold text-gold transition-all duration-300 ${scrolled ? 'text-xl' : 'text-2xl sm:text-3xl drop-shadow-lg'
+                } group-hover:text-gold-dark`}
             >
               Aura Massage
             </span>

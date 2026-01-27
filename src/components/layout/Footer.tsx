@@ -8,17 +8,17 @@ const Footer = () => {
     <footer className="bg-sage text-cream">
       {/* Wave decoration */}
       <div className="h-4 bg-cream" />
-      
+
       <div className="container-custom section-padding">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Logo & Description */}
           <div className="lg:col-span-1">
             <Link to="/" className="flex items-center gap-4 mb-6 group">
               <div className="w-20 h-20 flex-shrink-0">
-                <img 
-                  src="/Gemini_Generated_Image_h1myfqh1myfqh1my.png" 
-                  alt="Aura Massage Logo" 
-                  className="w-full h-full object-contain rounded-full border-2 border-gold/50 shadow-gold"
+                <img
+                  src="/Logo-site.png"
+                  alt="Aura Massage Logo"
+                  className="w-full h-full object-cover rounded-full"
                 />
               </div>
               <div>
@@ -30,7 +30,7 @@ const Footer = () => {
               </div>
             </Link>
             <p className="text-cream/80 leading-relaxed text-sm">
-              Massage sportif premium et soins énergétiques. 
+              Massage sportif premium et soins énergétiques.
               Une approche holistique pour votre bien-être et votre performance.
             </p>
             <div className="flex items-center gap-2 mt-4 text-gold">
@@ -104,9 +104,9 @@ const Footer = () => {
               Suivez-moi
             </h4>
             <div className="flex gap-3 mb-6">
-              <a 
-                href="https://www.instagram.com/laure_dupuch/" 
-                target="_blank" 
+              <a
+                href="https://www.instagram.com/laure_dupuch/"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center 
                          hover:bg-gold transition-all duration-300 group"
@@ -114,9 +114,9 @@ const Footer = () => {
               >
                 <Instagram className="w-5 h-5 text-cream group-hover:text-sage transition-colors" />
               </a>
-              <a 
-                href="https://www.linkedin.com/in/laure-dupuch/" 
-                target="_blank" 
+              <a
+                href="https://www.linkedin.com/in/laure-dupuch/"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center 
                          hover:bg-gold transition-all duration-300 group"

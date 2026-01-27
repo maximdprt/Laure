@@ -6,9 +6,6 @@ const Footer = () => {
 
   return (
     <footer className="bg-sage text-cream">
-      {/* Wave decoration */}
-      <div className="h-4 bg-cream" />
-
       <div className="container-custom section-padding">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Logo & Description - SEO optimisé */}

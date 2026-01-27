@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Clock, Check, Sparkles, Star, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
-import { AnimatePresence } from 'framer-motion'
+import { Clock, Check, Sparkles, Star, ChevronLeft, ChevronRight } from 'lucide-react'
 import { massagesSportifs, soinsEnergetiques, PREMIUM_OPTION_PRICE } from '../constants/services'
 
 const benefitsCards = [
@@ -193,113 +192,146 @@ const BenefitsCarousel3D = () => {
   )
 }
 
-const MassagesAccordion = () => {
-  const [openIndex, setOpenIndex] = useState<number | null>(null)
-
-  const toggleAccordion = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index)
-  }
+const MassagesList = () => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   return (
-    <section className="section-padding bg-cream">
+    <section className="section-padding bg-cream overflow-hidden">
       <div className="container-custom">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-16"
         >
-          <h2 className="font-heading font-semibold text-3xl text-dark mb-4">
+          <h2 className="font-heading font-semibold text-3xl sm:text-4xl text-dark mb-4">
             Massages <span className="text-gold">Sportifs</span>
           </h2>
           <p className="text-dark/60 font-body">Préparation & Récupération</p>
         </motion.div>
 
-        <div className="max-w-3xl mx-auto space-y-4">
+        {/* Grille de cartes avec effet visuel */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {massagesSportifs.map((massage, index) => (
             <motion.div
               key={massage.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="overflow-hidden"
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
+              className="relative group"
             >
-              {/* Accordion Header */}
-              <button
-                onClick={() => toggleAccordion(index)}
-                className={`w-full flex items-center justify-between p-5 rounded-xl transition-all duration-300
-                          ${openIndex === index 
-                            ? 'bg-sage text-cream rounded-b-none' 
-                            : 'bg-white hover:bg-sand shadow-soft'
-                          }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="text-left">
-                    <div className="flex items-center gap-3">
-                      <h3 className={`font-heading font-semibold text-lg ${openIndex === index ? 'text-gold' : 'text-dark'}`}>
+              <div className={`relative overflow-hidden rounded-3xl transition-all duration-500 
+                            ${hoveredIndex === index ? 'shadow-2xl scale-[1.02]' : 'shadow-soft'}`}>
+                
+                {/* Fond avec dégradé animé */}
+                <div className="absolute inset-0 bg-gradient-to-br from-sage via-sage-dark to-sage opacity-95" />
+                
+                {/* Cercles décoratifs animés */}
+                <motion.div 
+                  className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-gold/10"
+                  animate={{ 
+                    scale: hoveredIndex === index ? 1.2 : 1,
+                    rotate: hoveredIndex === index ? 45 : 0
+                  }}
+                  transition={{ duration: 0.6 }}
+                />
+                <motion.div 
+                  className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-cream/10"
+                  animate={{ 
+                    scale: hoveredIndex === index ? 1.3 : 1,
+                    rotate: hoveredIndex === index ? -30 : 0
+                  }}
+                  transition={{ duration: 0.6 }}
+                />
+                <motion.div 
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border border-gold/20"
+                  animate={{ 
+                    scale: hoveredIndex === index ? [1, 1.5, 1] : 1,
+                    opacity: hoveredIndex === index ? [0.2, 0.5, 0.2] : 0.2
+                  }}
+                  transition={{ duration: 2, repeat: hoveredIndex === index ? Infinity : 0 }}
+                />
+
+                {/* Contenu */}
+                <div className="relative z-10 p-8 sm:p-10">
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-6">
+                    <div>
+                      {massage.popular && (
+                        <motion.div 
+                          className="inline-flex items-center gap-2 bg-gold text-dark px-3 py-1 rounded-full mb-3"
+                          animate={{ scale: hoveredIndex === index ? 1.05 : 1 }}
+                        >
+                          <Star className="w-3 h-3 fill-dark" />
+                          <span className="font-body font-semibold text-xs">Populaire</span>
+                        </motion.div>
+                      )}
+                      <h3 className="font-heading font-bold text-2xl sm:text-3xl text-cream mb-2">
                         {massage.name}
                       </h3>
-                      {massage.popular && (
-                        <span className="bg-gold text-dark text-xs font-body font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <Star className="w-3 h-3" /> Populaire
-                        </span>
-                      )}
+                      <p className="text-gold font-body text-sm">{massage.subtitle}</p>
                     </div>
-                    <p className={`text-sm font-body ${openIndex === index ? 'text-cream/80' : 'text-sage'}`}>
-                      {massage.subtitle}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <span className={`font-heading font-bold text-2xl ${openIndex === index ? 'text-gold' : 'text-gold'}`}>
-                      {massage.price}€
-                    </span>
-                    <p className={`text-xs font-body ${openIndex === index ? 'text-cream/70' : 'text-dark/50'}`}>
-                      {massage.duration} min
-                    </p>
-                  </div>
-                  <motion.div
-                    animate={{ rotate: openIndex === index ? 180 : 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <ChevronDown className={`w-6 h-6 ${openIndex === index ? 'text-gold' : 'text-sage'}`} />
-                  </motion.div>
-                </div>
-              </button>
-
-              {/* Accordion Content */}
-              <AnimatePresence>
-                {openIndex === index && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: 'easeInOut' }}
-                    className="overflow-hidden"
-                  >
-                    <div className="bg-white p-6 rounded-b-xl shadow-soft border-t-0">
-                      <p className="text-dark/70 font-body mb-6 leading-relaxed">
-                        {massage.description}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-dark/60">
-                          <Clock className="w-5 h-5" />
-                          <span className="font-body">{massage.duration} minutes</span>
-                        </div>
-                        <Link
-                          to={`/reservation?soin=${massage.id}`}
-                          className="inline-flex items-center gap-2 bg-sage text-cream font-body font-semibold 
-                                   px-6 py-3 rounded-full hover:bg-sage-dark transition-all duration-300 shadow-soft"
-                        >
-                          Réserver
-                        </Link>
+                    
+                    {/* Prix avec animation */}
+                    <motion.div 
+                      className="text-right"
+                      animate={{ y: hoveredIndex === index ? -5 : 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className="bg-gold/20 backdrop-blur-sm rounded-2xl px-5 py-3 border border-gold/30">
+                        <span className="font-heading font-bold text-4xl text-gold">{massage.price}</span>
+                        <span className="text-gold/80 text-lg">€</span>
+                        <p className="text-cream/70 text-xs font-body">{massage.duration} min</p>
                       </div>
+                    </motion.div>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-cream/80 font-body leading-relaxed mb-8">
+                    {massage.description}
+                  </p>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-3 mb-8">
+                    <div className="flex items-center gap-2 bg-cream/10 backdrop-blur-sm px-4 py-2 rounded-full border border-cream/20">
+                      <Clock className="w-4 h-4 text-gold" />
+                      <span className="font-body text-cream text-sm">{massage.duration} min</span>
                     </div>
+                    <div className="flex items-center gap-2 bg-cream/10 backdrop-blur-sm px-4 py-2 rounded-full border border-cream/20">
+                      <Check className="w-4 h-4 text-gold" />
+                      <span className="font-body text-cream text-sm">Cabinet & domicile</span>
+                    </div>
+                  </div>
+
+                  {/* Bouton */}
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Link
+                      to={`/reservation?soin=${massage.id}`}
+                      className="flex items-center justify-center gap-3 w-full bg-gold text-dark font-body font-bold 
+                               py-4 rounded-2xl hover:bg-gold-dark transition-all duration-300 group"
+                    >
+                      Réserver maintenant
+                      <motion.span
+                        animate={{ x: hoveredIndex === index ? 5 : 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </motion.span>
+                    </Link>
                   </motion.div>
-                )}
-              </AnimatePresence>
+                </div>
+
+                {/* Numéro décoratif */}
+                <div className="absolute top-6 left-6 font-heading font-bold text-8xl text-cream/5">
+                  0{index + 1}
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -378,98 +410,204 @@ const MassageSportif = () => (
     {/* Bénéfices - Carousel 3D */}
     <BenefitsCarousel3D />
 
-    {/* Massages Sportifs - Accordion */}
-    <MassagesAccordion />
+    {/* Massages Sportifs - Liste */}
+    <MassagesList />
 
-    {/* Option Premium */}
-    <section className="py-12 bg-gold">
-      <div className="container-custom px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="flex flex-col md:flex-row items-center justify-between gap-6"
-        >
-          <div className="flex items-center gap-4">
-            <Sparkles className="w-10 h-10 text-dark" />
-            <div>
-              <h3 className="font-heading font-semibold text-xl text-dark">OCEAN CHROMOSPORT SIGNATURE</h3>
-              <p className="text-dark/80 text-sm font-body">Option Premium disponible sur tous les massages</p>
-            </div>
-          </div>
-          <div className="text-center md:text-right">
-            <p className="font-heading font-semibold text-2xl text-dark">+{PREMIUM_OPTION_PRICE}€</p>
-            <p className="text-dark/70 text-xs font-body">Huile bio personnalisée aux élixirs floraux et chromothérapie</p>
-          </div>
-        </motion.div>
+    {/* Soins Énergétiques - Design Premium */}
+    <section className="relative py-24 overflow-hidden">
+      {/* Fond avec dégradé mystique */}
+      <div className="absolute inset-0 bg-gradient-to-b from-sage via-sage-dark to-dark" />
+      
+      {/* Particules flottantes animées */}
+      <div className="absolute inset-0 overflow-hidden">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-gold/30 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -30, 0],
+              opacity: [0.2, 0.6, 0.2],
+              scale: [1, 1.5, 1],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
       </div>
-    </section>
 
-    {/* Soins Énergétiques */}
-    <section className="section-padding bg-sand">
-      <div className="container-custom">
+      {/* Cercles lumineux en arrière-plan */}
+      <motion.div 
+        className="absolute top-1/4 -left-32 w-96 h-96 bg-gold/10 rounded-full blur-3xl"
+        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+        transition={{ duration: 8, repeat: Infinity }}
+      />
+      <motion.div 
+        className="absolute bottom-1/4 -right-32 w-80 h-80 bg-cream/10 rounded-full blur-3xl"
+        animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.4, 0.2] }}
+        transition={{ duration: 6, repeat: Infinity }}
+      />
+
+      <div className="container-custom relative z-10">
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-20"
         >
-          <h2 className="font-heading font-semibold text-3xl text-dark mb-4">
+          <motion.div
+            initial={{ scale: 0 }}
+            whileInView={{ scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ type: "spring", delay: 0.2 }}
+            className="inline-flex items-center gap-2 px-5 py-2 bg-gold/20 backdrop-blur-sm rounded-full border border-gold/30 mb-6"
+          >
+            <Sparkles className="w-5 h-5 text-gold" />
+            <span className="text-gold font-body font-medium">Expériences uniques</span>
+          </motion.div>
+          <h2 className="font-heading font-bold text-4xl sm:text-5xl text-cream mb-4">
             Soins <span className="text-gold">Énergétiques</span>
           </h2>
-          <p className="text-dark/60 font-body max-w-2xl mx-auto">
-            Des soins d'exception pour harmoniser corps et esprit.
+          <p className="text-cream/70 font-body max-w-2xl mx-auto text-lg">
+            Des soins d'exception pour harmoniser corps et esprit, 
+            dans une dimension de bien-être profond.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Cartes des soins */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
           {soinsEnergetiques.map((soin, i) => (
             <motion.div
               key={soin.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 50, rotateX: -10 }}
+              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className={`card p-8 ${soin.premium ? 'bg-gradient-to-br from-cream to-sand ring-2 ring-gold' : ''}`}
+              transition={{ duration: 0.8, delay: i * 0.2 }}
+              className="group relative"
             >
-              {soin.premium && (
-                <div className="flex items-center gap-2 mb-4">
-                  <Sparkles className="w-5 h-5 text-gold" />
-                  <span className="text-gold text-sm font-body font-semibold">Soin Signature</span>
-                </div>
-              )}
-              <h3 className="font-heading font-semibold text-2xl text-dark mb-2">{soin.name}</h3>
-              <p className="text-sage font-body text-sm mb-4">{soin.subtitle}</p>
-              {soin.tagline && <p className="text-gold font-heading italic mb-4">"{soin.tagline}"</p>}
-              <p className="text-dark/70 font-body text-sm mb-6">{soin.description}</p>
-              
-              {soin.benefits && (
-                <div className="mb-6">
-                  <h4 className="font-heading font-semibold text-dark mb-3">Bienfaits</h4>
-                  <ul className="space-y-2">
-                    {soin.benefits.map((benefit, j) => (
-                      <li key={j} className="flex items-start gap-2 text-sm">
-                        <Check className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" />
-                        <span className="text-dark/70 font-body">{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              <div className="flex items-center justify-between pt-6 border-t border-dark/10">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-dark/60" />
-                  <span className="text-dark/60 text-sm font-body">{soin.duration} min</span>
-                </div>
-                <span className="font-heading font-semibold text-2xl text-gold">{soin.price}€</span>
-              </div>
-              <Link
-                to={`/reservation?soin=${soin.id}`}
-                className="mt-6 block w-full text-center py-3 rounded-lg bg-gold text-dark font-body font-semibold hover:bg-gold-dark transition-colors"
+              <div className={`relative overflow-hidden rounded-3xl backdrop-blur-xl 
+                            ${soin.premium 
+                              ? 'bg-gradient-to-br from-gold/20 via-cream/10 to-gold/10 border-2 border-gold/50' 
+                              : 'bg-cream/10 border border-cream/20'
+                            } p-8 sm:p-10 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl`}
               >
-                Réserver ce soin
-              </Link>
+                {/* Effet de brillance au survol */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent 
+                              -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+
+                {/* Badge Premium */}
+                {soin.premium && (
+                  <motion.div 
+                    className="absolute -top-3 -right-3 bg-gold text-dark px-4 py-2 rounded-full 
+                             flex items-center gap-2 shadow-gold"
+                    animate={{ rotate: [0, 5, -5, 0] }}
+                    transition={{ duration: 4, repeat: Infinity }}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span className="font-body font-bold text-sm">Signature</span>
+                  </motion.div>
+                )}
+
+                {/* Header de la carte */}
+                <div className="mb-8">
+                  <h3 className="font-heading font-bold text-3xl text-cream mb-3">
+                    {soin.name}
+                  </h3>
+                  <p className="text-gold font-body text-sm mb-4">{soin.subtitle}</p>
+                  {soin.tagline && (
+                    <motion.p 
+                      className="text-cream/80 font-heading italic text-lg border-l-2 border-gold pl-4"
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.3 + i * 0.2 }}
+                    >
+                      "{soin.tagline}"
+                    </motion.p>
+                  )}
+                </div>
+
+                {/* Description */}
+                <p className="text-cream/70 font-body leading-relaxed mb-8">
+                  {soin.description}
+                </p>
+
+                {/* Bienfaits avec animation */}
+                {soin.benefits && (
+                  <div className="mb-8">
+                    <h4 className="font-heading font-semibold text-gold mb-4 flex items-center gap-2">
+                      <motion.span
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                      >
+                        ✦
+                      </motion.span>
+                      Bienfaits
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {soin.benefits.map((benefit, j) => (
+                        <motion.div 
+                          key={j}
+                          initial={{ opacity: 0, x: -20 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: 0.1 * j }}
+                          className="flex items-start gap-3 bg-cream/5 rounded-xl p-3 border border-cream/10"
+                        >
+                          <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <Check className="w-3 h-3 text-gold" />
+                          </div>
+                          <span className="text-cream/80 font-body text-sm">{benefit}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Footer avec prix et durée */}
+                <div className="flex items-center justify-between pt-6 border-t border-cream/20 mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 bg-cream/10 px-4 py-2 rounded-full">
+                      <Clock className="w-4 h-4 text-gold" />
+                      <span className="text-cream font-body text-sm">{soin.duration} min</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-heading font-bold text-4xl text-gold">{soin.price}</span>
+                    <span className="text-gold/70 text-xl">€</span>
+                  </div>
+                </div>
+
+                {/* Bouton de réservation */}
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Link
+                    to={`/reservation?soin=${soin.id}`}
+                    className={`flex items-center justify-center gap-3 w-full py-4 rounded-2xl font-body font-bold 
+                              transition-all duration-300 group/btn
+                              ${soin.premium 
+                                ? 'bg-gold text-dark hover:bg-gold-dark' 
+                                : 'bg-cream/20 text-cream border border-cream/30 hover:bg-cream/30'
+                              }`}
+                  >
+                    Réserver cette expérience
+                    <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+                  </Link>
+                </motion.div>
+
+                {/* Décoration de coin */}
+                <div className="absolute top-0 left-0 w-20 h-20 border-l-2 border-t-2 border-gold/30 rounded-tl-3xl" />
+                <div className="absolute bottom-0 right-0 w-20 h-20 border-r-2 border-b-2 border-gold/30 rounded-br-3xl" />
+              </div>
             </motion.div>
           ))}
         </div>

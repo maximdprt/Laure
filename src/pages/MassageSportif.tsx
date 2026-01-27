@@ -502,19 +502,6 @@ const MassageSportif = () => (
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent 
                               -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
 
-                {/* Badge Premium */}
-                {soin.premium && (
-                  <motion.div 
-                    className="absolute -top-3 -right-3 bg-gold text-dark px-4 py-2 rounded-full 
-                             flex items-center gap-2 shadow-gold"
-                    animate={{ rotate: [0, 5, -5, 0] }}
-                    transition={{ duration: 4, repeat: Infinity }}
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    <span className="font-body font-bold text-sm">Signature</span>
-                  </motion.div>
-                )}
-
                 {/* Header de la carte */}
                 <div className="mb-8">
                   <h3 className="font-heading font-bold text-3xl text-cream mb-3">

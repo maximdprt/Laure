@@ -385,6 +385,9 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Section FAQ SEO - Questions fréquentes massage lacanau */}
+      <FAQSection />
+
       {/* Section Avis Clients - Social Proof SEO */}
       <section className="section-padding bg-cream">
         <div className="container-custom">
@@ -453,9 +456,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* Section FAQ SEO - Questions fréquentes massage lacanau */}
-      <FAQSection />
 
       {/* Section CTA finale */}
       <section className="section-padding bg-sage">

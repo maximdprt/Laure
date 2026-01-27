@@ -109,8 +109,9 @@ const BenefitsCarousel3D = () => {
           className="text-center mb-12"
         >
           <h2 className="font-heading font-semibold text-3xl text-dark mb-4">
-            Les <span className="text-gold">bénéfices</span> du massage sportif
+            Les <span className="text-gold">bénéfices</span> du massage sportif à Lacanau
           </h2>
+          <p className="text-dark/60 font-body">Récupération optimale pour les sportifs du Médoc</p>
         </motion.div>
 
         {/* Carousel 3D */}
@@ -309,7 +310,7 @@ const MassagesAccordion = () => {
 
 const MassageSportif = () => (
   <div className="min-h-screen pt-24">
-    {/* Header */}
+    {/* Header - SEO optimisé */}
     <section className="bg-sage text-cream py-20">
       <div className="container-custom px-4 sm:px-6 lg:px-8">
         <motion.div
@@ -319,11 +320,13 @@ const MassageSportif = () => (
           className="text-center max-w-4xl mx-auto"
         >
           <h1 className="font-heading font-semibold text-4xl sm:text-5xl lg:text-6xl mb-4">
-            Massages <span className="text-gold">Aura</span> Performance
+            <span className="text-gold">Massage Sportif Lacanau</span>
+            <br />
+            <span className="text-cream text-3xl sm:text-4xl">& Soins Énergétiques</span>
           </h1>
           <p className="text-cream/80 text-lg font-body max-w-2xl mx-auto">
-            Massage sportif premium & soins énergétiques à Lacanau Océan.
-            Offrez à votre corps l'exigence qu'il mérite.
+            Votre spécialiste du <strong className="text-gold">massage à Lacanau Océan</strong>. 
+            Massage sportif premium pour surfeurs et sportifs, récupération musculaire et soins énergétiques.
           </p>
         </motion.div>
       </div>
@@ -340,21 +343,23 @@ const MassageSportif = () => (
             transition={{ duration: 0.6 }}
           >
             <h2 className="font-heading font-semibold text-3xl text-dark mb-6">
-              Le massage sportif <span className="text-gold">premium</span>
+              Le <span className="text-gold">massage sportif à Lacanau</span> premium
             </h2>
             <div className="space-y-4 text-dark/70 font-body">
               <p>
-                Le massage sportif à Lacanau Océan s'adresse à toutes les personnes actives 
+                Le <strong className="text-sage">massage sportif à Lacanau Océan</strong> s'adresse à toutes les personnes actives 
                 souhaitant prendre soin de leur corps, sans nécessité d'être un sportif de haut niveau.
+                Idéal avant ou après vos sessions de surf sur les spots de Lacanau.
               </p>
               <p>
-                Inspirés par les exigences des pratiques outdoor, les soins visent à améliorer 
+                Inspirés par les exigences des pratiques outdoor sur le littoral atlantique, nos <strong className="text-sage">massages à Lacanau</strong> visent à améliorer 
                 la récupération musculaire, soulager les tensions profondes, prévenir les blessures 
-                et optimiser la mobilité.
+                et optimiser la mobilité articulaire.
               </p>
               <p>
-                Ces soins sont particulièrement appréciés par les <strong className="text-sage">surfeurs, 
-                golfeurs, cyclistes, coureurs</strong> et passionnés d'activités outdoor.
+                Nos soins sont particulièrement appréciés par les <strong className="text-sage">surfeurs de Lacanau, 
+                golfeurs du Golf de l'Ardilouse, cyclistes de la Vélodyssée, coureurs</strong> et passionnés d'activités outdoor 
+                sur tout le bassin médocain.
               </p>
             </div>
           </motion.div>
@@ -515,14 +520,20 @@ const MassageSportif = () => (
           viewport={{ once: true }}
         >
           <h2 className="font-heading font-semibold text-3xl text-cream mb-4">
-            Prêt à prendre soin de vous ?
+            Réservez votre <span className="text-gold">massage à Lacanau</span>
           </h2>
           <p className="text-cream/80 max-w-2xl mx-auto mb-8 font-body">
-            Au cabinet à Lacanau Océan ou à domicile, chaque séance est un moment privilégié.
+            Au cabinet à Lacanau Océan (7 rue Jean Michel) ou à domicile sur Lacanau, Le Porge, Carcans et Hourtin. 
+            Votre massage sportif ou bien-être vous attend.
           </p>
-          <Link to="/reservation" className="btn-primary text-lg px-10 py-4">
-            Réserver maintenant
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/reservation" className="btn-primary text-lg px-10 py-4">
+              Réserver en ligne
+            </Link>
+            <a href="tel:+33759701941" className="inline-flex items-center justify-center gap-2 border-2 border-gold text-gold font-body font-bold px-8 py-4 rounded-full hover:bg-gold/10 transition-all">
+              07 59 70 19 41
+            </a>
+          </div>
         </motion.div>
       </div>
     </section>

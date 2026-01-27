@@ -6,51 +6,48 @@ const Footer = () => {
 
   return (
     <footer className="bg-sage text-cream">
-      {/* Wave decoration */}
-      <div className="h-4 bg-cream" />
-      
       <div className="container-custom section-padding">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          {/* Logo & Description */}
+          {/* Logo & Description - SEO optimisé */}
           <div className="lg:col-span-1">
             <Link to="/" className="flex items-center gap-4 mb-6 group">
               <div className="w-20 h-20 flex-shrink-0">
                 <img 
                   src="/Gemini_Generated_Image_h1myfqh1myfqh1my.png" 
-                  alt="Aura Massage Logo" 
+                  alt="Massage Lacanau - Aura Massage Logo" 
                   className="w-full h-full object-contain rounded-full border-2 border-gold/50 shadow-gold"
                 />
               </div>
               <div>
-                {/* Texte TOUJOURS en or mat */}
                 <span className="font-heading font-bold text-2xl text-gold group-hover:text-gold-light transition-colors block">
-                  Aura Massage
+                  Massage Lacanau
                 </span>
-                <span className="text-gold/80 text-sm font-body">Lacanau Océan</span>
+                <span className="text-gold/80 text-sm font-body">Aura Massage - Lacanau Océan</span>
               </div>
             </Link>
             <p className="text-cream/80 leading-relaxed text-sm">
-              Massage sportif premium et soins énergétiques. 
-              Une approche holistique pour votre bien-être et votre performance.
+              Votre spécialiste du <strong className="text-gold">massage à Lacanau Océan</strong>. 
+              Massage sportif, bien-être, chromothérapie et soins énergétiques. 
+              Cabinet et interventions à domicile sur Lacanau, Le Porge, Carcans.
             </p>
             <div className="flex items-center gap-2 mt-4 text-gold">
               <Waves className="w-4 h-4" />
-              <span className="text-xs font-body">À 800m de la plage</span>
+              <span className="text-xs font-body">À 800m de la plage centrale de Lacanau</span>
             </div>
           </div>
 
-          {/* Navigation */}
+          {/* Navigation - SEO optimisé */}
           <div>
             <h4 className="font-heading font-bold text-lg mb-6 text-gold flex items-center gap-2">
               <span className="w-8 h-0.5 bg-gold rounded-full" />
-              Navigation
+              Nos Massages à Lacanau
             </h4>
             <ul className="space-y-3">
               {[
-                { to: '/', label: 'Accueil' },
-                { to: '/massage-sportif', label: 'Massage Sportif' },
-                { to: '/contact', label: 'Contact' },
-                { to: '/reservation', label: 'Réservation' },
+                { to: '/', label: 'Massage Lacanau - Accueil' },
+                { to: '/massage-sportif', label: 'Massage Sportif Lacanau' },
+                { to: '/contact', label: 'Contact Lacanau Océan' },
+                { to: '/reservation', label: 'Réserver un massage' },
               ].map(link => (
                 <li key={link.to}>
                   <Link to={link.to} className="text-cream/80 hover:text-gold hover:pl-2 transition-all text-sm">
@@ -135,11 +132,23 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Bar */}
+        {/* Zone d'intervention SEO */}
         <div className="mt-12 pt-8 border-t border-cream/20">
+          <div className="text-center mb-6">
+            <p className="text-cream/70 text-sm font-body">
+              <strong className="text-gold">Massage à domicile</strong> : Lacanau · Lacanau Océan · Le Porge · Carcans · Hourtin · Saumos · Le Temple · Sainte-Hélène
+            </p>
+            <p className="text-cream/50 text-xs mt-2">
+              Mots-clés : massage lacanau, masseur lacanau, massage sportif lacanau océan, massage bien-être lacanau, masseuse lacanau
+            </p>
+          </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="pt-6 border-t border-cream/20">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-cream/60 text-xs">
-              © {currentYear} <span className="text-gold">Aura Massage</span> - Laure Dupuch. Tous droits réservés.
+              © {currentYear} <span className="text-gold">Massage Lacanau - Aura Massage</span> - Laure Dupuch. Tous droits réservés.
             </p>
             <div className="flex gap-6 text-xs">
               <Link to="/mentions-legales" className="text-cream/60 hover:text-gold transition-colors">

@@ -14,7 +14,7 @@ const Footer = () => {
               <div className="w-20 h-20 flex-shrink-0">
                 <img
                   src="/Logo-site.png"
-                  alt="Massage Lacanau - Aura Massage Logo"
+                  alt="Massage Lacanau - Massage Aura Performance Logo"
                   className="w-full h-full object-cover rounded-full"
                 />
               </div>
@@ -22,7 +22,7 @@ const Footer = () => {
                 <span className="font-heading font-bold text-2xl text-gold group-hover:text-gold-light transition-colors block">
                   Massage Lacanau
                 </span>
-                <span className="text-gold/80 text-sm font-body">Aura Massage - Lacanau Océan</span>
+                <span className="text-gold/80 text-sm font-body">Massage Aura Performance - Lacanau Océan</span>
               </div>
             </Link>
             <p className="text-cream/80 leading-relaxed text-sm">
@@ -146,7 +146,7 @@ const Footer = () => {
         <div className="pt-6 border-t border-cream/20">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-cream/60 text-xs">
-              © {currentYear} <span className="text-gold">Massage Lacanau - Aura Massage</span> - Laure Dupuch. Tous droits réservés.
+              © {currentYear} <span className="text-gold">Massage Lacanau - Massage Aura Performance</span> - Laure Dupuch. Tous droits réservés.
             </p>
             <div className="flex gap-6 text-xs">
               <Link to="/mentions-legales" className="text-cream/60 hover:text-gold transition-colors">

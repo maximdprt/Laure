@@ -5,12 +5,16 @@ export interface Soin {
   subtitle: string
   duration: number
   price: number
-  category: 'sportif' | 'energie'
+  category: 'sportif' | 'energie' | 'relaxant'
   description?: string
   benefits?: string[]
   tagline?: string
   popular?: boolean
   premium?: boolean
+  /** Massages relaxants : zones seules au choix */
+  zonesSeules?: string[]
+  /** Massages relaxants : combos de zones */
+  combos?: string[]
 }
 
 // Types pour les réservations
@@ -28,8 +32,11 @@ export interface Reservation {
 }
 
 // Types pour le booking
+export type LocationType = 'cabinet' | 'domicile'
+
 export interface BookingData {
-  soin: Soin | null
+  soins: Soin[]
+  locationType: LocationType | null
   premiumOption: boolean
   date: Date | null
   timeSlot: string | null

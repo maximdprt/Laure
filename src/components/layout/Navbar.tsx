@@ -7,6 +7,7 @@ import useScroll from '../../hooks/useScroll'
 const navLinks = [
   { path: '/', label: 'Accueil', title: 'Massage Lacanau - Accueil' },
   { path: '/massage-sportif', label: 'Nos Massages', title: 'Massage Sportif Lacanau' },
+  { path: '/informations', label: 'Infos', title: 'Massage à domicile & FAQ - Lacanau' },
   { path: '/contact', label: 'Contact', title: 'Contact Massage Lacanau' },
   { path: '/reservation', label: 'Réserver', title: 'Réserver un massage à Lacanau' },
 ]

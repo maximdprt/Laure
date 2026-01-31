@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Clock, Check, Star, ChevronLeft, ChevronRight } from 'lucide-react'
-import { massagesSportifs, soinsEnergetiques } from '../constants/services'
+import { massagesSportifs, massagesRelaxants, soinsEnergetiques } from '../constants/services'
 
 const benefitsCards = [
   {
@@ -33,7 +33,7 @@ const benefitsCards = [
   {
     image: 'https://images.unsplash.com/photo-1591343395082-e120087004b4?auto=format&fit=crop&w=600&q=80',
     title: 'Énergie',
-    description: 'Harmonisation de l\'aura et de l\'énergie'
+    description: 'Harmonisation du corps énergétique'
   }
 ]
 
@@ -366,26 +366,38 @@ const MassageSportif = () => (
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="font-heading font-semibold text-3xl text-dark mb-6">
-              Le <span className="text-gold">massage sportif à Lacanau</span> premium
+            <span className="inline-block text-sage font-body font-medium text-sm uppercase tracking-wider mb-3">
+              Pour qui ?
+            </span>
+            <h2 className="font-heading font-bold text-3xl text-dark mb-4">
+              Massages sportifs, bien-être & énergétiques à <span className="text-gold">Lacanau Océan</span>
             </h2>
-            <div className="space-y-4 text-dark/70 font-body">
-              <p>
-                Le <strong className="text-sage">massage sportif à Lacanau Océan</strong> s'adresse à toutes les personnes actives 
-                souhaitant prendre soin de leur corps, sans nécessité d'être un sportif de haut niveau.
-                Idéal avant ou après vos sessions de surf sur les spots de Lacanau.
-              </p>
-              <p>
-                Inspirés par les exigences des pratiques outdoor sur le littoral atlantique, nos <strong className="text-sage">massages à Lacanau</strong> visent à améliorer 
-                la récupération musculaire, soulager les tensions profondes, prévenir les blessures 
-                et optimiser la mobilité articulaire.
-              </p>
-              <p>
-                Nos soins sont particulièrement appréciés par les <strong className="text-sage">surfeurs de Lacanau, 
-                golfeurs du Golf de l'Ardilouse, cyclistes de la Vélodyssée, coureurs</strong> et passionnés d'activités outdoor 
-                sur tout le bassin médocain.
-              </p>
-            </div>
+            <p className="text-dark/70 font-body mb-6 leading-relaxed">
+              Des soins sur-mesure, pensés pour vous. Chaque massage s'adapte à votre profil et à vos objectifs.
+            </p>
+            <ul className="space-y-3 mb-6">
+              <li className="flex items-start gap-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-gold mt-2.5 flex-shrink-0" />
+                <span className="text-dark/80 font-body">
+                  <strong className="text-dark">Sportifs</strong> — surf, vélo, course, activités nautiques : récupération et préparation à l'effort
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-gold mt-2.5 flex-shrink-0" />
+                <span className="text-dark/80 font-body">
+                  <strong className="text-dark">Vacanciers</strong> — en quête de relaxation et de lâcher-prise au bord de l'océan
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-gold mt-2.5 flex-shrink-0" />
+                <span className="text-dark/80 font-body">
+                  <strong className="text-dark">Tous</strong> — soulager tensions, fatigue ou stress au quotidien
+                </span>
+              </li>
+            </ul>
+            <p className="text-dark/70 font-body italic border-l-2 border-gold pl-4">
+              Afin de répondre au mieux à vos besoins physiques, émotionnels et énergétiques.
+            </p>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, x: 30 }}
@@ -404,6 +416,108 @@ const MassageSportif = () => (
 
     {/* Massages Sportifs - Liste */}
     <MassagesList />
+
+    {/* Massages Relaxants */}
+    <section className="py-24 bg-gradient-to-b from-cream to-sand/20">
+      <div className="container-custom px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <span className="inline-block px-5 py-2 bg-sage/10 text-sage text-sm font-body font-medium rounded-full mb-5 tracking-wide">
+            Bien-être
+          </span>
+          <h2 className="font-heading font-bold text-4xl sm:text-5xl text-dark mb-5">
+            Massages <span className="text-gold">Relaxants</span>
+          </h2>
+          <p className="text-dark/70 font-body max-w-2xl mx-auto text-lg leading-relaxed">
+            Offrez-vous un moment de relaxation totale. Ces massages bien-être sont adaptés à vos besoins et à votre confort : vous choisissez la ou les zones que vous souhaitez et laissez-vous transporter.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
+          {massagesRelaxants.map((soin, i) => (
+            <motion.article
+              key={soin.id}
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.15 }}
+              className="group relative bg-white rounded-3xl shadow-soft overflow-hidden hover:shadow-soft-lg transition-all duration-300 border border-sand/50"
+            >
+              {/* Bandeau accent */}
+              <div className="h-1 w-full bg-gradient-to-r from-sage via-sage-dark to-gold/60" />
+
+              <div className="p-8 sm:p-10">
+                {/* En-tête carte */}
+                <div className="flex items-start justify-between gap-4 mb-6">
+                  <div>
+                    <h3 className="font-heading font-bold text-2xl sm:text-3xl text-dark mb-1 tracking-tight">
+                      {soin.name}
+                    </h3>
+                    <p className="text-gold font-body text-sm font-medium">{soin.subtitle}</p>
+                  </div>
+                  <div className="flex-shrink-0 text-right bg-sand/50 rounded-2xl px-5 py-3">
+                    <span className="font-heading font-bold text-2xl text-gold block">{soin.price}€</span>
+                    <span className="text-dark/60 text-sm font-body">{soin.duration} min</span>
+                  </div>
+                </div>
+
+                {/* Intro */}
+                <p className="text-dark/75 font-body leading-relaxed mb-6">
+                  {soin.description}
+                </p>
+
+                {/* Zones / Combos en listes */}
+                <div className="space-y-5 mb-8">
+                  {soin.zonesSeules && soin.zonesSeules.length > 0 && (
+                    <div>
+                      <h4 className="font-heading font-semibold text-dark text-sm uppercase tracking-wider mb-3 text-sage">
+                        Zones seules
+                      </h4>
+                      <ul className="space-y-2">
+                        {soin.zonesSeules.map((zone, j) => (
+                          <li key={j} className="flex items-center gap-2 text-dark/80 font-body text-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-gold flex-shrink-0" />
+                            {zone}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {soin.combos && soin.combos.length > 0 && (
+                    <div>
+                      <h4 className="font-heading font-semibold text-dark text-sm uppercase tracking-wider mb-3 text-sage">
+                        {soin.zonesSeules ? 'Ou combos' : 'Combos proposés'}
+                      </h4>
+                      <ul className="space-y-2">
+                        {soin.combos.map((combo, j) => (
+                          <li key={j} className="flex items-center gap-2 text-dark/80 font-body text-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-sage flex-shrink-0" />
+                            {combo}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {/* CTA */}
+                <Link
+                  to={`/reservation?soin=${soin.id}`}
+                  className="inline-flex items-center gap-2 bg-sage text-cream font-body font-bold px-7 py-3.5 rounded-full hover:bg-sage-dark transition-all text-sm shadow-soft group-hover:shadow-gold/20"
+                >
+                  Réserver ce soin
+                  <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </div>
+            </motion.article>
+          ))}
+        </div>
+      </div>
+    </section>
 
     {/* Soins Énergétiques - Design avec Images */}
     <section className="py-24 bg-cream">
@@ -577,6 +691,16 @@ const MassageSportif = () => (
       </div>
     </section>
 
+    {/* Mention légale - Tarifs */}
+    <section className="py-8 bg-sand/50">
+      <div className="container-custom px-4">
+        <p className="text-center text-dark/60 font-body text-sm max-w-3xl mx-auto">
+          Conformément à la législation française, les massages proposés ne sont ni thérapeutiques ni
+          sexuels et ne s'apparentent à aucune pratique médicale ou paramédicale.
+        </p>
+      </div>
+    </section>
+
     {/* CTA */}
     <section className="section-padding bg-sage">
       <div className="container-custom text-center">
@@ -589,7 +713,7 @@ const MassageSportif = () => (
             Réservez votre <span className="text-gold">massage à Lacanau</span>
           </h2>
           <p className="text-cream/80 max-w-2xl mx-auto mb-8 font-body">
-            Au cabinet à Lacanau Océan (7 rue Jean Michel) ou à domicile sur Lacanau, Le Porge, Carcans et Hourtin. 
+            Au cabinet à Lacanau Océan (7 rue Jean Michel) ou à domicile sur Lacanau, Le Porge et Carcans. 
             Votre massage sportif ou bien-être vous attend.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

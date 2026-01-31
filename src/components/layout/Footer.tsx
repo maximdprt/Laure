@@ -46,6 +46,7 @@ const Footer = () => {
               {[
                 { to: '/', label: 'Massage Lacanau - Accueil' },
                 { to: '/massage-sportif', label: 'Massage Sportif Lacanau' },
+                { to: '/informations', label: 'Massage à domicile & FAQ' },
                 { to: '/contact', label: 'Contact Lacanau Océan' },
                 { to: '/reservation', label: 'Réserver un massage' },
               ].map(link => (
@@ -136,7 +137,7 @@ const Footer = () => {
         <div className="mt-12 pt-8 border-t border-cream/20">
           <div className="text-center mb-6">
             <p className="text-cream/70 text-sm font-body">
-              <strong className="text-gold">Massage à domicile</strong> : Lacanau · Lacanau Océan · Le Porge · Carcans · Hourtin · Saumos · Le Temple · Sainte-Hélène
+              <strong className="text-gold">Massage à domicile</strong> : Lacanau · Lacanau Océan · Le Porge · Carcans
             </p>
           </div>
         </div>

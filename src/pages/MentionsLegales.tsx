@@ -228,6 +228,25 @@ const MentionsLegales = () => {
               </div>
             </motion.div>
 
+            {/* Nature des prestations */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-white rounded-2xl p-8 shadow-soft"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full bg-sage/10 flex items-center justify-center">
+                  <Scale className="w-6 h-6 text-sage" />
+                </div>
+                <h2 className="font-heading font-bold text-2xl text-dark">Nature des prestations</h2>
+              </div>
+              <p className="text-dark/70 font-body">
+                Conformément à la législation française, les massages proposés ne sont ni thérapeutiques ni
+                sexuels et ne s'apparentent à aucune pratique médicale ou paramédicale.
+              </p>
+            </motion.div>
+
             {/* Droit applicable */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}

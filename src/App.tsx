@@ -12,6 +12,7 @@ const Admin = lazy(() => import('./pages/Admin'))
 const MentionsLegales = lazy(() => import('./pages/MentionsLegales'))
 const PolitiqueConfidentialite = lazy(() => import('./pages/PolitiqueConfidentialite'))
 const CGV = lazy(() => import('./pages/CGV'))
+const Informations = lazy(() => import('./pages/Informations'))
 
 // Loader
 const PageLoader = () => (
@@ -42,6 +43,7 @@ function App() {
               <Route path="/mentions-legales" element={<MentionsLegales />} />
               <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
               <Route path="/cgv" element={<CGV />} />
+              <Route path="/informations" element={<Informations />} />
             </Routes>
           </Suspense>
         </main>

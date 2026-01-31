@@ -17,7 +17,7 @@ const carouselItems = [
   {
     image: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=800&q=80',
     title: 'Chromothérapie',
-    words: 'Couleurs · Lumière · Bien-être'
+    words: 'Couleurs · Fréquences · Bien-être'
   },
   {
     image: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=800&q=80',
@@ -220,9 +220,12 @@ const Home = () => {
               transition={{ delay: 0.6, duration: 0.8 }}
               className="text-lg text-cream/80 mb-12 max-w-2xl mx-auto leading-relaxed font-body"
             >
-              Votre <strong className="text-gold">massage à Lacanau Océan</strong> par une praticienne certifiée.
-              Massage sportif, récupération musculaire, chromothérapie et soins énergétiques
-              pour surfeurs et sportifs. Cabinet & domicile.
+              Votre bien-être, entre les mains d'une praticienne certifiée.
+              <br />
+              Massages sportifs, bien-être et soins énergétiques à Lacanau Océan
+              <br />
+              <br />
+              – Cabinet & domicile
             </motion.p>
 
           </motion.div>
@@ -271,12 +274,20 @@ const Home = () => {
                 </p>
                 <p>
                   Le <strong className="text-sage font-semibold">massage bien-être à Lacanau</strong> associe les bienfaits du toucher
-                  aux propriétés thérapeutiques des huiles essentielles et de la chromothérapie.
-                  Une expérience sensorielle complète qui harmonise le corps et l'esprit, idéale après une journée de surf.
+                  aux propriétés thérapeutiques des élixirs floraux et de la chromothérapie.
+                  Les vacances sont le moment idéal pour <strong className="text-dark">ralentir, se recentrer et prendre soin de soi.</strong>
+                </p>
+                <p>
+                  Offrez-vous un massage bien-être ou un massage énergétique pour relâcher les tensions, apaiser le
+                  mental et retrouver une sensation de légèreté.
                 </p>
                 <p>
                   Chaque <strong className="text-sage font-semibold">massage à Lacanau Océan</strong> est personnalisé selon vos besoins,
-                  votre activité et vos objectifs. Intervention au cabinet ou à domicile sur tout le bassin canaulais.
+                  votre activité et vos objectifs.
+                </p>
+                <p className="text-dark font-medium">
+                  Disponible en <strong>cabinet à Lacanau Océan</strong> ou directement à votre <strong>lieu de séjour</strong>, pour une expérience
+                  simple et sans contrainte.
                 </p>
               </div>
               <Link to="/massage-sportif" className="inline-flex items-center gap-2 mt-6 text-gold font-body font-semibold hover:gap-4 transition-all">
@@ -331,20 +342,22 @@ const Home = () => {
               </p>
               <div className="space-y-4 text-dark/70 font-body leading-relaxed">
                 <p>
-                  Professionnelle du bien-être installée à <strong className="text-sage">Lacanau</strong>,
-                  attirée par le savoir des anciens dont nous nous sommes éloignés au fil du temps,
-                  fascinée par tout ce que nous offre la nature et l'océan, j'ai toujours utilisé les médecines douces.
+                  Professionnelle du bien-être installée à <strong className="text-sage">Lacanau</strong>, j'ai toujours été fascinée par les savoirs anciens, la
+                  nature et l'océan, et j'ai naturellement intégré les médecines douces à ma pratique. Convaincue que
+                  le corps et l'esprit ne peuvent être dissociés, j'ai découvert la chromothérapie après une chute, et ai
+                  été émerveillée par le pouvoir des couleurs et les résultats obtenus.
                 </p>
                 <p>
-                  Convaincue que nous devons prendre soin de notre corps sans le dissocier de notre
-                  esprit, et en ayant fait l'expérience à titre personnel, j'ai découvert la
-                  <strong className="text-sage"> Chromothérapie</strong> à la suite d'une chute et j'ai été surprise par le pouvoir des
-                  couleurs et des résultats obtenus.
+                  Je propose depuis plusieurs années des massages exclusifs à <strong className="text-sage">Lacanau Océan</strong>, associés à la
+                  chromothérapie et huiles premium d'exception pour détendre votre corps, apaiser votre esprit et
+                  éveiller vos sens.
                 </p>
                 <p>
-                  Il n'en fallut pas plus pour éveiller ma curiosité sur cette thérapie naturelle
-                  reconnue par l'OMS en 1976. Aujourd'hui, je propose des <strong className="text-sage">massages à Lacanau Océan</strong>
-                  et ses environs (Le Porge, Carcans, Hourtin) avec un accompagnement sérieux et personnalisé.
+                  Laissez-vous envelopper par cette harmonie de lumière, de douceur et de parfum et offrez-vous un
+                  instant de sérénité sur-mesure au cœur de notre station balnéaire.
+                </p>
+                <p>
+                  Un moment privilégié, pensé pour vous ressourcer et vous émerveiller.
                 </p>
               </div>
               <div className="mt-8">
@@ -469,7 +482,7 @@ const Home = () => {
               Réservez votre <span className="text-gold">massage à Lacanau</span>
             </h2>
             <p className="text-cream/80 font-body max-w-2xl mx-auto mb-6">
-              Cabinet à Lacanau Océan ou intervention à domicile sur Lacanau, Le Porge, Carcans et Hourtin.
+              Cabinet à Lacanau Océan ou intervention à domicile sur Lacanau, Le Porge et Carcans.
               Massage sportif, bien-être, chromothérapie - trouvez le soin qui vous correspond.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -517,7 +530,7 @@ const FAQSection = () => {
     },
     {
       question: "Faites-vous des massages à domicile à Lacanau ?",
-      answer: "Oui, nous intervenons à domicile sur tout Lacanau, Lacanau Océan, Le Porge, Carcans et Hourtin. Le massage à domicile vous permet de profiter d'un moment de détente dans le confort de votre location de vacances ou de votre résidence."
+      answer: "Oui, nous intervenons à domicile sur tout Lacanau, Lacanau Océan, Le Porge et Carcans. Le massage à domicile vous permet de profiter d'un moment de détente dans le confort de votre location de vacances ou de votre résidence."
     },
     {
       question: "Le massage sportif à Lacanau est-il adapté aux surfeurs ?",

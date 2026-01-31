@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Check, Clock, Calendar, User, Phone, Mail, ChevronLeft, ChevronRight, CreditCard, Shield, CalendarCheck, Euro } from 'lucide-react'
-import { allSoins, PREMIUM_OPTION_PRICE, DEPOSIT_PERCENTAGE, DEFAULT_TIME_SLOTS, getSoinById } from '../constants/services'
+import { Check, Clock, Calendar, User, Phone, Mail, ChevronLeft, ChevronRight, CreditCard, Shield, CalendarCheck, Euro, MapPin, Home } from 'lucide-react'
+import { allSoins, PREMIUM_OPTION_PRICE, DEPOSIT_PERCENTAGE, getSoinById, getStoredSlots, getStoredBlocked } from '../constants/services'
 import type { Soin, ClientInfo } from '../types'
 
 interface BookingData {
   soins: Soin[]
+  locationType: 'cabinet' | 'domicile' | null
   premiumOption: boolean
   date: Date | null
   timeSlot: string | null
@@ -15,9 +16,10 @@ interface BookingData {
 
 const steps = [
   { id: 1, label: 'Soins' },
-  { id: 2, label: 'Date' },
-  { id: 3, label: 'Coordonnées' },
-  { id: 4, label: 'Acompte' }
+  { id: 2, label: 'Lieu' },
+  { id: 3, label: 'Date' },
+  { id: 4, label: 'Coordonnées' },
+  { id: 5, label: 'Acompte' }
 ]
 
 const Reservation = () => {
@@ -28,7 +30,7 @@ const Reservation = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [formData, setFormData] = useState<ClientInfo>({ firstName: '', lastName: '', email: '', phone: '' })
   const [bookingData, setBookingData] = useState<BookingData>({
-    soins: [], premiumOption: false, date: null, timeSlot: null, clientInfo: null
+    soins: [], locationType: null, premiumOption: false, date: null, timeSlot: null, clientInfo: null
   })
 
   // Pre-select soin from URL
@@ -81,12 +83,21 @@ const Reservation = () => {
   const depositAmount = Math.ceil(totalPrice * DEPOSIT_PERCENTAGE / 100)
   const totalDuration = bookingData.soins.reduce((sum, soin) => sum + soin.duration, 0)
 
+  // Slots et créneaux bloqués selon le lieu (cabinet ou domicile)
+  const timeSlotsForLocation = bookingData.locationType ? getStoredSlots(bookingData.locationType) : []
+  const blockedForLocation = bookingData.locationType ? getStoredBlocked(bookingData.locationType) : {}
+  const isSlotBlocked = (date: Date, time: string) => {
+    const key = date.toISOString().split('T')[0]
+    return (blockedForLocation[key] || []).includes(time)
+  }
+
   // Step validation
   const canProceed = () => {
     switch (currentStep) {
       case 1: return bookingData.soins.length > 0
-      case 2: return bookingData.date && bookingData.timeSlot
-      case 3: return formData.firstName && formData.lastName && formData.email && formData.phone
+      case 2: return bookingData.locationType !== null
+      case 3: return bookingData.date && bookingData.timeSlot
+      case 4: return formData.firstName && formData.lastName && formData.email && formData.phone
       default: return true
     }
   }
@@ -94,8 +105,12 @@ const Reservation = () => {
   const handleNext = () => {
     if (!canProceed()) return
     if (currentStep === 1) setBookingData(prev => ({ ...prev, premiumOption }))
-    if (currentStep === 3) setBookingData(prev => ({ ...prev, clientInfo: formData }))
-    if (currentStep < 4) setCurrentStep(prev => prev + 1)
+    if (currentStep === 4) setBookingData(prev => ({ ...prev, clientInfo: formData }))
+    if (currentStep < 5) setCurrentStep(prev => prev + 1)
+  }
+
+  const setLocationType = (type: 'cabinet' | 'domicile') => {
+    setBookingData(prev => ({ ...prev, locationType: type, date: null, timeSlot: null }))
   }
 
   const handleSubmit = () => {
@@ -123,6 +138,10 @@ const Reservation = () => {
                   {bookingData.soins.map(soin => (
                     <div key={soin.id} className="font-medium text-dark">{soin.name}</div>
                   ))}
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-dark/60">Lieu</span>
+                  <span className="font-medium text-dark">{bookingData.locationType === 'cabinet' ? 'Cabinet (7 rue Jean Michel, Lacanau Océan)' : 'À domicile'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-dark/60">Date</span>
@@ -192,10 +211,10 @@ const Reservation = () => {
                     <h2 className="font-heading font-semibold text-xl text-dark mb-2">Choisissez vos soins</h2>
                     <p className="text-dark/60 text-sm font-body mb-6">Vous pouvez sélectionner plusieurs soins</p>
                     
-                    {['sportif', 'energie'].map(category => (
+                    {['sportif', 'relaxant', 'energie'].map(category => (
                       <div key={category} className="mb-6">
                         <h3 className="font-body font-medium text-sage text-sm uppercase tracking-wider mb-3">
-                          {category === 'sportif' ? 'Massages Sportifs' : 'Soins Énergétiques'}
+                          {category === 'sportif' ? 'Massages Sportifs' : category === 'relaxant' ? 'Massages Relaxants' : 'Soins Énergétiques'}
                         </h3>
                         <div className="space-y-2">
                           {allSoins.filter(s => s.category === category).map(soin => {
@@ -291,10 +310,49 @@ const Reservation = () => {
                   </div>
                 )}
 
-                {/* Step 2: Date & Time */}
+                {/* Step 2: Lieu (Cabinet ou Domicile) */}
                 {currentStep === 2 && (
                   <div>
-                    <h2 className="font-heading font-semibold text-xl text-dark mb-6">Choisissez votre créneau</h2>
+                    <h2 className="font-heading font-semibold text-xl text-dark mb-2">Où souhaitez-vous être reçu ?</h2>
+                    <p className="text-dark/60 text-sm font-body mb-6">Les disponibilités diffèrent selon le lieu.</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setLocationType('cabinet')}
+                        className={`p-6 rounded-xl border-2 text-left transition-all ${
+                          bookingData.locationType === 'cabinet' ? 'border-sage bg-sage text-cream' : 'border-sand hover:border-sage/50 bg-white'
+                        }`}
+                      >
+                        <MapPin className={`w-10 h-10 mb-3 ${bookingData.locationType === 'cabinet' ? 'text-gold' : 'text-sage'}`} />
+                        <h3 className="font-heading font-semibold text-lg mb-1">Au cabinet</h3>
+                        <p className={`text-sm font-body ${bookingData.locationType === 'cabinet' ? 'text-cream/80' : 'text-dark/60'}`}>
+                          7 rue Jean Michel, Lacanau Océan<br />HEAL LO LACANAU
+                        </p>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setLocationType('domicile')}
+                        className={`p-6 rounded-xl border-2 text-left transition-all ${
+                          bookingData.locationType === 'domicile' ? 'border-sage bg-sage text-cream' : 'border-sand hover:border-sage/50 bg-white'
+                        }`}
+                      >
+                        <Home className={`w-10 h-10 mb-3 ${bookingData.locationType === 'domicile' ? 'text-gold' : 'text-sage'}`} />
+                        <h3 className="font-heading font-semibold text-lg mb-1">À domicile</h3>
+                        <p className={`text-sm font-body ${bookingData.locationType === 'domicile' ? 'text-cream/80' : 'text-dark/60'}`}>
+                          Lacanau, Le Porge, Carcans<br />Intervention à votre lieu de séjour
+                        </p>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3: Date & Time */}
+                {currentStep === 3 && (
+                  <div>
+                    <h2 className="font-heading font-semibold text-xl text-dark mb-2">Choisissez votre créneau</h2>
+                    <p className="text-dark/60 text-sm font-body mb-4">
+                      {bookingData.locationType === 'cabinet' ? 'Créneaux disponibles au cabinet.' : 'Créneaux disponibles pour une intervention à domicile.'}
+                    </p>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       {/* Calendar */}
                       <div className="bg-sand rounded-xl p-4">
@@ -341,17 +399,22 @@ const Reservation = () => {
                         </h3>
                         {bookingData.date ? (
                           <div className="grid grid-cols-2 gap-2">
-                            {DEFAULT_TIME_SLOTS.map(time => (
-                              <button
-                                key={time}
-                                onClick={() => setBookingData(prev => ({ ...prev, timeSlot: time }))}
-                                className={`py-3 rounded-lg text-sm font-body transition-all ${
-                                  bookingData.timeSlot === time ? 'bg-sage text-cream' : 'bg-sand text-dark hover:bg-gold/20'
-                                }`}
-                              >
-                                {time}
-                              </button>
-                            ))}
+                            {timeSlotsForLocation.map(time => {
+                              const blocked = isSlotBlocked(bookingData.date!, time)
+                              return (
+                                <button
+                                  key={time}
+                                  onClick={() => !blocked && setBookingData(prev => ({ ...prev, timeSlot: time }))}
+                                  disabled={blocked}
+                                  className={`py-3 rounded-lg text-sm font-body transition-all ${
+                                    bookingData.timeSlot === time ? 'bg-sage text-cream' : blocked ? 'bg-sand/50 text-dark/30 cursor-not-allowed' : 'bg-sand text-dark hover:bg-gold/20'
+                                  }`}
+                                >
+                                  {time}
+                                  {blocked && <span className="block text-xs opacity-70">Indisponible</span>}
+                                </button>
+                              )
+                            })}
                           </div>
                         ) : (
                           <div className="bg-sand rounded-xl p-8 text-center">
@@ -364,8 +427,8 @@ const Reservation = () => {
                   </div>
                 )}
 
-                {/* Step 3: Client Info */}
-                {currentStep === 3 && (
+                {/* Step 4: Client Info */}
+                {currentStep === 4 && (
                   <div>
                     <h2 className="font-heading font-semibold text-xl text-dark mb-6">Vos coordonnées</h2>
                     <div className="space-y-4">
@@ -395,8 +458,8 @@ const Reservation = () => {
                   </div>
                 )}
 
-                {/* Step 4: Payment */}
-                {currentStep === 4 && (
+                {/* Step 5: Payment */}
+                {currentStep === 5 && (
                   <div>
                     <h2 className="font-heading font-semibold text-xl text-dark mb-6">Acompte de réservation</h2>
                     <div className="bg-sand rounded-xl p-6 mb-6">
@@ -412,6 +475,7 @@ const Reservation = () => {
                           <div className="flex justify-between"><span className="text-dark/60">Option Premium</span><span className="text-dark">+{PREMIUM_OPTION_PRICE}€</span></div>
                         )}
                         <div className="flex justify-between"><span className="text-dark/60">Durée totale</span><span className="text-dark">{totalDuration} min</span></div>
+                        <div className="flex justify-between"><span className="text-dark/60">Lieu</span><span className="text-dark">{bookingData.locationType === 'cabinet' ? 'Cabinet (7 rue Jean Michel, Lacanau Océan)' : 'À domicile'}</span></div>
                         <div className="flex justify-between"><span className="text-dark/60">Date</span><span className="text-dark">{bookingData.date?.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}</span></div>
                         <div className="flex justify-between"><span className="text-dark/60">Heure</span><span className="text-dark">{bookingData.timeSlot}</span></div>
                         <div className="border-t border-dark/10 pt-3 mt-3">
@@ -445,7 +509,7 @@ const Reservation = () => {
               >
                 Retour
               </button>
-              {currentStep < 4 ? (
+              {currentStep < 5 ? (
                 <button onClick={handleNext} disabled={!canProceed()}
                   className={`px-8 py-3 font-body font-semibold rounded-lg ${canProceed() ? 'btn-primary' : 'bg-sand text-dark/30'}`}>
                   Continuer

@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Lock, Eye, EyeOff, LogOut, Calendar, Clock, User, Euro, TrendingUp, Users, Check, X, ChevronLeft, ChevronRight, Settings, Ban, CalendarCheck } from 'lucide-react'
-import { DEFAULT_TIME_SLOTS } from '../constants/services'
+import { Lock, Eye, EyeOff, LogOut, Calendar, Clock, User, Euro, TrendingUp, Users, Check, X, ChevronLeft, ChevronRight, Settings, Ban, CalendarCheck, MapPin, Home } from 'lucide-react'
+import { getStoredSlots, getStoredBlocked, setStoredSlots, setStoredBlocked } from '../constants/services'
 import type { Reservation, BlockedSlots } from '../types'
+import type { LocationType } from '../constants/services'
 
 const ADMIN_CODE = 'AURA2024'
 
@@ -22,9 +23,19 @@ const Admin = () => {
   const [reservations, setReservations] = useState(mockReservations)
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const [blockedSlots, setBlockedSlots] = useState<BlockedSlots>({})
+  const [locationCalendarType, setLocationCalendarType] = useState<LocationType>('cabinet')
+  const [blockedSlotsCabinet, setBlockedSlotsCabinet] = useState<BlockedSlots>(() => getStoredBlocked('cabinet'))
+  const [blockedSlotsDomicile, setBlockedSlotsDomicile] = useState<BlockedSlots>(() => getStoredBlocked('domicile'))
   const [activeTab, setActiveTab] = useState<'calendar' | 'reservations' | 'settings'>('calendar')
-  const [customSlots, setCustomSlots] = useState(DEFAULT_TIME_SLOTS)
+  const [customSlotsCabinet, setCustomSlotsCabinet] = useState<string[]>(() => getStoredSlots('cabinet'))
+  const [customSlotsDomicile, setCustomSlotsDomicile] = useState<string[]>(() => getStoredSlots('domicile'))
+
+  useEffect(() => {
+    setStoredBlocked('cabinet', blockedSlotsCabinet)
+  }, [blockedSlotsCabinet])
+  useEffect(() => {
+    setStoredBlocked('domicile', blockedSlotsDomicile)
+  }, [blockedSlotsDomicile])
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,15 +47,19 @@ const Admin = () => {
     setReservations(prev => prev.map(r => r.id === id ? { ...r, status } : r))
   }
 
+  const blockedSlotsCurrent = locationCalendarType === 'cabinet' ? blockedSlotsCabinet : blockedSlotsDomicile
+  const setBlockedSlotsCurrent = locationCalendarType === 'cabinet' ? setBlockedSlotsCabinet : setBlockedSlotsDomicile
+  const customSlotsCurrent = locationCalendarType === 'cabinet' ? customSlotsCabinet : customSlotsDomicile
+
   const toggleBlockSlot = (date: Date, time: string) => {
     const key = date.toISOString().split('T')[0]
-    setBlockedSlots(prev => {
+    setBlockedSlotsCurrent(prev => {
       const current = prev[key] || []
       return { ...prev, [key]: current.includes(time) ? current.filter(t => t !== time) : [...current, time] }
     })
   }
 
-  const isSlotBlocked = (date: Date, time: string) => blockedSlots[date.toISOString().split('T')[0]]?.includes(time) || false
+  const isSlotBlocked = (date: Date, time: string) => blockedSlotsCurrent[date.toISOString().split('T')[0]]?.includes(time) || false
   const getReservationsForDate = (date: Date) => reservations.filter(r => r.date.toDateString() === date.toDateString())
 
   const calendarDays = useMemo(() => {
@@ -140,8 +155,26 @@ const Admin = () => {
 
         {/* Calendar Tab */}
         {activeTab === 'calendar' && (
+          <div className="space-y-6">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setLocationCalendarType('cabinet')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-body ${locationCalendarType === 'cabinet' ? 'bg-sage text-cream' : 'bg-white text-dark/70 hover:bg-sand'}`}
+              >
+                <MapPin className="w-4 h-4" /> Calendrier Cabinet
+              </button>
+              <button
+                onClick={() => setLocationCalendarType('domicile')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-body ${locationCalendarType === 'domicile' ? 'bg-sage text-cream' : 'bg-white text-dark/70 hover:bg-sand'}`}
+              >
+                <Home className="w-4 h-4" /> Calendrier Domicile
+              </button>
+            </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 card p-6">
+              <p className="text-dark/60 text-sm font-body mb-4">
+                {locationCalendarType === 'cabinet' ? 'Bloquez des créneaux pour le cabinet (7 rue Jean Michel).' : 'Bloquez des créneaux pour les interventions à domicile.'}
+              </p>
               <div className="flex items-center justify-between mb-6">
                 <button onClick={() => setCurrentMonth(p => new Date(p.getFullYear(), p.getMonth() - 1))} className="p-2 rounded-lg hover:bg-sand"><ChevronLeft className="w-5 h-5 text-dark" /></button>
                 <h3 className="font-heading font-semibold text-xl text-dark capitalize">{currentMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</h3>
@@ -172,9 +205,9 @@ const Admin = () => {
                 <>
                   <h3 className="font-heading font-semibold text-dark mb-4">{selectedDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</h3>
                   <div className="mb-6">
-                    <h4 className="text-sm font-body text-dark/60 mb-2 flex items-center gap-2"><Clock className="w-4 h-4" /> Créneaux</h4>
+                    <h4 className="text-sm font-body text-dark/60 mb-2 flex items-center gap-2"><Clock className="w-4 h-4" /> Créneaux ({locationCalendarType === 'cabinet' ? 'Cabinet' : 'Domicile'})</h4>
                     <div className="grid grid-cols-2 gap-2">
-                      {customSlots.map(time => {
+                      {customSlotsCurrent.map(time => {
                         const res = getReservationsForDate(selectedDate).find(r => r.timeSlot === time)
                         const blocked = isSlotBlocked(selectedDate, time)
                         return (
@@ -218,6 +251,7 @@ const Admin = () => {
               )}
             </div>
           </div>
+          </div>
         )}
 
         {/* Reservations Tab */}
@@ -254,25 +288,57 @@ const Admin = () => {
 
         {/* Settings Tab */}
         {activeTab === 'settings' && (
-          <div className="card p-6 max-w-2xl">
-            <h3 className="font-heading font-semibold text-xl text-dark mb-6">Paramètres des créneaux</h3>
-            <div className="mb-6">
-              <h4 className="font-body font-medium text-dark mb-3">Heures disponibles</h4>
-              <div className="grid grid-cols-4 gap-2">
+          <div className="card p-6 max-w-3xl space-y-8">
+            <h3 className="font-heading font-semibold text-xl text-dark">Horaires et jours disponibles</h3>
+            <p className="text-dark/60 font-body text-sm">Définissez les créneaux proposés pour le cabinet et pour les interventions à domicile. Les clients verront uniquement les créneaux que vous activez ici.</p>
+
+            <div>
+              <h4 className="font-body font-medium text-dark mb-3 flex items-center gap-2"><MapPin className="w-5 h-5 text-sage" /> Heures disponibles – Cabinet (Lacanau Océan)</h4>
+              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                 {['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'].map(time => {
-                  const isActive = customSlots.includes(time)
+                  const isActive = customSlotsCabinet.includes(time)
                   return (
-                    <button key={time} onClick={() => setCustomSlots(p => isActive ? p.filter(t => t !== time) : [...p, time].sort())}
-                      className={`py-2 px-3 rounded-lg text-sm font-body ${isActive ? 'bg-sage text-cream' : 'bg-sand text-dark/60 hover:bg-sand-dark'}`}>
+                    <button
+                      key={time}
+                      onClick={() => {
+                        const next = isActive ? customSlotsCabinet.filter(t => t !== time) : [...customSlotsCabinet, time].sort()
+                        setCustomSlotsCabinet(next)
+                        setStoredSlots('cabinet', next)
+                      }}
+                      className={`py-2 px-3 rounded-lg text-sm font-body ${isActive ? 'bg-sage text-cream' : 'bg-sand text-dark/60 hover:bg-sand-dark'}`}
+                    >
                       {time}
                     </button>
                   )
                 })}
               </div>
             </div>
+
+            <div>
+              <h4 className="font-body font-medium text-dark mb-3 flex items-center gap-2"><Home className="w-5 h-5 text-sage" /> Heures disponibles – À domicile</h4>
+              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                {['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'].map(time => {
+                  const isActive = customSlotsDomicile.includes(time)
+                  return (
+                    <button
+                      key={time}
+                      onClick={() => {
+                        const next = isActive ? customSlotsDomicile.filter(t => t !== time) : [...customSlotsDomicile, time].sort()
+                        setCustomSlotsDomicile(next)
+                        setStoredSlots('domicile', next)
+                      }}
+                      className={`py-2 px-3 rounded-lg text-sm font-body ${isActive ? 'bg-sage text-cream' : 'bg-sand text-dark/60 hover:bg-sand-dark'}`}
+                    >
+                      {time}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
             <div className="border-t border-sand pt-6">
               <h4 className="font-body font-medium text-dark mb-3 flex items-center gap-2"><Ban className="w-5 h-5" /> Bloquer des créneaux</h4>
-              <p className="text-sm text-dark/60 font-body">Utilisez le calendrier pour bloquer des créneaux spécifiques.</p>
+              <p className="text-sm text-dark/60 font-body">Utilisez l’onglet Calendrier pour bloquer des créneaux spécifiques (Cabinet ou Domicile selon le calendrier sélectionné).</p>
             </div>
           </div>
         )}

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Zone admin : ne pas indexer (optionnel, débloquer si vous voulez exclure /admin)
+Disallow: /admin
+
+Sitemap: https://aura-massage-lacanau.fr/sitemap.xml

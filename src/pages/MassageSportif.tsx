@@ -691,16 +691,6 @@ const MassageSportif = () => (
       </div>
     </section>
 
-    {/* Mention légale - Tarifs */}
-    <section className="py-8 bg-sand/50">
-      <div className="container-custom px-4">
-        <p className="text-center text-dark/60 font-body text-sm max-w-3xl mx-auto">
-          Conformément à la législation française, les massages proposés ne sont ni thérapeutiques ni
-          sexuels et ne s'apparentent à aucune pratique médicale ou paramédicale.
-        </p>
-      </div>
-    </section>
-
     {/* CTA */}
     <section className="section-padding bg-sage">
       <div className="container-custom text-center">

@@ -110,7 +110,7 @@ const CGV = () => {
                 </p>
                 <ul className="list-disc list-inside space-y-2 pl-4">
                   <li>Par téléphone au 07 59 70 19 41</li>
-                  <li>Par email à contact.nlight@gmail.com</li>
+                  <li>Par email à massage.auraperformance@gmail.com</li>
                   <li>Via le formulaire de réservation en ligne sur le site</li>
                 </ul>
                 <p>

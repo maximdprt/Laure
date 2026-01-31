@@ -88,8 +88,8 @@ const Footer = () => {
                 <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
                   <Mail className="w-4 h-4 text-gold" />
                 </div>
-                <a href="mailto:contact.nlight@gmail.com" className="text-cream/80 hover:text-gold transition-colors text-sm">
-                  contact.nlight@gmail.com
+                <a href="mailto:massage.auraperformance@gmail.com" className="text-cream/80 hover:text-gold transition-colors text-sm">
+                  massage.auraperformance@gmail.com
                 </a>
               </li>
             </ul>

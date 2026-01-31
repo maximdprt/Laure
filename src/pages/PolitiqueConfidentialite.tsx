@@ -174,8 +174,8 @@ const PolitiqueConfidentialite = () => {
                 </ul>
                 <p className="mt-4">
                   Pour exercer ces droits, contactez-nous à : 
-                  <a href="mailto:contact.nlight@gmail.com" className="text-gold hover:underline ml-1">
-                    contact.nlight@gmail.com
+                  <a href="mailto:massage.auraperformance@gmail.com" className="text-gold hover:underline ml-1">
+                    massage.auraperformance@gmail.com
                   </a>
                 </p>
                 <p>

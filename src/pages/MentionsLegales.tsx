@@ -73,7 +73,7 @@ const MentionsLegales = () => {
                 </p>
                 <p className="flex items-center gap-2">
                   <Mail className="w-5 h-5 text-gold" />
-                  <span><strong className="text-dark">Email :</strong> contact.nlight@gmail.com</span>
+                  <span><strong className="text-dark">Email :</strong> massage.auraperformance@gmail.com</span>
                 </p>
                 <p>
                   <strong className="text-dark">Responsable de la publication :</strong> Laure Dupuch
@@ -167,8 +167,8 @@ const MentionsLegales = () => {
                 </ul>
                 <p>
                   Pour exercer ces droits, vous pouvez nous contacter par email à : 
-                  <a href="mailto:contact.nlight@gmail.com" className="text-gold hover:underline ml-1">
-                    contact.nlight@gmail.com
+                  <a href="mailto:massage.auraperformance@gmail.com" className="text-gold hover:underline ml-1">
+                    massage.auraperformance@gmail.com
                   </a>
                 </p>
                 <p>

@@ -32,7 +32,7 @@ const Navbar = () => {
           <div className={`relative transition-all duration-300 ${scrolled ? 'w-14 h-14' : 'w-16 h-16 sm:w-20 sm:h-20'}`}>
             <img
               src="/Logo-site.png"
-              alt="Massage Lacanau - Aura Massage Logo"
+              alt="Massage Lacanau - Massage Aura Performance Logo"
               className="w-full h-full object-cover rounded-full"
             />
           </div>
@@ -42,7 +42,7 @@ const Navbar = () => {
               className={`font-heading font-bold text-gold transition-all duration-300 ${scrolled ? 'text-xl' : 'text-2xl sm:text-3xl drop-shadow-lg'
                 } group-hover:text-gold-dark uppercase tracking-wide`}
             >
-              Aura Massage
+              Massage Aura Performance
             </span>
             <span className="text-xs font-body text-gold/80">
               Massage Lacanau - Lacanau Océan

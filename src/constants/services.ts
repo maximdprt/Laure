@@ -3,7 +3,7 @@ import { Soin } from '../types'
 // Massages Sportifs
 export const massagesSportifs: Soin[] = [
   {
-    id: 'ocean-performance',
+    id: 'dd24ec40-e94b-4615-8b54-be6d16bae885',
     name: 'OCEAN PERFORMANCE',
     subtitle: 'Activation 30\'',
     duration: 30,
@@ -12,7 +12,7 @@ export const massagesSportifs: Soin[] = [
     description: 'Préparation – cuisses / mollets / pieds. Massage ciblé bas du corps – préparation musculaire – préparation à l\'effort.'
   },
   {
-    id: 'ocean-recovery',
+    id: '06d2a5f7-ad53-4264-8ef4-39bfab884f38',
     name: 'OCEAN RECOVERY',
     subtitle: 'Detox 30\'',
     duration: 30,
@@ -21,7 +21,7 @@ export const massagesSportifs: Soin[] = [
     description: 'Récupération – bas du corps + acupressure & drainage. Récupération sportive & élimination des toxines, relâchement profond.'
   },
   {
-    id: 'ocean-athletic',
+    id: '52e8964a-9ec4-4148-ac63-c7af629e9efc',
     name: 'OCEAN ATHLETIC',
     subtitle: 'Massage Sportif 60\'',
     duration: 60,
@@ -31,7 +31,7 @@ export const massagesSportifs: Soin[] = [
     popular: true
   },
   {
-    id: 'ocean-elite',
+    id: 'eae17433-1e55-43f7-8846-67f9e96de85d',
     name: 'OCEAN ELITE',
     subtitle: 'Massage Complet 90\'',
     duration: 90,
@@ -44,7 +44,7 @@ export const massagesSportifs: Soin[] = [
 // Massages Relaxants
 export const massagesRelaxants: Soin[] = [
   {
-    id: 'ocean-bliss',
+    id: '84f3ebdf-ee26-486b-9ff7-b87f833c9c7c',
     name: 'OCEAN BLISS',
     subtitle: '45 min – zones ou combos au choix',
     duration: 45,
@@ -55,7 +55,7 @@ export const massagesRelaxants: Soin[] = [
     combos: ['Dos + Tête / Nuque', 'Dos + Bras + Tête', 'Jambes + Mollets + Pieds', 'Dos + Jambes / Mollets / Pieds', 'Visage + Tête / Nuque']
   },
   {
-    id: 'ocean-serenity',
+    id: 'ad0d8364-c1cd-4da3-ae68-d40c1e91c72c',
     name: 'OCEAN SERENITY',
     subtitle: '60 min – combos au choix',
     duration: 60,
@@ -69,7 +69,7 @@ export const massagesRelaxants: Soin[] = [
 // Soins Énergétiques
 export const soinsEnergetiques: Soin[] = [
   {
-    id: 'ocean-flow',
+    id: '868211ab-1b16-46ac-9cf7-94d5705bbe86',
     name: 'OCEAN FLOW',
     subtitle: 'Harmonisation & circulation de l\'énergie vitale',
     duration: 60,
@@ -86,7 +86,7 @@ export const soinsEnergetiques: Soin[] = [
     ]
   },
   {
-    id: 'ocean-lumina',
+    id: '70396c36-72f1-41d6-8754-b789683582ea',
     name: 'OCEAN LUMINA',
     subtitle: 'Soin aux couleurs, cristaux et vibrations',
     duration: 90,

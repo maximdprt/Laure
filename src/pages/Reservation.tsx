@@ -2,7 +2,10 @@ import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Check, Clock, Calendar, User, Phone, Mail, ChevronLeft, ChevronRight, CreditCard, Shield, CalendarCheck, Euro, MapPin, Home } from 'lucide-react'
-import { allSoins, PREMIUM_OPTION_PRICE, DEPOSIT_PERCENTAGE, getSoinById, getStoredSlots, getStoredBlocked } from '../constants/services'
+import { allSoins, PREMIUM_OPTION_PRICE, DEPOSIT_PERCENTAGE, getSoinById, getStoredBlocked } from '../constants/services'
+import { useReservations } from '../hooks/useReservations'
+import { useCreneauxHoraires } from '../hooks/useCreneauxHoraires'
+import { createReservation } from '../lib/supabaseAPI'
 import type { Soin, ClientInfo } from '../types'
 
 interface BookingData {
@@ -24,14 +27,20 @@ const steps = [
 
 const Reservation = () => {
   const [searchParams] = useSearchParams()
+  const { reservations } = useReservations()
   const [currentStep, setCurrentStep] = useState(1)
   const [bookingComplete, setBookingComplete] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [premiumOption, setPremiumOption] = useState(false)
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [formData, setFormData] = useState<ClientInfo>({ firstName: '', lastName: '', email: '', phone: '' })
   const [bookingData, setBookingData] = useState<BookingData>({
     soins: [], locationType: null, premiumOption: false, date: null, timeSlot: null, clientInfo: null
   })
+
+  // Récupère les créneaux horaires depuis Supabase en fonction du lieu
+  const { heures: heuresCabinet, loading: loadingCabinet } = useCreneauxHoraires('cabinet')
+  const { heures: heuresDomicile, loading: loadingDomicile } = useCreneauxHoraires('domicile')
 
   // Pre-select soin from URL
   useEffect(() => {
@@ -83,12 +92,39 @@ const Reservation = () => {
   const depositAmount = Math.ceil(totalPrice * DEPOSIT_PERCENTAGE / 100)
   const totalDuration = bookingData.soins.reduce((sum, soin) => sum + soin.duration, 0)
 
-  // Slots et créneaux bloqués selon le lieu (cabinet ou domicile)
-  const timeSlotsForLocation = bookingData.locationType ? getStoredSlots(bookingData.locationType) : []
+  // Utilise les créneaux horaires depuis Supabase selon le lieu choisi
+  const timeSlotsForLocation = useMemo(() => {
+    if (!bookingData.locationType) return []
+    
+    if (bookingData.locationType === 'cabinet') {
+      return loadingCabinet ? [] : heuresCabinet
+    } else {
+      return loadingDomicile ? [] : heuresDomicile
+    }
+  }, [bookingData.locationType, heuresCabinet, heuresDomicile, loadingCabinet, loadingDomicile])
+
   const blockedForLocation = bookingData.locationType ? getStoredBlocked(bookingData.locationType) : {}
+  const normalizeTime = (value: string) => value.slice(0, 5)
+  const toLocalDateKey = (value: Date) => {
+    const year = value.getFullYear()
+    const month = String(value.getMonth() + 1).padStart(2, '0')
+    const day = String(value.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
   const isSlotBlocked = (date: Date, time: string) => {
-    const key = date.toISOString().split('T')[0]
-    return (blockedForLocation[key] || []).includes(time)
+    const key = toLocalDateKey(date)
+    
+    // Vérifie les créneaux bloqués manuellement
+    const manuallyBlocked = (blockedForLocation[key] || []).includes(time)
+    if (manuallyBlocked) return true
+    
+    // Vérifie les créneaux occupés par des réservations confirmées
+    const isReserved = reservations.some(r => {
+      const resDate = r.date
+      return resDate === key && normalizeTime(r.heure) === normalizeTime(time)
+    })
+    
+    return isReserved
   }
 
   // Step validation
@@ -113,9 +149,45 @@ const Reservation = () => {
     setBookingData(prev => ({ ...prev, locationType: type, date: null, timeSlot: null }))
   }
 
-  const handleSubmit = () => {
-    console.log('Booking:', { ...bookingData, premiumOption })
-    setBookingComplete(true)
+  const handleSubmit = async () => {
+    if (!bookingData.date || !bookingData.timeSlot || !bookingData.clientInfo || bookingData.soins.length === 0) {
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      // Calcule le prix total et l'acompte
+      const soinsTotal = bookingData.soins.reduce((sum, soin) => sum + soin.price, 0)
+      const totalPrice = soinsTotal + (premiumOption && bookingData.soins.some(s => s.category === 'sportif') ? PREMIUM_OPTION_PRICE : 0)
+
+      // Crée la réservation pour chaque soin sélectionné
+      for (const soin of bookingData.soins) {
+        await createReservation({
+          nom: bookingData.clientInfo.lastName,
+          prenom: bookingData.clientInfo.firstName,
+          email: bookingData.clientInfo.email,
+          telephone: bookingData.clientInfo.phone,
+          service_id: soin.id,
+          date: bookingData.date.toISOString().split('T')[0],
+          heure: bookingData.timeSlot,
+          lieu: bookingData.locationType === 'cabinet' ? 'cabinet' : 'domicile',
+          duree: soin.duration,
+          notes: `Prix total: ${totalPrice}€${premiumOption && soin.category === 'sportif' ? ' (avec Option Premium)' : ''}`
+        })
+      }
+
+      setBookingComplete(true)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : ''
+      console.error('Erreur lors de la création de la réservation:', error)
+      if (message === 'Créneau déjà réservé') {
+        alert('Ce créneau vient d’être réservé par une autre personne. Merci de choisir un autre horaire.')
+      } else {
+        alert('Une erreur est survenue lors de la sauvegarde de votre réservation. Veuillez réessayer.')
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   // Confirmation screen
@@ -515,8 +587,8 @@ const Reservation = () => {
                   Continuer
                 </button>
               ) : (
-                <button onClick={handleSubmit} className="btn-primary px-8 py-3 flex items-center gap-2">
-                  <Euro className="w-5 h-5" /> Payer {depositAmount}€
+                <button onClick={handleSubmit} disabled={isSubmitting} className={`px-8 py-3 flex items-center gap-2 ${isSubmitting ? 'bg-sand text-dark/30' : 'btn-primary'}`}>
+                  <Euro className="w-5 h-5" /> {isSubmitting ? 'Paiement en cours...' : `Payer ${depositAmount}€`}
                 </button>
               )}
             </div>

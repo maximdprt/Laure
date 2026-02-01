@@ -1,34 +1,48 @@
 import { useState, useMemo, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Lock, Eye, EyeOff, LogOut, Calendar, Clock, User, Euro, TrendingUp, Users, Check, X, ChevronLeft, ChevronRight, Settings, Ban, CalendarCheck, MapPin, Home } from 'lucide-react'
-import { getStoredSlots, getStoredBlocked, setStoredSlots, setStoredBlocked } from '../constants/services'
+import { getStoredBlocked, setStoredBlocked } from '../constants/services'
+import { useReservations } from '../hooks/useReservations'
+import { useAllCreneauxHoraires } from '../hooks/useCreneauxHoraires'
+import ReservationsList from '../components/ReservationsList'
 import type { Reservation, BlockedSlots } from '../types'
 import type { LocationType } from '../constants/services'
 
 const ADMIN_CODE = 'AURA2024'
-
-// Mock data
-const mockReservations: Reservation[] = [
-  { id: '1', client: 'Thomas Martin', email: 'thomas@email.com', phone: '06 12 34 56 78', soin: 'OCEAN ATHLETIC', date: new Date(Date.now() + 86400000), timeSlot: '10:00', price: 85, deposit: 26, status: 'confirmed' },
-  { id: '2', client: 'Marie Dupont', email: 'marie@email.com', phone: '06 98 76 54 32', soin: 'OCEAN FLOW', date: new Date(Date.now() + 86400000), timeSlot: '14:00', price: 90, deposit: 27, status: 'pending' },
-  { id: '3', client: 'Pierre Bernard', email: 'pierre@email.com', phone: '06 11 22 33 44', soin: 'OCEAN LUMINA', date: new Date(Date.now() + 172800000), timeSlot: '11:00', price: 220, deposit: 66, status: 'confirmed' },
-  { id: '4', client: 'Sophie Legrand', email: 'sophie@email.com', phone: '06 55 44 33 22', soin: 'OCEAN PERFORMANCE', date: new Date(Date.now() + 259200000), timeSlot: '16:00', price: 45, deposit: 14, status: 'pending' }
-]
 
 const Admin = () => {
   const [isAuth, setIsAuth] = useState(false)
   const [code, setCode] = useState('')
   const [showCode, setShowCode] = useState(false)
   const [error, setError] = useState('')
-  const [reservations, setReservations] = useState(mockReservations)
+  const { reservations } = useReservations()
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [locationCalendarType, setLocationCalendarType] = useState<LocationType>('cabinet')
   const [blockedSlotsCabinet, setBlockedSlotsCabinet] = useState<BlockedSlots>(() => getStoredBlocked('cabinet'))
   const [blockedSlotsDomicile, setBlockedSlotsDomicile] = useState<BlockedSlots>(() => getStoredBlocked('domicile'))
   const [activeTab, setActiveTab] = useState<'calendar' | 'reservations' | 'settings'>('calendar')
-  const [customSlotsCabinet, setCustomSlotsCabinet] = useState<string[]>(() => getStoredSlots('cabinet'))
-  const [customSlotsDomicile, setCustomSlotsDomicile] = useState<string[]>(() => getStoredSlots('domicile'))
+  const [newTimeSlotCabinet, setNewTimeSlotCabinet] = useState('')
+  const [newTimeSlotDomicile, setNewTimeSlotDomicile] = useState('')
+
+  // Utilise le hook pour gérer les créneaux depuis Supabase
+  const {
+    creneaux: creneauxCabinet,
+    heures: heuresCabinet,
+    loading: loadingCabinet,
+    toggleCreneau: toggleCreneauCabinet,
+    ajouterCreneau: ajouterCreneauCabinet,
+    supprimerCreneau: supprimerCreneauCabinet
+  } = useAllCreneauxHoraires('cabinet')
+
+  const {
+    creneaux: creneauxDomicile,
+    heures: heuresDomicile,
+    loading: loadingDomicile,
+    toggleCreneau: toggleCreneauDomicile,
+    ajouterCreneau: ajouterCreneauDomicile,
+    supprimerCreneau: supprimerCreneauDomicile
+  } = useAllCreneauxHoraires('domicile')
 
   useEffect(() => {
     setStoredBlocked('cabinet', blockedSlotsCabinet)
@@ -43,13 +57,51 @@ const Admin = () => {
     else setError('Code incorrect')
   }
 
-  const updateStatus = (id: string, status: 'confirmed' | 'cancelled') => {
-    setReservations(prev => prev.map(r => r.id === id ? { ...r, status } : r))
-  }
-
   const blockedSlotsCurrent = locationCalendarType === 'cabinet' ? blockedSlotsCabinet : blockedSlotsDomicile
   const setBlockedSlotsCurrent = locationCalendarType === 'cabinet' ? setBlockedSlotsCabinet : setBlockedSlotsDomicile
-  const customSlotsCurrent = locationCalendarType === 'cabinet' ? customSlotsCabinet : customSlotsDomicile
+  const heuresCurrent = locationCalendarType === 'cabinet' ? heuresCabinet : heuresDomicile
+
+  const handleAjouterCreneau = async (lieu: LocationType, valeur: string) => {
+    const normalized = valeur?.slice(0, 5)
+    if (!normalized || !/^\d{2}:\d{2}$/.test(normalized)) {
+      alert('Format invalide. Utilisez HH:MM (ex: 14:30)')
+      return
+    }
+    try {
+      if (lieu === 'cabinet') {
+        if (creneauxCabinet.some(c => c.heure.substring(0, 5) === normalized)) {
+          alert('Ce créneau existe déjà.')
+          return
+        }
+        await ajouterCreneauCabinet(normalized)
+        setNewTimeSlotCabinet('')
+      } else {
+        if (creneauxDomicile.some(c => c.heure.substring(0, 5) === normalized)) {
+          alert('Ce créneau existe déjà.')
+          return
+        }
+        await ajouterCreneauDomicile(normalized)
+        setNewTimeSlotDomicile('')
+      }
+    } catch (err) {
+      alert('Erreur lors de l\'ajout du créneau')
+      console.error(err)
+    }
+  }
+
+  const handleSupprimerCreneau = async (lieu: LocationType, creneauId: string) => {
+    if (!confirm('Supprimer définitivement ce créneau ?')) return
+    try {
+      if (lieu === 'cabinet') {
+        await supprimerCreneauCabinet(creneauId)
+      } else {
+        await supprimerCreneauDomicile(creneauId)
+      }
+    } catch (err) {
+      alert('Erreur lors de la suppression du créneau')
+      console.error(err)
+    }
+  }
 
   const toggleBlockSlot = (date: Date, time: string) => {
     const key = date.toISOString().split('T')[0]
@@ -60,7 +112,12 @@ const Admin = () => {
   }
 
   const isSlotBlocked = (date: Date, time: string) => blockedSlotsCurrent[date.toISOString().split('T')[0]]?.includes(time) || false
-  const getReservationsForDate = (date: Date) => reservations.filter(r => r.date.toDateString() === date.toDateString())
+  const getReservationsForDate = (date: Date, location?: LocationType) => reservations.filter(r => {
+    const reservationDate = new Date(r.date)
+    const sameDay = reservationDate.toDateString() === date.toDateString()
+    if (!sameDay) return false
+    return location ? r.lieu === location : true
+  })
 
   const calendarDays = useMemo(() => {
     const year = currentMonth.getFullYear(), month = currentMonth.getMonth()
@@ -74,11 +131,19 @@ const Admin = () => {
   }, [currentMonth])
 
   const stats = {
-    today: reservations.filter(r => r.date.toDateString() === new Date().toDateString()).length,
-    week: reservations.filter(r => { const now = new Date(), week = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); return r.date >= now && r.date <= week }).length,
-    pending: reservations.filter(r => r.status === 'pending').length,
-    revenue: reservations.filter(r => r.status === 'confirmed').reduce((s, r) => s + r.price, 0),
-    deposits: reservations.filter(r => r.status === 'confirmed').reduce((s, r) => s + r.deposit, 0)
+    today: reservations.filter(r => {
+      const reservationDate = new Date(r.date)
+      return reservationDate.toDateString() === new Date().toDateString()
+    }).length,
+    week: reservations.filter(r => { 
+      const now = new Date()
+      const week = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+      const reservationDate = new Date(r.date)
+      return reservationDate >= now && reservationDate <= week 
+    }).length,
+    pending: reservations.filter(r => r.statut === 'en attente').length,
+    revenue: reservations.filter(r => r.statut === 'confirmée').reduce((s, r) => s + (r.services?.prix || 0), 0),
+    deposits: reservations.filter(r => r.statut === 'confirmée').reduce((s, r) => s + ((r.services?.prix || 0) * 0.3), 0)
   }
 
   // Login Screen
@@ -186,7 +251,7 @@ const Admin = () => {
               <div className="grid grid-cols-7 gap-2">
                 {calendarDays.map((date, i) => {
                   if (!date) return <div key={`e-${i}`} />
-                  const dayRes = getReservationsForDate(date)
+                  const dayRes = getReservationsForDate(date, locationCalendarType)
                   const isSelected = selectedDate?.toDateString() === date.toDateString()
                   const isToday = date.toDateString() === new Date().toDateString()
                   return (
@@ -207,8 +272,11 @@ const Admin = () => {
                   <div className="mb-6">
                     <h4 className="text-sm font-body text-dark/60 mb-2 flex items-center gap-2"><Clock className="w-4 h-4" /> Créneaux ({locationCalendarType === 'cabinet' ? 'Cabinet' : 'Domicile'})</h4>
                     <div className="grid grid-cols-2 gap-2">
-                      {customSlotsCurrent.map(time => {
-                        const res = getReservationsForDate(selectedDate).find(r => r.timeSlot === time)
+                      {heuresCurrent.map(time => {
+                        const res = getReservationsForDate(selectedDate, locationCalendarType).find(r => {
+                          const heureFormatted = r.heure.substring(0, 5)
+                          return heureFormatted === time && r.lieu === locationCalendarType
+                        })
                         const blocked = isSlotBlocked(selectedDate, time)
                         return (
                           <button key={time} onClick={() => !res && toggleBlockSlot(selectedDate, time)} disabled={!!res}
@@ -223,20 +291,20 @@ const Admin = () => {
                   </div>
                   <div>
                     <h4 className="text-sm font-body text-dark/60 mb-2">Réservations</h4>
-                    {getReservationsForDate(selectedDate).length === 0 ? (
+                    {getReservationsForDate(selectedDate, locationCalendarType).length === 0 ? (
                       <p className="text-sm text-dark/50 italic font-body">Aucune réservation</p>
                     ) : (
                       <div className="space-y-2">
-                        {getReservationsForDate(selectedDate).map(r => (
+                        {getReservationsForDate(selectedDate, locationCalendarType).map(r => (
                           <div key={r.id} className="bg-sand rounded-lg p-3">
                             <div className="flex items-center justify-between">
-                              <span className="font-body font-medium text-dark text-sm">{r.timeSlot}</span>
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${r.status === 'confirmed' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
-                                {r.status === 'confirmed' ? 'Confirmé' : 'En attente'}
+                              <span className="font-body font-medium text-dark text-sm">{r.heure.substring(0, 5)}</span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${r.statut === 'confirmée' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
+                                {r.statut === 'confirmée' ? 'Confirmé' : 'En attente'}
                               </span>
                             </div>
-                            <p className="text-sm text-dark/70 font-body">{r.client}</p>
-                            <p className="text-xs text-dark/50 font-body">{r.soin}</p>
+                            <p className="text-sm text-dark/70 font-body">{r.users?.prenom} {r.users?.nom}</p>
+                            <p className="text-xs text-dark/50 font-body">{r.services?.nom}</p>
                           </div>
                         ))}
                       </div>
@@ -256,83 +324,98 @@ const Admin = () => {
 
         {/* Reservations Tab */}
         {activeTab === 'reservations' && (
-          <div className="space-y-4">
-            {reservations.map((r, i) => (
-              <motion.div key={r.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="card p-6">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-heading font-semibold text-dark">{r.soin}</h3>
-                      <span className={`text-xs px-2 py-1 rounded-full ${r.status === 'confirmed' ? 'bg-success/10 text-success' : r.status === 'cancelled' ? 'bg-error/10 text-error' : 'bg-warning/10 text-warning'}`}>
-                        {r.status === 'confirmed' ? 'Confirmé' : r.status === 'cancelled' ? 'Annulé' : 'En attente'}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm font-body">
-                      <div className="flex items-center gap-2 text-dark/60"><User className="w-4 h-4" /> {r.client}</div>
-                      <div className="flex items-center gap-2 text-dark/60"><Calendar className="w-4 h-4" /> {r.date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</div>
-                      <div className="flex items-center gap-2 text-dark/60"><Clock className="w-4 h-4" /> {r.timeSlot}</div>
-                      <div className="flex items-center gap-2 text-dark/60"><Euro className="w-4 h-4" /> {r.price}€ (acompte: {r.deposit}€)</div>
-                    </div>
-                  </div>
-                  {r.status === 'pending' && (
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => updateStatus(r.id, 'confirmed')} className="p-2 rounded-lg bg-success/10 text-success hover:bg-success/20"><Check className="w-5 h-5" /></button>
-                      <button onClick={() => updateStatus(r.id, 'cancelled')} className="p-2 rounded-lg bg-error/10 text-error hover:bg-error/20"><X className="w-5 h-5" /></button>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          <ReservationsList />
         )}
 
         {/* Settings Tab */}
         {activeTab === 'settings' && (
-          <div className="card p-6 max-w-3xl space-y-8">
+          <div className="card p-6 max-w-4xl space-y-8">
             <h3 className="font-heading font-semibold text-xl text-dark">Horaires et jours disponibles</h3>
             <p className="text-dark/60 font-body text-sm">Définissez les créneaux proposés pour le cabinet et pour les interventions à domicile. Les clients verront uniquement les créneaux que vous activez ici.</p>
 
             <div>
               <h4 className="font-body font-medium text-dark mb-3 flex items-center gap-2"><MapPin className="w-5 h-5 text-sage" /> Heures disponibles – Cabinet (Lacanau Océan)</h4>
-              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                {['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'].map(time => {
-                  const isActive = customSlotsCabinet.includes(time)
-                  return (
-                    <button
-                      key={time}
-                      onClick={() => {
-                        const next = isActive ? customSlotsCabinet.filter(t => t !== time) : [...customSlotsCabinet, time].sort()
-                        setCustomSlotsCabinet(next)
-                        setStoredSlots('cabinet', next)
-                      }}
-                      className={`py-2 px-3 rounded-lg text-sm font-body ${isActive ? 'bg-sage text-cream' : 'bg-sand text-dark/60 hover:bg-sand-dark'}`}
-                    >
-                      {time}
-                    </button>
-                  )
-                })}
+              {loadingCabinet ? (
+                <div className="text-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-sage mx-auto"></div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                  {creneauxCabinet.map(creneau => (
+                    <div key={creneau.id} className="flex items-center gap-1">
+                      <button
+                        onClick={() => toggleCreneauCabinet(creneau.id, !creneau.actif)}
+                        className={`flex-1 py-2 px-3 rounded-lg text-sm font-body ${creneau.actif ? 'bg-sage text-cream' : 'bg-sand text-dark/60 hover:bg-sand-dark'}`}
+                      >
+                        {creneau.heure.substring(0, 5)}
+                      </button>
+                      <button
+                        onClick={() => handleSupprimerCreneau('cabinet', creneau.id)}
+                        className="p-2 rounded-lg bg-sand text-dark/60 hover:bg-error/10 hover:text-error"
+                        aria-label="Supprimer le créneau"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="mt-4 flex gap-2">
+                <input
+                  type="time"
+                  value={newTimeSlotCabinet}
+                  onChange={(e) => setNewTimeSlotCabinet(e.target.value)}
+                  className="px-3 py-2 rounded-lg border border-sand"
+                />
+                <button
+                  onClick={() => handleAjouterCreneau('cabinet', newTimeSlotCabinet)}
+                  className="btn-primary px-4 py-2"
+                >
+                  + Ajouter
+                </button>
               </div>
             </div>
 
             <div>
               <h4 className="font-body font-medium text-dark mb-3 flex items-center gap-2"><Home className="w-5 h-5 text-sage" /> Heures disponibles – À domicile</h4>
-              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                {['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'].map(time => {
-                  const isActive = customSlotsDomicile.includes(time)
-                  return (
-                    <button
-                      key={time}
-                      onClick={() => {
-                        const next = isActive ? customSlotsDomicile.filter(t => t !== time) : [...customSlotsDomicile, time].sort()
-                        setCustomSlotsDomicile(next)
-                        setStoredSlots('domicile', next)
-                      }}
-                      className={`py-2 px-3 rounded-lg text-sm font-body ${isActive ? 'bg-sage text-cream' : 'bg-sand text-dark/60 hover:bg-sand-dark'}`}
-                    >
-                      {time}
-                    </button>
-                  )
-                })}
+              {loadingDomicile ? (
+                <div className="text-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-sage mx-auto"></div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                  {creneauxDomicile.map(creneau => (
+                    <div key={creneau.id} className="flex items-center gap-1">
+                      <button
+                        onClick={() => toggleCreneauDomicile(creneau.id, !creneau.actif)}
+                        className={`flex-1 py-2 px-3 rounded-lg text-sm font-body ${creneau.actif ? 'bg-sage text-cream' : 'bg-sand text-dark/60 hover:bg-sand-dark'}`}
+                      >
+                        {creneau.heure.substring(0, 5)}
+                      </button>
+                      <button
+                        onClick={() => handleSupprimerCreneau('domicile', creneau.id)}
+                        className="p-2 rounded-lg bg-sand text-dark/60 hover:bg-error/10 hover:text-error"
+                        aria-label="Supprimer le créneau"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="mt-4 flex gap-2">
+                <input
+                  type="time"
+                  value={newTimeSlotDomicile}
+                  onChange={(e) => setNewTimeSlotDomicile(e.target.value)}
+                  className="px-3 py-2 rounded-lg border border-sand"
+                />
+                <button
+                  onClick={() => handleAjouterCreneau('domicile', newTimeSlotDomicile)}
+                  className="btn-primary px-4 py-2"
+                >
+                  + Ajouter
+                </button>
               </div>
             </div>
 

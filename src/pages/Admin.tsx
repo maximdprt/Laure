@@ -1,11 +1,11 @@
 import { useState, useMemo, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Lock, Eye, EyeOff, LogOut, Calendar, Clock, User, Euro, TrendingUp, Users, Check, X, ChevronLeft, ChevronRight, Settings, Ban, CalendarCheck, MapPin, Home } from 'lucide-react'
-import { getStoredBlocked, setStoredBlocked } from '../constants/services'
+import { Lock, Eye, EyeOff, LogOut, Calendar, Clock, Euro, TrendingUp, Users, X, ChevronLeft, ChevronRight, Settings, Ban, CalendarCheck, MapPin, Home, Star, MessageSquare, Plus, Pencil, Trash2 } from 'lucide-react'
+import { getStoredBlocked, setStoredBlocked, getStoredAvis, setStoredAvis } from '../constants/services'
 import { useReservations } from '../hooks/useReservations'
 import { useAllCreneauxHoraires } from '../hooks/useCreneauxHoraires'
 import ReservationsList from '../components/ReservationsList'
-import type { Reservation, BlockedSlots } from '../types'
+import type { BlockedSlots, Avis } from '../types'
 import type { LocationType } from '../constants/services'
 
 const ADMIN_CODE = 'AURA2024'
@@ -21,7 +21,10 @@ const Admin = () => {
   const [locationCalendarType, setLocationCalendarType] = useState<LocationType>('cabinet')
   const [blockedSlotsCabinet, setBlockedSlotsCabinet] = useState<BlockedSlots>(() => getStoredBlocked('cabinet'))
   const [blockedSlotsDomicile, setBlockedSlotsDomicile] = useState<BlockedSlots>(() => getStoredBlocked('domicile'))
-  const [activeTab, setActiveTab] = useState<'calendar' | 'reservations' | 'settings'>('calendar')
+  const [activeTab, setActiveTab] = useState<'calendar' | 'reservations' | 'settings' | 'avis'>('calendar')
+  const [avisList, setAvisList] = useState<Avis[]>(() => getStoredAvis())
+  const [editingAvis, setEditingAvis] = useState<Avis | null>(null)
+  const [newAvis, setNewAvis] = useState<Partial<Avis>>({ name: '', text: '', rating: 5, date: '' })
   const [newTimeSlotCabinet, setNewTimeSlotCabinet] = useState('')
   const [newTimeSlotDomicile, setNewTimeSlotDomicile] = useState('')
 
@@ -50,6 +53,9 @@ const Admin = () => {
   useEffect(() => {
     setStoredBlocked('domicile', blockedSlotsDomicile)
   }, [blockedSlotsDomicile])
+  useEffect(() => {
+    setStoredAvis(avisList)
+  }, [avisList])
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
@@ -101,6 +107,29 @@ const Admin = () => {
       alert('Erreur lors de la suppression du créneau')
       console.error(err)
     }
+  }
+
+  const generateId = () => `av_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
+  const handleAddAvis = () => {
+    if (!newAvis.name?.trim() || !newAvis.text?.trim() || !newAvis.date?.trim()) {
+      alert('Remplissez le nom, le texte et la date.')
+      return
+    }
+    setAvisList(prev => [...prev, { id: generateId(), name: newAvis.name!.trim(), text: newAvis.text!.trim(), rating: newAvis.rating ?? 5, date: newAvis.date!.trim() }])
+    setNewAvis({ name: '', text: '', rating: 5, date: '' })
+  }
+  const handleUpdateAvis = () => {
+    if (!editingAvis || !editingAvis.name?.trim() || !editingAvis.text?.trim() || !editingAvis.date?.trim()) {
+      alert('Remplissez le nom, le texte et la date.')
+      return
+    }
+    setAvisList(prev => prev.map(a => a.id === editingAvis.id ? { ...editingAvis, name: editingAvis.name.trim(), text: editingAvis.text.trim(), date: editingAvis.date.trim() } : a))
+    setEditingAvis(null)
+  }
+  const handleDeleteAvis = (id: string) => {
+    if (!confirm('Supprimer cet avis ?')) return
+    setAvisList(prev => prev.filter(a => a.id !== id))
+    if (editingAvis?.id === id) setEditingAvis(null)
   }
 
   const toggleBlockSlot = (date: Date, time: string) => {
@@ -210,7 +239,7 @@ const Admin = () => {
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6">
-          {[{ id: 'calendar', label: 'Calendrier', icon: Calendar }, { id: 'reservations', label: 'Réservations', icon: CalendarCheck }, { id: 'settings', label: 'Paramètres', icon: Settings }].map(tab => (
+          {[{ id: 'calendar', label: 'Calendrier', icon: Calendar }, { id: 'reservations', label: 'Réservations', icon: CalendarCheck }, { id: 'avis', label: 'Avis', icon: MessageSquare }, { id: 'settings', label: 'Paramètres', icon: Settings }].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id as typeof activeTab)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-body ${activeTab === tab.id ? 'bg-sage text-cream' : 'bg-white text-dark/70 hover:bg-sand'}`}>
               <tab.icon className="w-4 h-4" /> {tab.label}
@@ -325,6 +354,114 @@ const Admin = () => {
         {/* Reservations Tab */}
         {activeTab === 'reservations' && (
           <ReservationsList />
+        )}
+
+        {/* Avis Tab */}
+        {activeTab === 'avis' && (
+          <div className="card p-6 max-w-4xl space-y-6">
+            <h3 className="font-heading font-semibold text-xl text-dark">Gérer les avis clients</h3>
+            <p className="text-dark/60 font-body text-sm">Ajoutez, modifiez ou supprimez les témoignages affichés sur la page d'accueil.</p>
+
+            {/* Formulaire : ajout ou édition */}
+            <div className="bg-sand/50 rounded-xl p-4 space-y-4">
+              <h4 className="font-body font-medium text-dark flex items-center gap-2">
+                {editingAvis ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                {editingAvis ? 'Modifier l\'avis' : 'Nouvel avis'}
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-body text-dark/70 mb-1">Nom (ex. Sophie M.)</label>
+                  <input
+                    type="text"
+                    value={editingAvis ? editingAvis.name : (newAvis.name ?? '')}
+                    onChange={(e) => editingAvis ? setEditingAvis({ ...editingAvis, name: e.target.value }) : setNewAvis({ ...newAvis, name: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-sand font-body"
+                    placeholder="Prénom et initiale"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-body text-dark/70 mb-1">Date (ex. Décembre 2025)</label>
+                  <input
+                    type="text"
+                    value={editingAvis ? editingAvis.date : (newAvis.date ?? '')}
+                    onChange={(e) => editingAvis ? setEditingAvis({ ...editingAvis, date: e.target.value }) : setNewAvis({ ...newAvis, date: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-sand font-body"
+                    placeholder="Mois et année"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-body text-dark/70 mb-1">Note (1 à 5)</label>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map(n => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => editingAvis ? setEditingAvis({ ...editingAvis, rating: n }) : setNewAvis({ ...newAvis, rating: n })}
+                      className={`p-2 rounded-lg ${(editingAvis ? editingAvis.rating : (newAvis.rating ?? 5)) >= n ? 'bg-gold text-white' : 'bg-sand text-dark/50'}`}
+                    >
+                      <Star className="w-4 h-4 fill-current" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-body text-dark/70 mb-1">Texte du témoignage</label>
+                <textarea
+                  rows={4}
+                  value={editingAvis ? editingAvis.text : (newAvis.text ?? '')}
+                  onChange={(e) => editingAvis ? setEditingAvis({ ...editingAvis, text: e.target.value }) : setNewAvis({ ...newAvis, text: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border border-sand font-body"
+                  placeholder="Contenu de l'avis..."
+                />
+              </div>
+              <div className="flex gap-2">
+                {editingAvis ? (
+                  <>
+                    <button type="button" onClick={() => setEditingAvis(null)} className="px-4 py-2 rounded-lg bg-sand text-dark font-body">Annuler</button>
+                    <button type="button" onClick={handleUpdateAvis} className="btn-primary px-4 py-2">Enregistrer</button>
+                  </>
+                ) : (
+                  <button type="button" onClick={handleAddAvis} className="btn-primary px-4 py-2 flex items-center gap-2">
+                    <Plus className="w-4 h-4" /> Ajouter l'avis
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Liste des avis */}
+            <div>
+              <h4 className="font-body font-medium text-dark mb-3">Avis enregistrés ({avisList.length})</h4>
+              <div className="space-y-3">
+                {avisList.length === 0 ? (
+                  <p className="text-dark/50 font-body text-sm italic">Aucun avis. Ajoutez-en un ci-dessus.</p>
+                ) : (
+                  avisList.map(a => (
+                    <div key={a.id} className="flex items-start gap-4 p-4 rounded-xl bg-white border border-sand">
+                      <div className="flex gap-1 shrink-0">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`w-4 h-4 ${i < a.rating ? 'fill-gold text-gold' : 'text-dark/20'}`} />
+                        ))}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-heading font-semibold text-dark">{a.name}</p>
+                        <p className="text-sm text-dark/50 font-body mb-2">{a.date}</p>
+                        <p className="text-dark/70 font-body text-sm italic line-clamp-2">"{a.text}"</p>
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <button type="button" onClick={() => setEditingAvis({ ...a })} className="p-2 rounded-lg bg-sand text-dark hover:bg-sage hover:text-cream" aria-label="Modifier">
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button type="button" onClick={() => handleDeleteAvis(a.id)} className="p-2 rounded-lg bg-sand text-dark hover:bg-error/10 hover:text-error" aria-label="Supprimer">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Settings Tab */}

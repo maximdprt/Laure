@@ -50,6 +50,15 @@ export interface ClientInfo {
   phone: string
 }
 
+// Types pour les avis clients (témoignages)
+export interface Avis {
+  id: string
+  name: string
+  text: string
+  rating: number
+  date: string
+}
+
 // Types pour l'admin
 export interface BlockedSlots {
   [date: string]: string[]

@@ -3,38 +3,15 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Clock, Check, Star, ChevronLeft, ChevronRight } from 'lucide-react'
 import { massagesSportifs, massagesRelaxants, soinsEnergetiques } from '../constants/services'
+import { PUBLIC_IMAGES } from '../constants/images'
 
 const benefitsCards = [
-  {
-    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&q=80',
-    title: 'Récupération',
-    description: 'Améliorer la récupération musculaire après l\'effort'
-  },
-  {
-    image: '/Gemini_Generated_Image_7ptbup7ptbup7ptb.png',
-    title: 'Détente',
-    description: 'Soulager les tensions profondes du corps'
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=600&q=80',
-    title: 'Prévention',
-    description: 'Prévenir les blessures liées à l\'effort'
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=600&q=80',
-    title: 'Mobilité',
-    description: 'Optimiser la souplesse et la mobilité'
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=600&q=80',
-    title: 'Bien-être',
-    description: 'Favoriser un état de bien-être durable'
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1591343395082-e120087004b4?auto=format&fit=crop&w=600&q=80',
-    title: 'Énergie',
-    description: 'Harmonisation du corps énergétique'
-  }
+  { image: PUBLIC_IMAGES.telecharger2, title: 'Récupération', description: 'Améliorer la récupération musculaire après l\'effort' },
+  { image: PUBLIC_IMAGES.gemini, title: 'Détente', description: 'Soulager les tensions profondes du corps' },
+  { image: PUBLIC_IMAGES.secretYounger, title: 'Prévention', description: 'Prévenir les blessures liées à l\'effort' },
+  { image: PUBLIC_IMAGES.spaBalinese, title: 'Mobilité', description: 'Optimiser la souplesse et la mobilité' },
+  { image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=600&q=80', title: 'Bien-être', description: 'Favoriser un état de bien-être durable' },
+  { image: 'https://images.unsplash.com/photo-1591343395082-e120087004b4?auto=format&fit=crop&w=600&q=80', title: 'Énergie', description: 'Harmonisation du corps énergétique' }
 ]
 
 const BenefitsCarousel3D = () => {
@@ -562,10 +539,7 @@ const MassageSportif = () => (
               >
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-[4/3]">
                   <img 
-                    src={i === 0 
-                      ? 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&w=800&q=80'
-                      : 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=800&q=80'
-                    }
+                    src={i === 0 ? 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&w=800&q=80' : 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=800&q=80'}
                     alt={soin.name}
                     className="w-full h-full object-cover"
                   />

@@ -1,4 +1,4 @@
-import { Soin } from '../types'
+import type { Soin, Avis } from '../types'
 
 // Massages Sportifs
 export const massagesSportifs: Soin[] = [
@@ -157,6 +157,30 @@ export function setStoredSlots(location: LocationType, slots: string[]) {
 export function setStoredBlocked(location: LocationType, blocked: Record<string, string[]>) {
   const key = location === 'cabinet' ? STORAGE_KEY_BLOCKED_CABINET : STORAGE_KEY_BLOCKED_DOMICILE
   localStorage.setItem(key, JSON.stringify(blocked))
+}
+
+// Avis clients (témoignages) – stockage localStorage
+export const STORAGE_KEY_AVIS = 'aura_avis'
+
+const DEFAULT_AVIS: Avis[] = [
+  { id: 'av1', name: "Sophie M.", text: "J'avais le dos en compote après ma semaine de surf... Laure m'a vraiment sauvée ! Elle a pris le temps de comprendre où j'avais mal et le massage était top. Je suis ressortie légère, ça faisait longtemps.", rating: 5, date: "Décembre 2025" },
+  { id: 'av2', name: "Thomas L.", text: "Très bon moment, l'ambiance est apaisante et Laure sait ce qu'elle fait. Mon massage sportif m'a bien détendu les jambes après mes sessions vélo. Je recommande, et le cabinet est facile à trouver !", rating: 5, date: "Novembre 2025" },
+  { id: 'av3', name: "Marie-Claire D.", text: "C'était ma première chromothérapie et j'étais un peu sceptique au départ, mais finalement j'ai adoré. Laure explique bien ce qu'elle fait et on se sent vraiment en confiance. J'y retournerai c'est sûr.", rating: 5, date: "Octobre 2025" }
+]
+
+export function getStoredAvis(): Avis[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_AVIS)
+    if (raw) {
+      const parsed = JSON.parse(raw) as Avis[]
+      if (Array.isArray(parsed) && parsed.length) return parsed
+    }
+  } catch (_) {}
+  return [...DEFAULT_AVIS]
+}
+
+export function setStoredAvis(avis: Avis[]) {
+  localStorage.setItem(STORAGE_KEY_AVIS, JSON.stringify(avis))
 }
 
 // Helpers

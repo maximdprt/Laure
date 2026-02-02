@@ -2,28 +2,14 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ChevronLeft, ChevronRight, Waves, MapPin, Star, Quote, Plus, Minus } from 'lucide-react'
+import { getStoredAvis } from '../constants/services'
+import { PUBLIC_IMAGES } from '../constants/images'
 
 const carouselItems = [
-  {
-    image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=800&q=80',
-    title: 'Massage Sportif',
-    words: 'Performance · Récupération · Énergie'
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1600334129128-685c5582fd35?auto=format&fit=crop&w=800&q=80',
-    title: 'Soins Énergétiques',
-    words: 'Harmonie · Équilibre · Sérénité'
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=800&q=80',
-    title: 'Chromothérapie',
-    words: 'Couleurs · Fréquences · Bien-être'
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=800&q=80',
-    title: 'Massage aux Huiles',
-    words: 'Détente · Douceur · Relaxation'
-  }
+  { image: PUBLIC_IMAGES.whatsApp1602, title: 'Massage Sportif', words: 'Performance · Récupération · Énergie' },
+  { image: PUBLIC_IMAGES.reiki, title: 'Soins Énergétiques', words: 'Harmonie · Équilibre · Sérénité' },
+  { image: PUBLIC_IMAGES.telecharger1, title: 'Chromothérapie', words: 'Couleurs · Fréquences · Bien-être' },
+  { image: PUBLIC_IMAGES.massageRelaxant, title: 'Massage aux Huiles', words: 'Détente · Douceur · Relaxation' }
 ]
 
 const ServicesCarousel = () => {
@@ -164,7 +150,7 @@ const Home = () => {
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: `url('https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=1920&q=80')`,
+              backgroundImage: `url('${PUBLIC_IMAGES.brooklynSpa}')`,
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-sage/80 via-sage/60 to-dark/90" />
@@ -305,7 +291,7 @@ const Home = () => {
               <div
                 className="rounded-2xl overflow-hidden shadow-soft-lg aspect-[4/3] bg-cover bg-center"
                 style={{
-                  backgroundImage: `url('https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=800&q=80')`
+                  backgroundImage: `url('${PUBLIC_IMAGES.massage100Personnalise}')`
                 }}
               />
               <div className="absolute -bottom-4 -right-4 bg-gold text-dark p-4 rounded-xl shadow-gold">
@@ -383,7 +369,7 @@ const Home = () => {
               <div className="relative">
                 <div className="rounded-2xl overflow-hidden shadow-soft-lg border-4 border-cream">
                   <img
-                    src="/lauredupuch-dupuch-portrait.jpg"
+                    src={PUBLIC_IMAGES.portrait}
                     alt="Laure Dupuch - Masseuse professionnelle à Lacanau Océan"
                     className="w-full h-auto object-cover"
                   />
@@ -417,34 +403,25 @@ const Home = () => {
               Avis sur nos <span className="text-gold">massages à Lacanau</span>
             </h2>
             <div className="flex items-center justify-center gap-2 mb-4">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`w-6 h-6 ${i < 4 ? 'fill-gold text-gold' : 'fill-gold/50 text-gold/50'}`} />
-              ))}
-              <span className="ml-2 text-dark/70 font-body">4,7/5 basé sur 47 avis</span>
+              {(() => {
+                const avis = getStoredAvis()
+                const count = avis.length
+                const avg = count ? (avis.reduce((s, a) => s + a.rating, 0) / count).toFixed(1) : '0'
+                const fullStars = Math.round(Number(avg))
+                return (
+                  <>
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className={`w-6 h-6 ${i < fullStars ? 'fill-gold text-gold' : 'fill-gold/50 text-gold/50'}`} />
+                    ))}
+                    <span className="ml-2 text-dark/70 font-body">{avg}/5 basé sur {count} avis</span>
+                  </>
+                )
+              })()}
             </div>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                name: "Sophie M.",
-                text: "J'avais le dos en compote après ma semaine de surf... Laure m'a vraiment sauvée ! Elle a pris le temps de comprendre où j'avais mal et le massage était top. Je suis ressortie légère, ça faisait longtemps.",
-                rating: 5,
-                date: "Décembre 2025"
-              },
-              {
-                name: "Thomas L.",
-                text: "Très bon moment, l'ambiance est apaisante et Laure sait ce qu'elle fait. Mon massage sportif m'a bien détendu les jambes après mes sessions vélo. Je recommande, et le cabinet est facile à trouver !",
-                rating: 5,
-                date: "Novembre 2025"
-              },
-              {
-                name: "Marie-Claire D.",
-                text: "C'était ma première chromothérapie et j'étais un peu sceptique au départ, mais finalement j'ai adoré. Laure explique bien ce qu'elle fait et on se sent vraiment en confiance. J'y retournerai c'est sûr.",
-                rating: 5,
-                date: "Octobre 2025"
-              }
-            ].map((review, i) => (
+            {getStoredAvis().map((review, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}

@@ -294,10 +294,6 @@ const Home = () => {
                   backgroundImage: `url('${PUBLIC_IMAGES.massage100Personnalise}')`
                 }}
               />
-              <div className="absolute -bottom-4 -right-4 bg-gold text-dark p-4 rounded-xl shadow-gold">
-                <p className="font-heading font-bold text-2xl">100%</p>
-                <p className="text-xs">Personnalisé</p>
-              </div>
             </motion.div>
           </div>
         </div>

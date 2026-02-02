@@ -562,8 +562,8 @@ const MassageSportif = () => (
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-[4/3]">
                   <img
                     src={i === 0
-                      ? 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&w=800&q=80'
-                      : 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=800&q=80'
+                      ? '/ocean flow.png'
+                      : '/ocean lumina.png'
                     }
                     alt={soin.name}
                     className="w-full h-full object-cover"

@@ -3,15 +3,39 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Clock, Check, Star, ChevronLeft, ChevronRight } from 'lucide-react'
 import { massagesSportifs, massagesRelaxants, soinsEnergetiques } from '../constants/services'
-import { PUBLIC_IMAGES } from '../constants/images'
+
 
 const benefitsCards = [
-  { image: PUBLIC_IMAGES.telecharger2, title: 'Récupération', description: 'Améliorer la récupération musculaire après l\'effort' },
-  { image: PUBLIC_IMAGES.gemini, title: 'Détente', description: 'Soulager les tensions profondes du corps' },
-  { image: PUBLIC_IMAGES.secretYounger, title: 'Prévention', description: 'Prévenir les blessures liées à l\'effort' },
-  { image: PUBLIC_IMAGES.spaBalinese, title: 'Mobilité', description: 'Optimiser la souplesse et la mobilité' },
-  { image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=600&q=80', title: 'Bien-être', description: 'Favoriser un état de bien-être durable' },
-  { image: 'https://images.unsplash.com/photo-1591343395082-e120087004b4?auto=format&fit=crop&w=600&q=80', title: 'Énergie', description: 'Harmonisation du corps énergétique' }
+  {
+    image: '/images/benefits/recovery.png',
+    title: 'Récupération',
+    description: 'Améliorer la récupération musculaire après l\'effort'
+  },
+  {
+    image: '/images/benefits/relaxation.png',
+    title: 'Détente',
+    description: 'Soulager les tensions profondes du corps'
+  },
+  {
+    image: '/images/benefits/prevention.png',
+    title: 'Prévention',
+    description: 'Prévenir les blessures liées à l\'effort'
+  },
+  {
+    image: '/images/benefits/mobility.png',
+    title: 'Mobilité',
+    description: 'Optimiser la souplesse et la mobilité'
+  },
+  {
+    image: '/images/benefits/wellness.png',
+    title: 'Bien-être',
+    description: 'Favoriser un état de bien-être durable'
+  },
+  {
+    image: '/images/benefits/energy.png',
+    title: 'Énergie',
+    description: 'Harmonisation du corps énergétique'
+  }
 ]
 
 const BenefitsCarousel3D = () => {
@@ -28,7 +52,7 @@ const BenefitsCarousel3D = () => {
   const getCardStyle = (index: number) => {
     const diff = index - currentIndex
     const normalizedDiff = ((diff + benefitsCards.length) % benefitsCards.length)
-    
+
     // Calcul de la position pour effet 3D
     let translateX = 0
     let translateZ = 0
@@ -155,11 +179,10 @@ const BenefitsCarousel3D = () => {
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentIndex 
-                  ? 'bg-gold w-8' 
-                  : 'bg-gold/30 hover:bg-gold/50'
-              }`}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentIndex
+                ? 'bg-gold w-8'
+                : 'bg-gold/30 hover:bg-gold/50'
+                }`}
               aria-label={`Aller à la carte ${index + 1}`}
             />
           ))}
@@ -202,23 +225,23 @@ const MassagesList = () => {
             >
               <div className={`relative overflow-hidden rounded-3xl transition-all duration-500 
                             ${hoveredIndex === index ? 'shadow-2xl scale-[1.02]' : 'shadow-soft'}`}>
-                
+
                 {/* Fond avec dégradé élégant */}
                 <div className="absolute inset-0 bg-gradient-to-br from-sage via-sage-dark to-sage opacity-95" />
-                
+
                 {/* Ligne décorative en haut */}
-                <motion.div 
+                <motion.div
                   className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold/40 to-transparent"
-                  animate={{ 
+                  animate={{
                     opacity: hoveredIndex === index ? 1 : 0.5
                   }}
                   transition={{ duration: 0.4 }}
                 />
-                
+
                 {/* Effet de lumière subtil */}
-                <motion.div 
+                <motion.div
                   className="absolute inset-0 bg-gradient-to-tr from-transparent via-cream/5 to-gold/10"
-                  animate={{ 
+                  animate={{
                     opacity: hoveredIndex === index ? 1 : 0.3
                   }}
                   transition={{ duration: 0.5 }}
@@ -230,7 +253,7 @@ const MassagesList = () => {
                   <div className="flex items-start justify-between mb-6">
                     <div>
                       {massage.popular && (
-                        <motion.div 
+                        <motion.div
                           className="inline-flex items-center gap-2 bg-gold text-dark px-3 py-1 rounded-full mb-3"
                           animate={{ scale: hoveredIndex === index ? 1.05 : 1 }}
                         >
@@ -243,9 +266,9 @@ const MassagesList = () => {
                       </h3>
                       <p className="text-gold font-body text-sm">{massage.subtitle}</p>
                     </div>
-                    
+
                     {/* Prix avec animation */}
-                    <motion.div 
+                    <motion.div
                       className="text-right"
                       animate={{ y: hoveredIndex === index ? -5 : 0 }}
                       transition={{ duration: 0.3 }}
@@ -326,7 +349,7 @@ const MassageSportif = () => (
             <span className="text-cream text-3xl sm:text-4xl">& Soins Énergétiques</span>
           </h1>
           <p className="text-cream/80 text-lg font-body max-w-2xl mx-auto">
-            Votre spécialiste du <strong className="text-gold">massage à Lacanau Océan</strong>. 
+            Votre spécialiste du <strong className="text-gold">massage à Lacanau Océan</strong>.
             Massage sportif premium pour surfeurs et sportifs, récupération musculaire et soins énergétiques.
           </p>
         </motion.div>
@@ -513,7 +536,7 @@ const MassageSportif = () => (
             Soins <span className="text-gold">Énergétiques</span>
           </h2>
           <p className="text-dark/70 font-body max-w-2xl mx-auto text-lg">
-            Des soins d'exception pour harmoniser corps et esprit, 
+            Des soins d'exception pour harmoniser corps et esprit,
             dans une dimension de bien-être profond.
           </p>
         </motion.div>
@@ -527,32 +550,34 @@ const MassageSportif = () => (
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className={`grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center ${
-                i % 2 === 1 ? 'lg:flex-row-reverse' : ''
-              }`}
+              className={`grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center ${i % 2 === 1 ? 'lg:flex-row-reverse' : ''
+                }`}
             >
               {/* Image */}
-              <motion.div 
+              <motion.div
                 className={`relative ${i % 2 === 1 ? 'lg:order-2' : ''}`}
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.4 }}
               >
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-[4/3]">
-                  <img 
-                    src={i === 0 ? 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&w=800&q=80' : 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=800&q=80'}
+                  <img
+                    src={i === 0
+                      ? 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&w=800&q=80'
+                      : 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=800&q=80'
+                    }
                     alt={soin.name}
                     className="w-full h-full object-cover"
                   />
                   {/* Overlay gradient */}
                   <div className="absolute inset-0 bg-gradient-to-t from-dark/40 via-transparent to-transparent" />
-                  
+
                   {/* Badge prix */}
                   <div className="absolute top-6 right-6 bg-gold text-dark px-5 py-3 rounded-2xl shadow-gold">
                     <span className="font-heading font-bold text-2xl">{soin.price}€</span>
                     <span className="block text-xs text-dark/70">{soin.duration} min</span>
                   </div>
                 </div>
-                
+
                 {/* Décoration */}
                 <div className={`absolute -z-10 w-full h-full rounded-3xl bg-sage/20 
                               ${i % 2 === 0 ? '-bottom-4 -right-4' : '-bottom-4 -left-4'}`} />
@@ -570,7 +595,7 @@ const MassageSportif = () => (
                     {soin.name}
                   </h3>
                   <p className="text-gold font-body font-medium mb-4">{soin.subtitle}</p>
-                  
+
                   {soin.tagline && (
                     <p className="text-dark/60 font-heading italic text-lg border-l-4 border-gold pl-4 mb-6">
                       "{soin.tagline}"
@@ -590,7 +615,7 @@ const MassageSportif = () => (
                       </h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {soin.benefits.map((benefit, j) => (
-                          <motion.div 
+                          <motion.div
                             key={j}
                             initial={{ opacity: 0, x: -20 }}
                             whileInView={{ opacity: 1, x: 0 }}
@@ -651,12 +676,12 @@ const MassageSportif = () => (
             </h2>
             <div className="space-y-4 text-dark/70 font-body">
               <p>
-                Le massage sportif premium ne se limite pas au travail musculaire. 
+                Le massage sportif premium ne se limite pas au travail musculaire.
                 Il agit en profondeur sur l'équilibre énergétique et l'aura de la personne.
               </p>
               <p>
-                Lorsque le corps est détendu et énergétiquement équilibré, 
-                il devient plus disponible à l'effort. Cette harmonie intérieure contribue à 
+                Lorsque le corps est détendu et énergétiquement équilibré,
+                il devient plus disponible à l'effort. Cette harmonie intérieure contribue à
                 améliorer la concentration et optimiser la récupération.
               </p>
             </div>
@@ -677,7 +702,7 @@ const MassageSportif = () => (
             Réservez votre <span className="text-gold">massage à Lacanau</span>
           </h2>
           <p className="text-cream/80 max-w-2xl mx-auto mb-8 font-body">
-            Au cabinet à Lacanau Océan (7 rue Jean Michel) ou à domicile sur Lacanau, Le Porge et Carcans. 
+            Au cabinet à Lacanau Océan (7 rue Jean Michel) ou à domicile sur Lacanau, Le Porge et Carcans.
             Votre massage sportif ou bien-être vous attend.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

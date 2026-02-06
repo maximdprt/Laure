@@ -19,29 +19,33 @@
 @layer components {
   /* Bouton principal - fond sombre, texte or mat */
   .btn-primary {
-    @apply bg-sage text-gold font-body font-semibold px-6 py-3 rounded-lg 
-           transition-all duration-300 hover:bg-sage-dark hover:shadow-soft
+    @apply inline-flex items-center justify-center gap-2
+           bg-sage text-gold font-body font-semibold px-6 py-3 rounded-full 
+           transition-all duration-300 hover:bg-sage-dark hover:shadow-soft hover:-translate-y-[1px]
            focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2;
   }
   
   /* Bouton secondaire - bordure or, texte or mat */
   .btn-secondary {
-    @apply border-2 border-gold text-gold font-body font-semibold px-6 py-3 rounded-lg
-           transition-all duration-300 hover:bg-gold hover:text-dark
+    @apply inline-flex items-center justify-center gap-2
+           border-2 border-gold text-gold font-body font-semibold px-6 py-3 rounded-full
+           transition-all duration-300 hover:bg-gold hover:text-dark hover:-translate-y-[1px]
            focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2;
   }
   
   /* Bouton outline - bordure or, texte or mat */
   .btn-outline {
-    @apply border-2 border-gold text-gold font-body font-semibold px-6 py-3 rounded-lg
-           transition-all duration-300 hover:bg-gold hover:text-dark
+    @apply inline-flex items-center justify-center gap-2
+           border-2 border-gold text-gold font-body font-semibold px-6 py-3 rounded-full
+           transition-all duration-300 hover:bg-gold hover:text-dark hover:-translate-y-[1px]
            focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2;
   }
   
   /* Bouton gold - fond or, texte sombre (inverse) */
   .btn-gold {
-    @apply bg-gold text-dark font-body font-semibold px-6 py-3 rounded-lg 
-           transition-all duration-300 hover:bg-gold-dark hover:shadow-gold
+    @apply inline-flex items-center justify-center gap-2
+           bg-gold text-dark font-body font-semibold px-6 py-3 rounded-full 
+           transition-all duration-300 hover:bg-gold-dark hover:shadow-gold hover:-translate-y-[1px]
            focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2;
   }
   
@@ -50,15 +54,16 @@
   }
   
   .card {
-    @apply bg-white rounded-2xl shadow-card transition-all duration-300 hover:shadow-card-hover;
+    @apply bg-white rounded-3xl shadow-card border border-sand/60 
+           transition-all duration-300 hover:shadow-card-hover hover:-translate-y-[2px] hover:border-gold/40;
   }
   
   .section-padding {
-    @apply px-4 sm:px-6 lg:px-8 py-16 lg:py-24;
+    @apply px-4 sm:px-6 lg:px-8 py-14 lg:py-24;
   }
   
   .container-custom {
-    @apply max-w-7xl mx-auto;
+    @apply max-w-6xl xl:max-w-7xl mx-auto;
   }
   
   .text-gradient {
@@ -72,5 +77,11 @@
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+}
+
+@layer utilities {
+  .section-divider {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-sand to-transparent;
   }
 }

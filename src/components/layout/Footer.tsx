@@ -161,6 +161,11 @@ const Footer = () => {
             </div>
           </div>
         </div>
+
+        {/* Mention légale - même style que page d'accueil */}
+        <p className="mt-6 pt-6 border-t border-cream/20 text-cream/70 font-body text-sm sm:text-base text-center max-w-2xl mx-auto leading-relaxed">
+          Conformément à la législation française, les massages proposés ne sont ni thérapeutiques ni sexuels et ne s’apparentent à aucune pratique médicale ou paramédicale.
+        </p>
       </div>
     </footer>
   )

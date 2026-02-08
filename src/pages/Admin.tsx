@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Lock, Eye, EyeOff, LogOut, Calendar, Clock, Euro, TrendingUp, Users, X, ChevronLeft, ChevronRight, Settings, Ban, CalendarCheck, MapPin, Home, Star, MessageSquare, Plus, Pencil, Trash2 } from 'lucide-react'
-import { getStoredBlocked, setStoredBlocked, getStoredAvis, setStoredAvis } from '../constants/services'
+import { Lock, Eye, EyeOff, LogOut, Calendar, Clock, Euro, TrendingUp, Users, X, ChevronLeft, ChevronRight, Settings, Ban, CalendarCheck, MapPin, Home, Star, MessageSquare, Plus, Pencil, Trash2, Check } from 'lucide-react'
+import { getStoredBlocked, setStoredBlocked, getStoredAvis, setStoredAvis, getStoredAvisPending, setStoredAvisPending } from '../constants/services'
 import { useReservations } from '../hooks/useReservations'
 import { useAllCreneauxHoraires } from '../hooks/useCreneauxHoraires'
 import ReservationsList from '../components/ReservationsList'
@@ -23,6 +23,7 @@ const Admin = () => {
   const [blockedSlotsDomicile, setBlockedSlotsDomicile] = useState<BlockedSlots>(() => getStoredBlocked('domicile'))
   const [activeTab, setActiveTab] = useState<'calendar' | 'reservations' | 'settings' | 'avis'>('calendar')
   const [avisList, setAvisList] = useState<Avis[]>(() => getStoredAvis())
+  const [pendingAvisList, setPendingAvisList] = useState<Avis[]>(() => getStoredAvisPending())
   const [editingAvis, setEditingAvis] = useState<Avis | null>(null)
   const [newAvis, setNewAvis] = useState<Partial<Avis>>({ name: '', text: '', rating: 5, date: '' })
   const [newTimeSlotCabinet, setNewTimeSlotCabinet] = useState('')
@@ -130,6 +131,20 @@ const Admin = () => {
     if (!confirm('Supprimer cet avis ?')) return
     setAvisList(prev => prev.filter(a => a.id !== id))
     if (editingAvis?.id === id) setEditingAvis(null)
+  }
+
+  useEffect(() => {
+    setStoredAvisPending(pendingAvisList)
+  }, [pendingAvisList])
+
+  const handleApproveAvis = (a: Avis) => {
+    const newId = generateId()
+    setAvisList(prev => [...prev, { ...a, id: newId }])
+    setPendingAvisList(prev => prev.filter(p => p.id !== a.id))
+  }
+  const handleRejectAvis = (id: string) => {
+    if (!confirm('Refuser cet avis ? Il sera supprimé.')) return
+    setPendingAvisList(prev => prev.filter(p => p.id !== id))
   }
 
   const toggleBlockSlot = (date: Date, time: string) => {
@@ -361,6 +376,41 @@ const Admin = () => {
           <div className="card p-6 max-w-4xl space-y-6">
             <h3 className="font-heading font-semibold text-xl text-dark">Gérer les avis clients</h3>
             <p className="text-dark/60 font-body text-sm">Ajoutez, modifiez ou supprimez les témoignages affichés sur la page d'accueil.</p>
+
+            {/* Avis en attente (soumis par les visiteurs) */}
+            {pendingAvisList.length > 0 && (
+              <div className="rounded-xl border-2 border-gold/40 bg-gold/5 p-4 space-y-3">
+                <h4 className="font-body font-medium text-dark flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-gold" />
+                  Avis en attente ({pendingAvisList.length})
+                </h4>
+                <p className="text-dark/60 font-body text-xs">Ces avis ont été soumis via la page « Laisser un avis ». Approuvez pour les publier sur l'accueil, ou refusez pour les supprimer.</p>
+                <div className="space-y-3">
+                  {pendingAvisList.map(a => (
+                    <div key={a.id} className="flex items-start gap-4 p-4 rounded-xl bg-white border border-sand">
+                      <div className="flex gap-1 shrink-0">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`w-4 h-4 ${i < a.rating ? 'fill-gold text-gold' : 'text-dark/20'}`} />
+                        ))}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-heading font-semibold text-dark">{a.name}</p>
+                        <p className="text-sm text-dark/50 font-body mb-2">{a.date}</p>
+                        <p className="text-dark/70 font-body text-sm italic line-clamp-2">"{a.text}"</p>
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <button type="button" onClick={() => handleApproveAvis(a)} className="p-2 rounded-lg bg-sage text-cream hover:bg-sage-dark" aria-label="Approuver">
+                          <Check className="w-4 h-4" />
+                        </button>
+                        <button type="button" onClick={() => handleRejectAvis(a.id)} className="p-2 rounded-lg bg-sand text-dark hover:bg-error/10 hover:text-error" aria-label="Refuser">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Formulaire : ajout ou édition */}
             <div className="bg-sand/50 rounded-xl p-4 space-y-4">

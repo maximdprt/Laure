@@ -183,6 +183,24 @@ export function setStoredAvis(avis: Avis[]) {
   localStorage.setItem(STORAGE_KEY_AVIS, JSON.stringify(avis))
 }
 
+// Avis en attente (soumis par les visiteurs)
+export const STORAGE_KEY_AVIS_PENDING = 'aura_avis_pending'
+
+export function getStoredAvisPending(): Avis[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_AVIS_PENDING)
+    if (raw) {
+      const parsed = JSON.parse(raw) as Avis[]
+      if (Array.isArray(parsed)) return parsed
+    }
+  } catch (_) {}
+  return []
+}
+
+export function setStoredAvisPending(avis: Avis[]) {
+  localStorage.setItem(STORAGE_KEY_AVIS_PENDING, JSON.stringify(avis))
+}
+
 // Helpers
 export const getSoinById = (id: string): Soin | undefined => allSoins.find(s => s.id === id)
 export const getSoinsByCategory = (category: 'sportif' | 'energie' | 'relaxant'): Soin[] => allSoins.filter(s => s.category === category)

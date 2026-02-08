@@ -1,10 +1,28 @@
 import { motion } from 'framer-motion'
-import { MapPin, Phone, Mail, Instagram, Linkedin, Clock, Send, Home, Waves } from 'lucide-react'
-import { useState } from 'react'
+import { MapPin, Phone, Mail, Instagram, Linkedin, Clock, Send, Home, Waves, Star, CheckCircle } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
+import { getStoredAvisPending, setStoredAvisPending } from '../constants/services'
+import type { Avis } from '../types'
+
+const MONTHS_FR = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
 
 const Contact = () => {
+  const location = useLocation()
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
+
+  useEffect(() => {
+    if (location.hash === '#avis') {
+      const el = document.getElementById('avis')
+      el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [location.hash])
+  const [avisName, setAvisName] = useState('')
+  const [avisRating, setAvisRating] = useState(5)
+  const [avisText, setAvisText] = useState('')
+  const [avisSubmitted, setAvisSubmitted] = useState(false)
+  const [avisError, setAvisError] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -14,6 +32,36 @@ const Contact = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+
+  const handleAvisSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setAvisError('')
+    const trimmedName = avisName.trim()
+    const trimmedText = avisText.trim()
+    if (!trimmedName) {
+      setAvisError('Merci d\'indiquer votre prénom ou un pseudo.')
+      return
+    }
+    if (!trimmedText) {
+      setAvisError('Merci de rédiger votre avis.')
+      return
+    }
+    const now = new Date()
+    const dateStr = `${MONTHS_FR[now.getMonth()]} ${now.getFullYear()}`
+    const newAvis: Avis = {
+      id: `pending_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+      name: trimmedName,
+      text: trimmedText,
+      rating: avisRating,
+      date: dateStr
+    }
+    const pending = getStoredAvisPending()
+    setStoredAvisPending([...pending, newAvis])
+    setAvisName('')
+    setAvisRating(5)
+    setAvisText('')
+    setAvisSubmitted(true)
   }
 
   return (
@@ -205,6 +253,90 @@ const Contact = () => {
               )}
             </motion.div>
           </div>
+
+          {/* Laisser un avis - entre infos et carte */}
+          <section id="avis" className="mt-16 pt-16 border-t border-sand/60">
+            <div className="max-w-2xl mx-auto">
+              <div className="text-center mb-8">
+                <span className="inline-block px-4 py-1 bg-sage/10 text-sage text-sm font-body font-medium rounded-full mb-3">
+                  Témoignages
+                </span>
+                <h2 className="font-heading font-bold text-2xl sm:text-3xl text-dark mb-2">
+                  Laisser un <span className="text-gold">avis</span>
+                </h2>
+                <p className="text-dark/60 font-body text-sm">
+                  Vous avez reçu un massage à Lacanau ? Partagez votre expérience, elle sera modérée avant publication.
+                </p>
+              </div>
+
+              {avisSubmitted ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="card p-8 text-center"
+                >
+                  <CheckCircle className="w-14 h-14 text-sage mx-auto mb-3" />
+                  <h3 className="font-heading font-bold text-lg text-dark mb-2">Merci pour votre avis</h3>
+                  <p className="text-dark/70 font-body text-sm">
+                    Votre témoignage a bien été enregistré. Il sera vérifié avant d'être publié sur la page d'accueil.
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.form
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  onSubmit={handleAvisSubmit}
+                  className="card p-6 sm:p-8 space-y-5"
+                >
+                  <div>
+                    <label className="block text-sm font-body text-dark/70 mb-1">Votre prénom ou pseudo (ex. Sophie M.)</label>
+                    <input
+                      type="text"
+                      value={avisName}
+                      onChange={(e) => setAvisName(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-sand font-body focus:border-sage focus:ring-2 focus:ring-sage/20 outline-none transition"
+                      placeholder="Prénom et initiale"
+                      maxLength={80}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-body text-dark/70 mb-1">Votre note (1 à 5 étoiles)</label>
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => setAvisRating(n)}
+                          className={`p-2 rounded-xl transition ${avisRating >= n ? 'bg-gold text-white' : 'bg-sand text-dark/40 hover:bg-sand-dark'}`}
+                          aria-label={`${n} étoile${n > 1 ? 's' : ''}`}
+                        >
+                          <Star className="w-6 h-6 fill-current" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-body text-dark/70 mb-1">Votre avis</label>
+                    <textarea
+                      value={avisText}
+                      onChange={(e) => setAvisText(e.target.value)}
+                      rows={4}
+                      className="w-full px-4 py-3 rounded-xl border border-sand font-body focus:border-sage focus:ring-2 focus:ring-sage/20 outline-none transition resize-y"
+                      placeholder="Décrivez votre expérience : le soin reçu, l'ambiance, ce qui vous a plu..."
+                      maxLength={800}
+                    />
+                    <p className="text-xs text-dark/50 font-body mt-1">{avisText.length}/800 caractères</p>
+                  </div>
+                  {avisError && <p className="text-error text-sm font-body">{avisError}</p>}
+                  <button type="submit" className="w-full btn-primary py-4 flex items-center justify-center gap-2">
+                    <Send className="w-5 h-5" />
+                    Envoyer mon avis
+                  </button>
+                </motion.form>
+              )}
+            </div>
+          </section>
         </div>
       </section>
 

@@ -194,7 +194,7 @@ const Home = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.8 }}
-              className="text-xl sm:text-2xl text-gold mb-4 font-heading italic"
+              className="text-xl sm:text-2xl text-gold-light mb-4 font-heading italic drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)]"
             >
               "Là où le corps s'apaise, l'âme s'élève"
             </motion.p>
@@ -476,6 +476,9 @@ const Home = () => {
               <MapPin className="w-4 h-4" />
               <span className="font-body text-sm">7 rue Jean Michel, 33680 Lacanau - HEAL LO LACANAU</span>
             </div>
+            <p className="mt-6 text-cream/70 font-body text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+              Conformément à la législation française, les massages proposés ne sont ni thérapeutiques ni sexuels et ne s’apparentent à aucune pratique médicale ou paramédicale.
+            </p>
           </motion.div>
         </div>
       </section>

@@ -2,6 +2,7 @@
 
 import { supabase } from '../lib/supabase'
 import { Reservation, Disponibilite } from '../types/database'
+import { parseLocalDate } from '../lib/dateUtils'
 
 // ==================== RESERVATIONS ====================
 
@@ -69,7 +70,18 @@ export const createReservation = async (data: {
     }
     throw error
   }
+
   return reservation
+}
+
+// Mettre à jour une réservation
+export const updateReservation = async (reservationId: string, updates: Partial<Reservation>) => {
+  const { error } = await supabase
+    .from('reservations')
+    .update(updates)
+    .eq('id', reservationId)
+
+  if (error) throw error
 }
 
 export const updateReservationStatus = async (id: string, statut: string) => {
@@ -182,7 +194,7 @@ export const getCreneauxDisponibles = async (
   disponibilites: Disponibilite[],
   reservations: Reservation[]
 ) => {
-  const dateObj = new Date(date)
+  const dateObj = parseLocalDate(date)
   const jourSemaine = dateObj.getDay() === 0 ? 6 : dateObj.getDay() - 1 // 0=Lundi
 
   const disponibilite = disponibilites.find(d => d.jour_semaine === jourSemaine)

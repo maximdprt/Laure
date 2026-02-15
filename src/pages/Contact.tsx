@@ -3,6 +3,7 @@ import { MapPin, Phone, Mail, Instagram, Linkedin, Clock, Send, Home, Waves, Sta
 import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { getStoredAvisPending, setStoredAvisPending } from '../constants/services'
+import { supabase } from '../lib/supabase'
 import type { Avis } from '../types'
 
 const MONTHS_FR = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
@@ -11,6 +12,8 @@ const Contact = () => {
   const location = useLocation()
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (location.hash === '#avis') {
@@ -24,10 +27,34 @@ const Contact = () => {
   const [avisSubmitted, setAvisSubmitted] = useState(false)
   const [avisError, setAvisError] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Form submitted:', formData)
-    setSubmitted(true)
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      // Insérer le message dans la base de données
+      const { error: insertError } = await supabase
+        .from('contact_messages')
+        .insert([{
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || null,
+          message: formData.message
+        }])
+
+      if (insertError) {
+        throw insertError
+      }
+
+      setSubmitted(true)
+      setFormData({ name: '', email: '', phone: '', message: '' })
+    } catch (err) {
+      console.error('Erreur lors de l\'envoi du message:', err)
+      setError('Une erreur est survenue. Veuillez réessayer ou me contacter directement par téléphone.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -216,37 +243,52 @@ const Contact = () => {
                   </div>
                   <h3 className="font-heading font-bold text-xl text-cream mb-2">Message envoyé !</h3>
                   <p className="text-cream/80 font-body">Je vous répondrai dans les plus brefs délais.</p>
+                  <button 
+                    onClick={() => setSubmitted(false)}
+                    className="mt-4 text-gold hover:text-cream transition-colors text-sm font-body"
+                  >
+                    Envoyer un autre message
+                  </button>
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="card p-8 border-2 border-sage/20">
+                  {error && (
+                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-body">
+                      {error}
+                    </div>
+                  )}
                   <div className="space-y-5">
                     <div>
                       <label className="block font-body font-medium text-sage text-sm mb-2">Nom complet *</label>
                       <input type="text" name="name" value={formData.name} onChange={handleChange} required
+                        disabled={isSubmitting}
                         placeholder="Votre nom"
-                        className="w-full px-4 py-3 rounded-xl border-2 border-sand focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all font-body bg-white" />
+                        className="w-full px-4 py-3 rounded-xl border-2 border-sand focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all font-body bg-white disabled:opacity-50 disabled:cursor-not-allowed" />
                     </div>
                     <div>
                       <label className="block font-body font-medium text-sage text-sm mb-2">Email *</label>
                       <input type="email" name="email" value={formData.email} onChange={handleChange} required
+                        disabled={isSubmitting}
                         placeholder="votre@email.com"
-                        className="w-full px-4 py-3 rounded-xl border-2 border-sand focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all font-body bg-white" />
+                        className="w-full px-4 py-3 rounded-xl border-2 border-sand focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all font-body bg-white disabled:opacity-50 disabled:cursor-not-allowed" />
                     </div>
                     <div>
                       <label className="block font-body font-medium text-sage text-sm mb-2">Téléphone</label>
                       <input type="tel" name="phone" value={formData.phone} onChange={handleChange}
+                        disabled={isSubmitting}
                         placeholder="06 00 00 00 00"
-                        className="w-full px-4 py-3 rounded-xl border-2 border-sand focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all font-body bg-white" />
+                        className="w-full px-4 py-3 rounded-xl border-2 border-sand focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all font-body bg-white disabled:opacity-50 disabled:cursor-not-allowed" />
                     </div>
                     <div>
                       <label className="block font-body font-medium text-sage text-sm mb-2">Message *</label>
                       <textarea name="message" value={formData.message} onChange={handleChange} required rows={5}
+                        disabled={isSubmitting}
                         placeholder="Votre message..."
-                        className="w-full px-4 py-3 rounded-xl border-2 border-sand focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all resize-none font-body bg-white" />
+                        className="w-full px-4 py-3 rounded-xl border-2 border-sand focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all resize-none font-body bg-white disabled:opacity-50 disabled:cursor-not-allowed" />
                     </div>
-                    <button type="submit" className="w-full bg-gold text-dark font-body font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-gold-dark transition-colors shadow-gold">
+                    <button type="submit" disabled={isSubmitting} className="w-full bg-gold text-dark font-body font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-gold-dark transition-colors shadow-gold disabled:opacity-50 disabled:cursor-not-allowed">
                       <Send className="w-5 h-5" />
-                      Envoyer le message
+                      {isSubmitting ? 'Envoi en cours...' : 'Envoyer le message'}
                     </button>
                   </div>
                 </form>

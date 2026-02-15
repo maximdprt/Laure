@@ -6,6 +6,7 @@ import { allSoins, PREMIUM_OPTION_PRICE, DEPOSIT_PERCENTAGE, getSoinById, getSto
 import { useReservations } from '../hooks/useReservations'
 import { useCreneauxHoraires } from '../hooks/useCreneauxHoraires'
 import { createReservation } from '../lib/supabaseAPI'
+import { toLocalDateKey } from '../lib/dateUtils'
 import type { Soin, ClientInfo } from '../types'
 
 interface BookingData {
@@ -105,12 +106,6 @@ const Reservation = () => {
 
   const blockedForLocation = bookingData.locationType ? getStoredBlocked(bookingData.locationType) : {}
   const normalizeTime = (value: string) => value.slice(0, 5)
-  const toLocalDateKey = (value: Date) => {
-    const year = value.getFullYear()
-    const month = String(value.getMonth() + 1).padStart(2, '0')
-    const day = String(value.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
-  }
   const isSlotBlocked = (date: Date, time: string) => {
     const key = toLocalDateKey(date)
     
@@ -150,7 +145,11 @@ const Reservation = () => {
   }
 
   const handleSubmit = async () => {
-    if (!bookingData.date || !bookingData.timeSlot || !bookingData.clientInfo || bookingData.soins.length === 0) {
+    const clientInfo = bookingData.clientInfo ?? formData
+    if (!bookingData.date || !bookingData.timeSlot || bookingData.soins.length === 0) {
+      return
+    }
+    if (!clientInfo.firstName || !clientInfo.lastName || !clientInfo.email || !clientInfo.phone) {
       return
     }
 
@@ -163,12 +162,12 @@ const Reservation = () => {
       // Crée la réservation pour chaque soin sélectionné
       for (const soin of bookingData.soins) {
         await createReservation({
-          nom: bookingData.clientInfo.lastName,
-          prenom: bookingData.clientInfo.firstName,
-          email: bookingData.clientInfo.email,
-          telephone: bookingData.clientInfo.phone,
+          nom: clientInfo.lastName,
+          prenom: clientInfo.firstName,
+          email: clientInfo.email,
+          telephone: clientInfo.phone,
           service_id: soin.id,
-          date: bookingData.date.toISOString().split('T')[0],
+          date: toLocalDateKey(bookingData.date),
           heure: bookingData.timeSlot,
           lieu: bookingData.locationType === 'cabinet' ? 'cabinet' : 'domicile',
           duree: soin.duration,

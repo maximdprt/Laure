@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Lock, Eye, EyeOff, LogOut, Calendar, Clock, Euro, TrendingUp, Users, X, ChevronLeft, ChevronRight, Settings, Ban, CalendarCheck, MapPin, Home, Star, MessageSquare, Plus, Pencil, Trash2, Check } from 'lucide-react'
 import { getStoredBlocked, setStoredBlocked, getStoredAvis, setStoredAvis, getStoredAvisPending, setStoredAvisPending } from '../constants/services'
+import { parseLocalDate, toLocalDateKey } from '../lib/dateUtils'
 import { useReservations } from '../hooks/useReservations'
 import { useAllCreneauxHoraires } from '../hooks/useCreneauxHoraires'
 import ReservationsList from '../components/ReservationsList'
@@ -148,16 +149,16 @@ const Admin = () => {
   }
 
   const toggleBlockSlot = (date: Date, time: string) => {
-    const key = date.toISOString().split('T')[0]
+    const key = toLocalDateKey(date)
     setBlockedSlotsCurrent(prev => {
       const current = prev[key] || []
       return { ...prev, [key]: current.includes(time) ? current.filter(t => t !== time) : [...current, time] }
     })
   }
 
-  const isSlotBlocked = (date: Date, time: string) => blockedSlotsCurrent[date.toISOString().split('T')[0]]?.includes(time) || false
+  const isSlotBlocked = (date: Date, time: string) => blockedSlotsCurrent[toLocalDateKey(date)]?.includes(time) || false
   const getReservationsForDate = (date: Date, location?: LocationType) => reservations.filter(r => {
-    const reservationDate = new Date(r.date)
+    const reservationDate = parseLocalDate(r.date)
     const sameDay = reservationDate.toDateString() === date.toDateString()
     if (!sameDay) return false
     return location ? r.lieu === location : true
@@ -176,13 +177,13 @@ const Admin = () => {
 
   const stats = {
     today: reservations.filter(r => {
-      const reservationDate = new Date(r.date)
+      const reservationDate = parseLocalDate(r.date)
       return reservationDate.toDateString() === new Date().toDateString()
     }).length,
     week: reservations.filter(r => { 
       const now = new Date()
       const week = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-      const reservationDate = new Date(r.date)
+      const reservationDate = parseLocalDate(r.date)
       return reservationDate >= now && reservationDate <= week 
     }).length,
     pending: reservations.filter(r => r.statut === 'en attente').length,

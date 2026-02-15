@@ -117,3 +117,27 @@ ALTER TABLE jours_bloques ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Jours bloqués publics"
   ON jours_bloques FOR SELECT
   USING (true);
+
+-- ==================== TABLE CONTACT MESSAGES ====================
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(20),
+  message TEXT NOT NULL,
+  sent BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Index pour rechercher les messages non envoyés
+CREATE INDEX idx_contact_messages_sent ON contact_messages(sent);
+
+-- RLS sur contact_messages
+ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Les admins peuvent voir les messages"
+  ON contact_messages FOR SELECT
+  USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Tout le monde peut insérer un message"
+  ON contact_messages FOR INSERT
+  WITH CHECK (true);

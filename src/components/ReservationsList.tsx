@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { useReservations } from '../hooks/useReservations'
 import { Calendar, MapPin, Clock, Mail, Phone } from 'lucide-react'
+import { parseLocalDate } from '../lib/dateUtils'
 
 const ReservationsList = () => {
   const { reservations, loading, error } = useReservations()
@@ -75,7 +76,7 @@ const ReservationsList = () => {
               <div>
                 <p className="text-xs text-gray-500">Date & Heure</p>
                 <p className="font-medium text-dark">
-                  {new Date(reservation.date).toLocaleDateString('fr-FR', {
+                  {parseLocalDate(reservation.date).toLocaleDateString('fr-FR', {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',

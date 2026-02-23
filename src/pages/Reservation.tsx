@@ -1,13 +1,16 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, type FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Check, Clock, Calendar, User, Phone, Mail, ChevronLeft, ChevronRight, CreditCard, Shield, CalendarCheck, Euro, MapPin, Home } from 'lucide-react'
 import { allSoins, PREMIUM_OPTION_PRICE, DEPOSIT_PERCENTAGE, getSoinById, getStoredBlocked } from '../constants/services'
 import { useReservations } from '../hooks/useReservations'
 import { useCreneauxHoraires } from '../hooks/useCreneauxHoraires'
-import { createReservation } from '../lib/supabaseAPI'
+import { createPaymentIntent, createReservation } from '../lib/supabaseAPI'
 import { toLocalDateKey } from '../lib/dateUtils'
+import { supabase } from '../lib/supabase'
 import type { Soin, ClientInfo } from '../types'
+import { loadStripe } from '@stripe/stripe-js'
+import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
 
 interface BookingData {
   soins: Soin[]
@@ -26,12 +29,94 @@ const steps = [
   { id: 5, label: 'Acompte' }
 ]
 
+const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+
+const StripePaymentForm = ({
+  depositAmount,
+  onSuccess,
+  setIsPaying,
+  setPaymentError
+}: {
+  depositAmount: number
+  onSuccess: (paymentIntentId: string) => void
+  setIsPaying: (value: boolean) => void
+  setPaymentError: (value: string | null) => void
+}) => {
+  const stripe = useStripe()
+  const elements = useElements()
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    if (!stripe || !elements) {
+      setPaymentError('Stripe non initialisé')
+      return
+    }
+
+    setIsPaying(true)
+    setPaymentError(null)
+
+    try {
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/reservation`
+        },
+        redirect: 'if_required'
+      })
+
+      if (error) {
+        console.error('Erreur Stripe:', error)
+        setPaymentError(error.message || 'Le paiement a échoué. Veuillez réessayer.')
+        setIsPaying(false)
+        return
+      }
+
+      if (paymentIntent?.status === 'succeeded' && paymentIntent.id) {
+        onSuccess(paymentIntent.id)
+        setIsPaying(false)
+        return
+      }
+
+      if (paymentIntent?.status === 'requires_action') {
+        setPaymentError('Authentification supplémentaire requise')
+        setIsPaying(false)
+        return
+      }
+
+      setPaymentError('Le paiement est en attente de confirmation.')
+      setIsPaying(false)
+    } catch (err) {
+      console.error('Erreur lors du paiement:', err)
+      setPaymentError('Erreur lors du paiement. Veuillez réessayer.')
+      setIsPaying(false)
+    }
+  }
+
+  return (
+    <form id="stripe-payment-form" onSubmit={handleSubmit} className="space-y-4">
+      <PaymentElement options={{ layout: 'tabs' }} />
+      <div className="flex items-center gap-2 text-xs text-dark/50">
+        <Shield className="w-4 h-4 text-sage" /> Paiement 100% sécurisé
+      </div>
+      <div className="flex items-center gap-2 text-xs text-dark/50">
+        <CreditCard className="w-4 h-4 text-sage" /> Acompte à régler : {depositAmount}€
+      </div>
+    </form>
+  )
+}
+
 const Reservation = () => {
   const [searchParams] = useSearchParams()
   const { reservations } = useReservations()
   const [currentStep, setCurrentStep] = useState(1)
   const [bookingComplete, setBookingComplete] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isPaymentInit, setIsPaymentInit] = useState(false)
+  const [isPaymentAttempted, setIsPaymentAttempted] = useState(false)
+  const [isPaying, setIsPaying] = useState(false)
+  const [paymentInitError, setPaymentInitError] = useState<string | null>(null)
+  const [paymentError, setPaymentError] = useState<string | null>(null)
+  const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [premiumOption, setPremiumOption] = useState(false)
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [formData, setFormData] = useState<ClientInfo>({ firstName: '', lastName: '', email: '', phone: '' })
@@ -42,6 +127,12 @@ const Reservation = () => {
   // Récupère les créneaux horaires depuis Supabase en fonction du lieu
   const { heures: heuresCabinet, loading: loadingCabinet } = useCreneauxHoraires('cabinet')
   const { heures: heuresDomicile, loading: loadingDomicile } = useCreneauxHoraires('domicile')
+
+  // Initialiser Stripe une seule fois
+  const stripePromise = useMemo(() => 
+    stripePublishableKey ? loadStripe(stripePublishableKey) : null,
+    []
+  )
 
   // Pre-select soin from URL
   useEffect(() => {
@@ -140,52 +231,147 @@ const Reservation = () => {
     if (currentStep < 5) setCurrentStep(prev => prev + 1)
   }
 
+  useEffect(() => {
+    if (currentStep !== 5) {
+      setPaymentInitError(null)
+      setPaymentError(null)
+      setIsPaymentAttempted(false)
+      setClientSecret(null)
+    }
+  }, [currentStep])
+
+  useEffect(() => {
+    const initPayment = async () => {
+      if (currentStep !== 5 || clientSecret || isPaymentInit || isPaymentAttempted) {
+        return
+      }
+
+      const clientInfo = bookingData.clientInfo ?? formData
+      if (!bookingData.date || !bookingData.timeSlot || bookingData.soins.length === 0) {
+        setPaymentInitError('Informations de réservation incomplètes.')
+        return
+      }
+
+      if (!clientInfo.firstName || !clientInfo.lastName || !clientInfo.email || !clientInfo.phone) {
+        setPaymentInitError('Informations client incomplètes.')
+        return
+      }
+
+      if (!stripePromise) {
+        setPaymentInitError('Clé Stripe manquante. Vérifiez VITE_STRIPE_PUBLISHABLE_KEY.')
+        return
+      }
+
+      setIsPaymentAttempted(true)
+      setIsPaymentInit(true)
+      setPaymentInitError(null)
+
+      try {
+        // Ne pas créer les réservations ici, seulement initialiser le paiement
+        // Les réservations seront créées APRÈS le succès du paiement
+        const amountCents = Math.round(depositAmount * 100)
+        const totalAmountCents = Math.round(totalPrice * 100)
+
+        const intent = await createPaymentIntent({
+          reservationIds: [], // Vide pour l'instant
+          amountCents,
+          totalAmountCents,
+          customerEmail: clientInfo.email
+        })
+
+        setClientSecret(intent.client_secret)
+      } catch (error) {
+        console.error('Erreur init paiement:', error)
+        setPaymentInitError('Impossible de lancer le paiement. Veuillez réessayer.')
+      } finally {
+        setIsPaymentInit(false)
+      }
+    }
+
+    initPayment()
+  }, [
+    bookingData.date,
+    bookingData.timeSlot,
+    bookingData.soins,
+    bookingData.locationType,
+    bookingData.clientInfo,
+    clientSecret,
+    currentStep,
+    depositAmount,
+    formData,
+    isPaymentAttempted,
+    isPaymentInit,
+    premiumOption,
+    totalPrice
+  ])
+
   const setLocationType = (type: 'cabinet' | 'domicile') => {
     setBookingData(prev => ({ ...prev, locationType: type, date: null, timeSlot: null }))
   }
 
-  const handleSubmit = async () => {
-    const clientInfo = bookingData.clientInfo ?? formData
-    if (!bookingData.date || !bookingData.timeSlot || bookingData.soins.length === 0) {
-      return
-    }
-    if (!clientInfo.firstName || !clientInfo.lastName || !clientInfo.email || !clientInfo.phone) {
-      return
-    }
-
-    setIsSubmitting(true)
+  const handlePaymentSuccess = async (paymentIntentId: string) => {
     try {
-      // Calcule le prix total et l'acompte
-      const soinsTotal = bookingData.soins.reduce((sum, soin) => sum + soin.price, 0)
-      const totalPrice = soinsTotal + (premiumOption && bookingData.soins.some(s => s.category === 'sportif') ? PREMIUM_OPTION_PRICE : 0)
+      const clientInfo = bookingData.clientInfo ?? formData
+      
+      // Calculer les montants
+      const amountCents = Math.round(depositAmount * 100)
+      const totalAmountCents = Math.round(totalPrice * 100)
+      
+      // Créer les réservations APRÈS le succès du paiement
+      const reservationsCreated = await Promise.all(
+        bookingData.soins.map((soin) =>
+          createReservation({
+            nom: clientInfo.lastName,
+            prenom: clientInfo.firstName,
+            email: clientInfo.email,
+            telephone: clientInfo.phone,
+            service_id: soin.id,
+            date: toLocalDateKey(bookingData.date!),
+            heure: bookingData.timeSlot!,
+            lieu: bookingData.locationType === 'cabinet' ? 'cabinet' : 'domicile',
+            duree: soin.duration,
+            notes: `Prix total: ${totalPrice}€${premiumOption && bookingData.soins.some(s => s.category === 'sportif') ? ' (avec Option Premium)' : ''}`,
+            depositAmountCents: amountCents,
+            totalAmountCents: totalAmountCents
+          })
+        )
+      )
 
-      // Crée la réservation pour chaque soin sélectionné
-      for (const soin of bookingData.soins) {
-        await createReservation({
-          nom: clientInfo.lastName,
-          prenom: clientInfo.firstName,
-          email: clientInfo.email,
-          telephone: clientInfo.phone,
-          service_id: soin.id,
-          date: toLocalDateKey(bookingData.date),
-          heure: bookingData.timeSlot,
-          lieu: bookingData.locationType === 'cabinet' ? 'cabinet' : 'domicile',
-          duree: soin.duration,
-          notes: `Prix total: ${totalPrice}€${premiumOption && soin.category === 'sportif' ? ' (avec Option Premium)' : ''}`
-        })
+      const ids = reservationsCreated.map((r) => r.id)
+      
+      // Mettre à jour les réservations avec le payment_intent_id
+      // Cela déclenche aussi la création de l'événement Google Calendar
+      for (const id of ids) {
+        await supabase
+          .from('reservations')
+          .update({ stripe_payment_intent_id: paymentIntentId })
+          .eq('id', id)
       }
 
+      // Recharger les réservations mises à jour pour avoir tous les champs
+      const { data: updatedReservations } = await supabase
+        .from('reservations')
+        .select('*')
+        .in('id', ids)
+
+      // Envoyer les emails de confirmation pour chaque réservation mise à jour
+      if (updatedReservations) {
+        for (const reservation of updatedReservations) {
+          try {
+            await supabase.functions.invoke('reservation-email', {
+              body: { record: reservation }
+            })
+          } catch (emailError) {
+            console.error('Erreur lors de l\'envoi de l\'email pour réservation', reservation.id, emailError)
+            // Ne pas bloquer l'expérience utilisateur si l'email échoue
+          }
+        }
+      }
+      
       setBookingComplete(true)
     } catch (error) {
-      const message = error instanceof Error ? error.message : ''
-      console.error('Erreur lors de la création de la réservation:', error)
-      if (message === 'Créneau déjà réservé') {
-        alert('Ce créneau vient d’être réservé par une autre personne. Merci de choisir un autre horaire.')
-      } else {
-        alert('Une erreur est survenue lors de la sauvegarde de votre réservation. Veuillez réessayer.')
-      }
-    } finally {
-      setIsSubmitting(false)
+      console.error('Erreur création réservation après paiement:', error)
+      setPaymentError('Erreur lors de la création de la réservation. Veuillez réessayer.')
     }
   }
 
@@ -194,47 +380,98 @@ const Reservation = () => {
     return (
       <div className="min-h-screen pt-24 pb-16 bg-cream">
         <div className="container-custom px-4">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="card p-8 sm:p-12 text-center max-w-lg mx-auto">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="card p-8 sm:p-12 max-w-2xl mx-auto">
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-sage/20 flex items-center justify-center">
               <CalendarCheck className="w-10 h-10 text-sage" />
             </div>
-            <h2 className="font-heading font-semibold text-2xl text-dark mb-4">Réservation confirmée !</h2>
-            <p className="text-dark/70 mb-6 font-body">
-              Merci {bookingData.clientInfo?.firstName} ! Votre rendez-vous a bien été enregistré.
+            <h2 className="font-heading font-semibold text-3xl text-dark mb-2 text-center">Réservation confirmée ! ✓</h2>
+            <p className="text-dark/70 mb-8 font-body text-center">
+              Merci {bookingData.clientInfo?.firstName} ! Votre rendez-vous a bien été enregistré et votre acompte a été reçu.
             </p>
-            <div className="bg-sand rounded-lg p-4 mb-6 text-left">
-              <div className="space-y-2 text-sm font-body">
-                <div className="mb-3 pb-3 border-b border-dark/10">
-                  <span className="text-dark/60 block mb-2">Soins réservés :</span>
+
+            {/* Recap Box */}
+            <div className="bg-gradient-to-br from-sand to-sand/50 rounded-lg p-6 mb-8 text-left border border-sand">
+              <h3 className="font-heading font-semibold text-dark text-lg mb-6">📋 Récapitulatif de votre réservation</h3>
+              
+              <div className="space-y-4">
+                {/* Soins */}
+                <div className="pb-4 border-b border-dark/10">
+                  <span className="text-dark/60 text-sm font-semibold block mb-2">SOIN(S) RÉSERVÉ(S)</span>
                   {bookingData.soins.map(soin => (
-                    <div key={soin.id} className="font-medium text-dark">{soin.name}</div>
+                    <div key={soin.id} className="flex justify-between items-center mt-2">
+                      <span className="font-medium text-dark">{soin.name}</span>
+                      <span className="text-sm text-dark/70">{soin.price}€ · {soin.duration}min</span>
+                    </div>
                   ))}
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-dark/60">Lieu</span>
-                  <span className="font-medium text-dark">{bookingData.locationType === 'cabinet' ? 'Cabinet (7 rue Jean Michel, Lacanau Océan)' : 'À domicile'}</span>
+
+                {/* Lieu */}
+                <div className="pb-4 border-b border-dark/10">
+                  <span className="text-dark/60 text-sm font-semibold block mb-2">📍 LIEU</span>
+                  <span className="text-dark font-medium">
+                    {bookingData.locationType === 'cabinet' 
+                      ? '7 rue Jean Michel, 33680 Lacanau Océan' 
+                      : 'À votre domicile'}
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-dark/60">Date</span>
-                  <span className="font-medium text-dark">{bookingData.date?.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+
+                {/* Date & Heure */}
+                <div className="pb-4 border-b border-dark/10">
+                  <span className="text-dark/60 text-sm font-semibold block mb-2">📅 DATE & HEURE</span>
+                  <div className="font-medium text-dark">
+                    {bookingData.date?.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                  </div>
+                  <div className="text-lg font-bold text-gold mt-1">{bookingData.timeSlot}</div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-dark/60">Heure</span>
-                  <span className="font-medium text-dark">{bookingData.timeSlot}</span>
+
+                {/* Durée & Prix */}
+                <div className="pb-4 border-b border-dark/10">
+                  <span className="text-dark/60 text-sm font-semibold block mb-2">⏱️ DURÉE TOTALE</span>
+                  <span className="text-dark font-medium">{totalDuration} minutes</span>
                 </div>
-                <div className="flex justify-between pt-2 border-t border-dark/10">
-                  <span className="text-dark/60">Acompte versé</span>
-                  <span className="font-semibold text-sage">{depositAmount}€</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-semibold text-dark">Reste à payer</span>
-                  <span className="font-bold text-gold">{totalPrice - depositAmount}€</span>
+
+                {/* Paiement */}
+                <div className="bg-white/60 rounded p-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-dark/70">Prix total</span>
+                      <span className="font-semibold text-dark">{totalPrice}€</span>
+                    </div>
+                    <div className="flex justify-between text-green-600">
+                      <span className="font-semibold">✓ Acompte versé ({DEPOSIT_PERCENTAGE}%)</span>
+                      <span className="font-bold">{depositAmount}€</span>
+                    </div>
+                    <div className="pt-2 border-t border-dark/20 flex justify-between">
+                      <span className="font-semibold text-dark">Reste à payer sur place</span>
+                      <span className="font-bold text-gold text-lg">{totalPrice - depositAmount}€</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <p className="text-xs text-dark/50 font-body">
-              Un email de confirmation a été envoyé à <span className="font-medium">{bookingData.clientInfo?.email}</span>
-            </p>
+
+            {/* Contact Info */}
+            <div className="bg-sage/10 rounded-lg p-6 mb-8 text-center">
+              <h3 className="font-heading font-semibold text-dark mb-3">En cas de besoin</h3>
+              <p className="text-dark/70 font-body text-sm mb-3">
+                N'hésitez pas à contacter Laure directement :
+              </p>
+              <div className="space-y-2 text-sm">
+                <p><strong>📞 Téléphone :</strong> 07 59 70 19 41</p>
+                <p><strong>📧 Email :</strong> massage.auraperformance@gmail.com</p>
+                <p className="text-xs text-dark/60 mt-4">
+                  <strong>Annulation :</strong> 24h minimum avant le rendez-vous
+                </p>
+              </div>
+            </div>
+
+            {/* Confirmation Message */}
+            <div className="text-center">
+              <p className="text-sm text-dark/70 font-body mb-2">
+                ✉️ Un email de confirmation détaillé a été envoyé à :
+              </p>
+              <p className="text-dark font-semibold">{bookingData.clientInfo?.email}</p>
+            </div>
           </motion.div>
         </div>
       </div>
@@ -556,15 +793,51 @@ const Reservation = () => {
                       </div>
                     </div>
                     <div className="bg-white border border-sand rounded-xl p-6">
-                      <div className="flex items-center gap-2 mb-4"><CreditCard className="w-5 h-5 text-sage" /><span className="font-body font-medium text-dark">Paiement sécurisé</span></div>
-                      <div className="space-y-4">
-                        <input type="text" placeholder="Numéro de carte" className="w-full px-4 py-3 rounded-lg border border-sand focus:border-sage outline-none font-body" />
-                        <div className="grid grid-cols-2 gap-4">
-                          <input type="text" placeholder="MM/AA" className="w-full px-4 py-3 rounded-lg border border-sand focus:border-sage outline-none font-body" />
-                          <input type="text" placeholder="CVC" className="w-full px-4 py-3 rounded-lg border border-sand focus:border-sage outline-none font-body" />
-                        </div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <CreditCard className="w-5 h-5 text-sage" />
+                        <span className="font-body font-medium text-dark">Paiement sécurisé</span>
                       </div>
-                      <div className="flex items-center gap-2 mt-4 text-xs text-dark/50"><Shield className="w-4 h-4 text-sage" /> Paiement 100% sécurisé</div>
+
+                      {paymentInitError && (
+                        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                          {paymentInitError}
+                        </div>
+                      )}
+
+                      {paymentError && (
+                        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                          {paymentError}
+                        </div>
+                      )}
+
+                      {!stripePromise && (
+                        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                          Stripe n'est pas configuré. Ajoutez VITE_STRIPE_PUBLISHABLE_KEY.
+                        </div>
+                      )}
+
+                      {stripePromise && !clientSecret && !paymentInitError && (
+                        <div className="rounded-lg border border-sand bg-sand/40 px-4 py-3 text-sm text-dark/70">
+                          Initialisation du paiement en cours...
+                        </div>
+                      )}
+
+                      {stripePromise && clientSecret && (
+                        <Elements
+                          stripe={stripePromise}
+                          options={{
+                            clientSecret,
+                            appearance: { theme: 'stripe' }
+                          }}
+                        >
+                          <StripePaymentForm
+                            depositAmount={depositAmount}
+                            onSuccess={handlePaymentSuccess}
+                            setIsPaying={setIsPaying}
+                            setPaymentError={setPaymentError}
+                          />
+                        </Elements>
+                      )}
                     </div>
                   </div>
                 )}
@@ -586,8 +859,19 @@ const Reservation = () => {
                   Continuer
                 </button>
               ) : (
-                <button onClick={handleSubmit} disabled={isSubmitting} className={`px-8 py-3 flex items-center gap-2 ${isSubmitting ? 'bg-sand text-dark/30' : 'btn-primary'}`}>
-                  <Euro className="w-5 h-5" /> {isSubmitting ? 'Paiement en cours...' : `Payer ${depositAmount}€`}
+                <button
+                  type="submit"
+                  form="stripe-payment-form"
+                  disabled={
+                    isPaymentInit ||
+                    isPaying ||
+                    !clientSecret ||
+                    !!paymentInitError
+                  }
+                  className={`px-8 py-3 flex items-center gap-2 ${isPaymentInit || isPaying || !clientSecret || paymentInitError ? 'bg-sand text-dark/30' : 'btn-primary'}`}
+                >
+                  <Euro className="w-5 h-5" />
+                  {isPaymentInit ? 'Initialisation...' : isPaying ? 'Paiement en cours...' : `Payer ${depositAmount}€`}
                 </button>
               )}
             </div>

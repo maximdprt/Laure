@@ -54,6 +54,10 @@ export interface Reservation {
   duree: number // en minutes
   statut: 'en attente' | 'confirmée' | 'complétée' | 'annulée' | 'no-show'
   google_event_id?: string
+  payment_status?: 'pending' | 'paid' | 'failed' | 'canceled'
+  stripe_payment_intent_id?: string
+  deposit_amount_cents?: number | null
+  total_amount_cents?: number | null
   notes?: string
   created_at: string
   updated_at: string

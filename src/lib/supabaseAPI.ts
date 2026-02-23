@@ -17,6 +17,8 @@ export const createReservation = async (data: {
   lieu: 'cabinet' | 'domicile'
   duree: number
   notes?: string
+  depositAmountCents?: number
+  totalAmountCents?: number
 }) => {
   // 1. Crée ou trouve l'utilisateur
   const { data: existingUsers } = await supabase
@@ -58,7 +60,9 @@ export const createReservation = async (data: {
         lieu: data.lieu,
         duree: data.duree,
         notes: data.notes,
-        statut: 'en attente'
+        statut: 'confirmée',
+        deposit_amount_cents: data.depositAmountCents || null,
+        total_amount_cents: data.totalAmountCents || null
       }
     ])
     .select('*')
@@ -72,6 +76,34 @@ export const createReservation = async (data: {
   }
 
   return reservation
+}
+
+export const createPaymentIntent = async (data: {
+  reservationIds: string[]
+  amountCents: number
+  totalAmountCents: number
+  customerEmail: string
+  currency?: string
+}) => {
+  const { data: result, error } = await supabase.functions.invoke(
+    'stripe-create-payment-intent',
+    {
+      body: {
+        reservation_ids: data.reservationIds,
+        amount_cents: data.amountCents,
+        total_amount_cents: data.totalAmountCents,
+        currency: data.currency || 'eur',
+        customer_email: data.customerEmail
+      }
+    }
+  )
+
+  if (error) throw error
+  if (!result?.client_secret || !result?.payment_intent_id) {
+    throw new Error('Réponse Stripe invalide')
+  }
+
+  return result as { client_secret: string; payment_intent_id: string }
 }
 
 // Mettre à jour une réservation

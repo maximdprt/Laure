@@ -324,6 +324,7 @@ Deno.serve(async (req: Request) => {
     const client_nom = record.client_nom || ""
     const client_telephone = record.client_telephone || ""
     const client_email = record.client_email || ""
+    const sanitizedNotes = String(record.notes || "Aucune").replace(/€/g, "EUR")
 
     console.log(`Processing: ${client_prenom} ${client_nom} - ${service.nom}`)
 
@@ -382,7 +383,7 @@ Deno.serve(async (req: Request) => {
 
     const eventData: GoogleCalendarEvent = {
       summary: `${service.nom} - ${client_prenom} ${client_nom}`,
-      description: `Client: ${client_prenom} ${client_nom}\nEmail: ${client_email}\nTéléphone: ${client_telephone}\nDurée: ${record.duree} minutes\nNotes: ${record.notes || "Aucune"}`,
+      description: `Client: ${client_prenom} ${client_nom}\nEmail: ${client_email}\nTéléphone: ${client_telephone}\nDurée: ${record.duree} minutes\nNotes: ${sanitizedNotes}`,
       start: {
         dateTime: startDateStr,
         timeZone: "Europe/Paris"

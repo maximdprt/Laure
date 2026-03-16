@@ -78,7 +78,7 @@ Deno.serve(async (req: Request) => {
             </div>
           </div>
           <div style="background: #f7efe2; padding: 14px 24px; font-size: 12px; color: #6d5c45;">
-            Envoyé automatiquement depuis aura-massage.fr
+            Envoyé automatiquement depuis massage-aura-performance.fr
           </div>
         </div>
       </div>
@@ -91,7 +91,7 @@ Deno.serve(async (req: Request) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        from: "Aura Massage <contact@aura-massage.fr>",
+        from: "Aura Massage <contact@massage-aura-performance.fr>",
         to: "massage.auraperformance@gmail.com",
         reply_to: email,
         subject: `Nouveau message de ${name}`,

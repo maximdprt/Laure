@@ -193,7 +193,7 @@ Deno.serve(async (req: Request) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        from: "Aura Massage <onboarding@resend.dev>",
+        from: "Aura Massage <contact@massage-aura-performance.fr>",
         to: "massage.auraperformance@gmail.com",
         replyTo: client_email,
         subject: `Confirmation de réservation - ${dateFormatted} à ${record.heure}`,

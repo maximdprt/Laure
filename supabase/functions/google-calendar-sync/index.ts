@@ -68,8 +68,39 @@ const getParisTimezoneOffset = (year: number, month: number, day: number): strin
   }
 }
 
+const getAccessTokenViaRefreshToken = async (): Promise<string> => {
+  const clientId = Deno.env.get("GOOGLE_CLIENT_ID")
+  const clientSecret = Deno.env.get("GOOGLE_CLIENT_SECRET")
+  const refreshToken = Deno.env.get("GOOGLE_REFRESH_TOKEN")
+
+  if (!clientId || !clientSecret || !refreshToken) {
+    throw new Error("Missing GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / GOOGLE_REFRESH_TOKEN")
+  }
+
+  const response = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      refresh_token: refreshToken,
+      grant_type: "refresh_token"
+    })
+  })
+
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`OAuth refresh-token error: ${error}`)
+  }
+
+  const data = await response.json() as { access_token: string }
+  return data.access_token
+}
+
 // Obtenir access token via Service Account
-const getAccessToken = async (): Promise<string> => {
+const getAccessTokenViaServiceAccount = async (): Promise<string> => {
   const serviceAccountKey = Deno.env.get("GOOGLE_SERVICE_ACCOUNT_KEY")
   
   if (!serviceAccountKey) {
@@ -163,6 +194,16 @@ const getAccessToken = async (): Promise<string> => {
     console.error("Token generation error:", error)
     throw error
   }
+}
+
+const getAccessToken = async (): Promise<string> => {
+  const serviceAccountKey = Deno.env.get("GOOGLE_SERVICE_ACCOUNT_KEY")
+
+  if (serviceAccountKey) {
+    return getAccessTokenViaServiceAccount()
+  }
+
+  return getAccessTokenViaRefreshToken()
 }
 
 // Créer événement Google Calendar

@@ -38,6 +38,36 @@ const getCalendarIdForLieu = (lieu: string): string => {
   return CALENDAR_ID_CABINET
 }
 
+// Obtenir l'offset UTC pour Europe/Paris en fonction de la date
+const getParisTimezoneOffset = (year: number, month: number, day: number): string => {
+  // Les changements d'heure en France :
+  // Dernier dimanche de mars : passage à heure d'été (UTC+2)
+  // Dernier dimanche d'octobre : retour à heure d'hiver (UTC+1)
+  
+  // Fonction pour obtenir le dernier dimanche d'un mois
+  const getLastSunday = (y: number, m: number): number => {
+    // Chercher le dernier jour du mois
+    let date = new Date(y, m, 0)
+    // Reculer jusqu'à trouver un dimanche (jour = 0)
+    while (date.getDay() !== 0) {
+      date.setDate(date.getDate() - 1)
+    }
+    return date.getDate()
+  }
+  
+  const lastSundayMarch = getLastSunday(year, 3)
+  const lastSundayOctober = getLastSunday(year, 10)
+  
+  // Vérifier si on est en heure d'été ou d'hiver
+  if (month < 3 || (month === 3 && day < lastSundayMarch)) {
+    return "+01:00" // Heure d'hiver (CET)
+  } else if (month > 10 || (month === 10 && day >= lastSundayOctober)) {
+    return "+01:00" // Heure d'hiver (CET)
+  } else {
+    return "+02:00" // Heure d'été (CEST)
+  }
+}
+
 // Obtenir access token via Service Account
 const getAccessToken = async (): Promise<string> => {
   const serviceAccountKey = Deno.env.get("GOOGLE_SERVICE_ACCOUNT_KEY")
@@ -254,7 +284,13 @@ Deno.serve(async (req: Request) => {
       throw new Error("Missing user or service data")
     }
 
-    console.log(`Processing: ${user.prenom} ${user.nom} - ${service.nom}`)
+    // Utiliser les infos stockées dans la réservation (au moment de la création)
+    // Pour que chaque réservation garde ses infos originales
+    const client_prenom = record.client_prenom || user.prenom
+    const client_nom = record.client_nom || user.nom
+    const client_telephone = record.client_telephone || user.telephone
+
+    console.log(`Processing: ${client_prenom} ${client_nom} - ${service.nom}`)
 
     const accessToken = await getAccessToken()
 
@@ -262,22 +298,62 @@ Deno.serve(async (req: Request) => {
     const [year, month, day] = record.date.split("-")
     const [hour, minute] = record.heure.split(":")
     
-    const startDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute))
-    const endDate = new Date(startDate.getTime() + record.duree * 60000)
+    // Obtenir l'offset UTC correct pour Paris (heure d'été/hiver)
+    const offset = getParisTimezoneOffset(parseInt(year), parseInt(month), parseInt(day))
+    
+    // Construire les chaînes ISO au format RFC 3339 avec offset
+    const startDateStr = `${year}-${month}-${day}T${hour}:${minute}:00${offset}`
+    
+    // Calculer l'heure de fin
+    let endHour = parseInt(hour)
+    let endMinute = parseInt(minute) + record.duree
+    let endDay = parseInt(day)
+    let endMonth = parseInt(month)
+    let endYear = parseInt(year)
+    
+    // Gestion du débordement des minutes
+    while (endMinute >= 60) {
+      endHour += 1
+      endMinute -= 60
+    }
+    
+    // Gestion du débordement des heures
+    while (endHour >= 24) {
+      endDay += 1
+      endHour -= 24
+    }
+    
+    // Gestion du débordement jour/mois
+    const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    if (endYear % 4 === 0 && (endYear % 100 !== 0 || endYear % 400 === 0)) {
+      daysInMonth[1] = 29 // Année bissextile
+    }
+    
+    if (endDay > daysInMonth[endMonth - 1]) {
+      endDay = 1
+      endMonth += 1
+      if (endMonth > 12) {
+        endMonth = 1
+        endYear += 1
+      }
+    }
+    
+    const endOffset = getParisTimezoneOffset(endYear, endMonth, endDay)
+    const endDateStr = `${endYear}-${String(endMonth).padStart(2, '0')}-${String(endDay).padStart(2, '0')}T${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}:00${endOffset}`
 
     const lieuText = record.lieu === "cabinet"
       ? "7 rue Jean Michel, 33680 Lacanau"
       : "À domicile"
 
     const eventData: GoogleCalendarEvent = {
-      summary: `${service.nom} - ${user.prenom} ${user.nom}`,
-      description: `Client: ${user.prenom} ${user.nom}\nEmail: ${user.email}\nTéléphone: ${user.telephone}\nDurée: ${record.duree} minutes\nNotes: ${record.notes || "Aucune"}`,
+      summary: `${service.nom} - ${client_prenom} ${client_nom}`,
+      description: `Client: ${client_prenom} ${client_nom}\nEmail: ${user.email}\nTéléphone: ${client_telephone}\nDurée: ${record.duree} minutes\nNotes: ${record.notes || "Aucune"}`,
       start: {
-        dateTime: startDate.toISOString(),
+        dateTime: startDateStr,
         timeZone: "Europe/Paris"
       },
       end: {
-        dateTime: endDate.toISOString(),
+        dateTime: endDateStr,
         timeZone: "Europe/Paris"
       },
       location: lieuText

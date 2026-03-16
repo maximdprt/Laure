@@ -62,7 +62,10 @@ export const createReservation = async (data: {
         notes: data.notes,
         statut: 'confirmée',
         deposit_amount_cents: data.depositAmountCents || null,
-        total_amount_cents: data.totalAmountCents || null
+        total_amount_cents: data.totalAmountCents || null,
+        client_nom: data.nom,
+        client_prenom: data.prenom,
+        client_telephone: data.telephone
       }
     ])
     .select('*')

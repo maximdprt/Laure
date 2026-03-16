@@ -6,7 +6,7 @@ import { allSoins, PREMIUM_OPTION_PRICE, DEPOSIT_PERCENTAGE, getSoinById, getSto
 import { useReservations } from '../hooks/useReservations'
 import { useCreneauxHoraires } from '../hooks/useCreneauxHoraires'
 import { createPaymentIntent, createReservation } from '../lib/supabaseAPI'
-import { toLocalDateKey } from '../lib/dateUtils'
+import { toLocalDateKey, getTodayInParis, getNowInParis } from '../lib/dateUtils'
 import { supabase } from '../lib/supabase'
 import type { Soin, ClientInfo } from '../types'
 import { loadStripe } from '@stripe/stripe-js'
@@ -118,7 +118,7 @@ const Reservation = () => {
   const [paymentError, setPaymentError] = useState<string | null>(null)
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [premiumOption, setPremiumOption] = useState(false)
-  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [currentMonth, setCurrentMonth] = useState(getNowInParis())
   const [formData, setFormData] = useState<ClientInfo>({ firstName: '', lastName: '', email: '', phone: '' })
   const [bookingData, setBookingData] = useState<BookingData>({
     soins: [], locationType: null, premiumOption: false, date: null, timeSlot: null, clientInfo: null
@@ -170,8 +170,7 @@ const Reservation = () => {
   }, [currentMonth])
 
   const isDateAvailable = (date: Date) => {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    const today = getTodayInParis()
     return date >= today && date.getDay() !== 0
   }
 

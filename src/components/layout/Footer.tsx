@@ -113,7 +113,7 @@ const Footer = () => {
                 <Instagram className="w-5 h-5 text-cream group-hover:text-sage transition-colors" />
               </a>
               <a
-                href="https://www.linkedin.com/in/laure-dupuch/"
+                href="https://www.linkedin.com/in/laure-dupuch-179019207/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center 

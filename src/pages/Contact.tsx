@@ -213,7 +213,7 @@ const Contact = () => {
                       <span className="text-cream group-hover:text-dark font-body text-sm font-medium">@laure_dupuch</span>
                     </a>
                     <a
-                      href="https://www.linkedin.com/in/laure-dupuch/"
+                      href="https://www.linkedin.com/in/laure-dupuch-179019207/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 px-5 py-3 rounded-xl bg-cream/10 hover:bg-gold transition-colors group"

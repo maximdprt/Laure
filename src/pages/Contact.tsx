@@ -26,6 +26,7 @@ const Contact = () => {
   const [avisText, setAvisText] = useState('')
   const [avisSubmitted, setAvisSubmitted] = useState(false)
   const [avisError, setAvisError] = useState('')
+  const [avisIsSubmitting, setAvisIsSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -61,9 +62,10 @@ const Contact = () => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  const handleAvisSubmit = (e: React.FormEvent) => {
+  const handleAvisSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setAvisError('')
+
     const trimmedName = avisName.trim()
     const trimmedText = avisText.trim()
     if (!trimmedName) {
@@ -74,21 +76,48 @@ const Contact = () => {
       setAvisError('Merci de rédiger votre avis.')
       return
     }
-    const now = new Date()
-    const dateStr = `${MONTHS_FR[now.getMonth()]} ${now.getFullYear()}`
-    const newAvis: Avis = {
-      id: `pending_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-      name: trimmedName,
-      text: trimmedText,
-      rating: avisRating,
-      date: dateStr
+
+    setAvisIsSubmitting(true)
+
+    try {
+      const now = new Date()
+      const dateStr = `${MONTHS_FR[now.getMonth()]} ${now.getFullYear()}`
+      const newAvis: Avis = {
+        id: `pending_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+        name: trimmedName,
+        text: trimmedText,
+        rating: avisRating,
+        date: dateStr
+      }
+
+      const pending = getStoredAvisPending()
+      setStoredAvisPending([...pending, newAvis])
+
+      // Envoi de l'avis par email via Supabase Functions (Resend)
+      try {
+        await supabase.functions.invoke('avis-email', {
+          body: {
+            name: newAvis.name,
+            text: newAvis.text,
+            rating: newAvis.rating,
+            date: newAvis.date
+          }
+        })
+      } catch (emailError) {
+        console.error('Erreur lors de l\'envoi de l\'avis par email :', emailError)
+        // On ne bloque pas l'utilisateur si l'email échoue
+      }
+
+      setAvisName('')
+      setAvisRating(5)
+      setAvisText('')
+      setAvisSubmitted(true)
+    } catch (err) {
+      console.error('Erreur lors de l\'enregistrement de l\'avis :', err)
+      setAvisError('Une erreur est survenue. Merci de réessayer un peu plus tard.')
+    } finally {
+      setAvisIsSubmitting(false)
     }
-    const pending = getStoredAvisPending()
-    setStoredAvisPending([...pending, newAvis])
-    setAvisName('')
-    setAvisRating(5)
-    setAvisText('')
-    setAvisSubmitted(true)
   }
 
   return (
@@ -371,9 +400,13 @@ const Contact = () => {
                     <p className="text-xs text-dark/50 font-body mt-1">{avisText.length}/800 caractères</p>
                   </div>
                   {avisError && <p className="text-error text-sm font-body">{avisError}</p>}
-                  <button type="submit" className="w-full btn-primary py-4 flex items-center justify-center gap-2">
+                  <button
+                    type="submit"
+                    disabled={avisIsSubmitting}
+                    className="w-full btn-primary py-4 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
                     <Send className="w-5 h-5" />
-                    Envoyer mon avis
+                    {avisIsSubmitting ? 'Envoi en cours...' : 'Envoyer mon avis'}
                   </button>
                 </motion.form>
               )}

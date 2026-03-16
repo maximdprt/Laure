@@ -65,7 +65,6 @@ const Admin = () => {
     else setError('Code incorrect')
   }
 
-  const blockedSlotsCurrent = locationCalendarType === 'cabinet' ? blockedSlotsCabinet : blockedSlotsDomicile
   const setBlockedSlotsCurrent = locationCalendarType === 'cabinet' ? setBlockedSlotsCabinet : setBlockedSlotsDomicile
   const heuresCurrent = locationCalendarType === 'cabinet' ? heuresCabinet : heuresDomicile
 
@@ -156,7 +155,12 @@ const Admin = () => {
     })
   }
 
-  const isSlotBlocked = (date: Date, time: string) => blockedSlotsCurrent[toLocalDateKey(date)]?.includes(time) || false
+  const isSlotBlocked = (date: Date, time: string) => {
+    const key = toLocalDateKey(date)
+    const blockedCabinet = blockedSlotsCabinet[key]?.includes(time) || false
+    const blockedDomicile = blockedSlotsDomicile[key]?.includes(time) || false
+    return blockedCabinet || blockedDomicile
+  }
   const getReservationsForDate = (date: Date, location?: LocationType) => reservations.filter(r => {
     const reservationDate = parseLocalDate(r.date)
     const sameDay = reservationDate.toDateString() === date.toDateString()
@@ -318,16 +322,18 @@ const Admin = () => {
                     <h4 className="text-sm font-body text-dark/60 mb-2 flex items-center gap-2"><Clock className="w-4 h-4" /> Créneaux ({locationCalendarType === 'cabinet' ? 'Cabinet' : 'Domicile'})</h4>
                     <div className="grid grid-cols-2 gap-2">
                       {heuresCurrent.map(time => {
-                        const res = getReservationsForDate(selectedDate, locationCalendarType).find(r => {
+                        const res = reservations.find(r => {
+                          const reservationDate = parseLocalDate(r.date)
                           const heureFormatted = r.heure.substring(0, 5)
-                          return heureFormatted === time && r.lieu === locationCalendarType
+                          return reservationDate.toDateString() === selectedDate.toDateString() && heureFormatted === time
                         })
+                        const isOtherLocationReservation = !!res && res.lieu !== locationCalendarType
                         const blocked = isSlotBlocked(selectedDate, time)
                         return (
                           <button key={time} onClick={() => !res && toggleBlockSlot(selectedDate, time)} disabled={!!res}
                             className={`py-2 px-3 rounded-lg text-xs font-body ${res ? 'bg-gold/20 text-gold cursor-not-allowed' : blocked ? 'bg-error/10 text-error' : 'bg-sand text-dark hover:bg-sage/20'}`}>
                             {time}
-                            {res && <span className="block text-[10px]">Réservé</span>}
+                            {res && <span className="block text-[10px]">{isOtherLocationReservation ? 'Réservé (autre lieu)' : 'Réservé'}</span>}
                             {blocked && !res && <span className="block text-[10px]">Bloqué</span>}
                           </button>
                         )

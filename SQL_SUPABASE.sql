@@ -70,8 +70,8 @@ CREATE INDEX idx_reservations_service ON reservations(service_id);
 CREATE INDEX idx_reservations_statut ON reservations(statut);
 CREATE INDEX idx_reservations_payment_status ON reservations(payment_status);
 CREATE INDEX idx_reservations_payment_intent ON reservations(stripe_payment_intent_id);
--- Empêche les doubles réservations sur un même créneau ET lieu (permet plusieurs clients si lieux différents)
-CREATE UNIQUE INDEX IF NOT EXISTS uniq_reservations_date_heure_lieu ON reservations(date, heure, lieu) WHERE statut IN ('en attente', 'confirmée');
+-- Empêche les doubles réservations sur un même créneau, tous lieux confondus
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_reservations_date_heure_global ON reservations(date, heure) WHERE statut IN ('en attente', 'confirmée');
 CREATE INDEX idx_disponibilites_jour ON disponibilites(jour_semaine);
 CREATE INDEX idx_jours_bloques_date ON jours_bloques(date);
 

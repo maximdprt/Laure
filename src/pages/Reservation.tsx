@@ -194,13 +194,14 @@ const Reservation = () => {
     }
   }, [bookingData.locationType, heuresCabinet, heuresDomicile, loadingCabinet, loadingDomicile])
 
-  const blockedForLocation = bookingData.locationType ? getStoredBlocked(bookingData.locationType) : {}
+  const blockedCabinet = getStoredBlocked('cabinet')
+  const blockedDomicile = getStoredBlocked('domicile')
   const normalizeTime = (value: string) => value.slice(0, 5)
   const isSlotBlocked = (date: Date, time: string) => {
     const key = toLocalDateKey(date)
     
-    // Vérifie les créneaux bloqués manuellement
-    const manuallyBlocked = (blockedForLocation[key] || []).includes(time)
+    // Vérifie les créneaux bloqués manuellement sur les deux calendriers
+    const manuallyBlocked = (blockedCabinet[key] || []).includes(time) || (blockedDomicile[key] || []).includes(time)
     if (manuallyBlocked) return true
     
     // Vérifie les créneaux occupés par des réservations confirmées

@@ -10,6 +10,12 @@ export const useReservations = () => {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    const compareByDateTime = (a: { date: string; heure: string }, b: { date: string; heure: string }) => {
+      const keyA = `${a.date} ${a.heure.slice(0, 5)}`
+      const keyB = `${b.date} ${b.heure.slice(0, 5)}`
+      return keyA.localeCompare(keyB)
+    }
+
     // Récupère les réservations initiales
     const fetchReservations = async () => {
       try {
@@ -67,20 +73,14 @@ export const useReservations = () => {
           if (payload.eventType === 'INSERT') {
             // Affiche toutes les nouvelles réservations sauf annulées/no-show
             if (data.statut !== 'annulée' && data.statut !== 'no-show') {
-              setReservations(prev => [...prev, data].sort((a, b) => 
-                new Date(`${a.date}T${a.heure}`).getTime() - 
-                new Date(`${b.date}T${b.heure}`).getTime()
-              ))
+              setReservations(prev => [...prev, data].sort(compareByDateTime))
             }
           } else if (payload.eventType === 'UPDATE') {
             setReservations(prev => {
               const filtered = prev.filter(r => r.id !== data.id)
               // Ajoute si pas annulée/no-show, sinon retire de la liste
               if (data.statut !== 'annulée' && data.statut !== 'no-show') {
-                return [...filtered, data].sort((a, b) => 
-                  new Date(`${a.date}T${a.heure}`).getTime() - 
-                  new Date(`${b.date}T${b.heure}`).getTime()
-                )
+                return [...filtered, data].sort(compareByDateTime)
               }
               return filtered
             })

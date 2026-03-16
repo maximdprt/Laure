@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Lock, Eye, EyeOff, LogOut, Calendar, Clock, Euro, TrendingUp, Users, X, ChevronLeft, ChevronRight, Settings, Ban, CalendarCheck, MapPin, Home, Star, MessageSquare, Plus, Pencil, Trash2, Check } from 'lucide-react'
 import { getStoredBlocked, setStoredBlocked, getStoredAvis, setStoredAvis, getStoredAvisPending, setStoredAvisPending } from '../constants/services'
-import { parseLocalDate, toLocalDateKey, getNowInParis } from '../lib/dateUtils'
+import { toLocalDateKey, getNowInParis } from '../lib/dateUtils'
 import { useReservations } from '../hooks/useReservations'
 import { useAllCreneauxHoraires } from '../hooks/useCreneauxHoraires'
 import ReservationsList from '../components/ReservationsList'
@@ -161,9 +161,9 @@ const Admin = () => {
     const blockedDomicile = blockedSlotsDomicile[key]?.includes(time) || false
     return blockedCabinet || blockedDomicile
   }
+  const normalizeTime = (value: string) => value.slice(0, 5)
   const getReservationsForDate = (date: Date, location?: LocationType) => reservations.filter(r => {
-    const reservationDate = parseLocalDate(r.date)
-    const sameDay = reservationDate.toDateString() === date.toDateString()
+    const sameDay = r.date === toLocalDateKey(date)
     if (!sameDay) return false
     return location ? r.lieu === location : true
   })
@@ -181,14 +181,14 @@ const Admin = () => {
 
   const stats = {
     today: reservations.filter(r => {
-      const reservationDate = parseLocalDate(r.date)
-      return reservationDate.toDateString() === getNowInParis().toDateString()
+      return r.date === toLocalDateKey(getNowInParis())
     }).length,
     week: reservations.filter(r => { 
       const now = getNowInParis()
       const week = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-      const reservationDate = parseLocalDate(r.date)
-      return reservationDate >= now && reservationDate <= week 
+      const todayKey = toLocalDateKey(now)
+      const weekKey = toLocalDateKey(week)
+      return r.date >= todayKey && r.date <= weekKey 
     }).length,
     pending: reservations.filter(r => r.statut === 'en attente').length,
     revenue: reservations.filter(r => r.statut === 'confirmée').reduce((s, r) => s + (r.services?.prix || 0), 0),
@@ -323,9 +323,8 @@ const Admin = () => {
                     <div className="grid grid-cols-2 gap-2">
                       {heuresCurrent.map(time => {
                         const res = reservations.find(r => {
-                          const reservationDate = parseLocalDate(r.date)
-                          const heureFormatted = r.heure.substring(0, 5)
-                          return reservationDate.toDateString() === selectedDate.toDateString() && heureFormatted === time
+                          const heureFormatted = normalizeTime(r.heure)
+                          return r.date === toLocalDateKey(selectedDate) && heureFormatted === normalizeTime(time)
                         })
                         const isOtherLocationReservation = !!res && res.lieu !== locationCalendarType
                         const blocked = isSlotBlocked(selectedDate, time)

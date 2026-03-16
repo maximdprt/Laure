@@ -54,6 +54,8 @@ CREATE TABLE IF NOT EXISTS reservations (
   client_email VARCHAR(255),
   client_telephone VARCHAR(20),
   google_event_id VARCHAR(255),
+  google_event_id_cabinet VARCHAR(255),
+  google_event_id_domicile VARCHAR(255),
   payment_status VARCHAR(50) DEFAULT 'pending', -- pending, paid, failed, canceled
   stripe_payment_intent_id VARCHAR(255),
   deposit_amount_cents INTEGER,

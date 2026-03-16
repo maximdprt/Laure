@@ -30,6 +30,28 @@ interface GoogleCalendarEvent {
 const CALENDAR_ID_CABINET = "massage.auraperformance@gmail.com"
 const CALENDAR_ID_DOMICILE = "fd6f1289ef6490250327457224e6c71936471cae5f39b4456443e26bd8c6a1f9@group.calendar.google.com"
 
+const parseMirroredEventIds = (record: { lieu?: string; google_event_id?: string | null; google_event_id_cabinet?: string | null; google_event_id_domicile?: string | null }) => {
+  let cabinetEventId = record.google_event_id_cabinet || null
+  let domicileEventId = record.google_event_id_domicile || null
+
+  const combined = record.google_event_id || ""
+  if (combined.includes("cabinet:") || combined.includes("domicile:")) {
+    const cabinetMatch = combined.match(/cabinet:([^;]+)/)
+    const domicileMatch = combined.match(/domicile:([^;]+)/)
+    if (cabinetMatch?.[1]) cabinetEventId = cabinetMatch[1]
+    if (domicileMatch?.[1]) domicileEventId = domicileMatch[1]
+  } else if (combined) {
+    if (record.lieu === "cabinet") cabinetEventId = combined
+    if (record.lieu === "domicile") domicileEventId = combined
+  }
+
+  return { cabinetEventId, domicileEventId }
+}
+
+const buildMirroredEventIds = (cabinetEventId: string, domicileEventId: string) => {
+  return `cabinet:${cabinetEventId};domicile:${domicileEventId}`
+}
+
 const getCalendarIdForLieu = (lieu: string): string => {
   if (lieu === "domicile") {
     return CALENDAR_ID_DOMICILE
@@ -395,41 +417,52 @@ Deno.serve(async (req: Request) => {
       location: lieuText
     }
 
-    if (type === "INSERT") {
-      const calendarId = getCalendarIdForLieu(record.lieu)
-      const eventId = await createGoogleCalendarEvent(accessToken, calendarId, eventData)
-      console.log(`✅ Created event: ${eventId}`)
-      
-      // Sauvegarder l'ID dans Supabase
-      await supabase
-        .from("reservations")
-        .update({ google_event_id: eventId })
-        .eq("id", record.id)
-      
-      console.log(`✅ Saved event ID to database`)
-    } else if (type === "UPDATE" && old_record?.google_event_id) {
-      if (old_record.lieu !== record.lieu) {
-        const oldCalendarId = getCalendarIdForLieu(old_record.lieu)
-        const newCalendarId = getCalendarIdForLieu(record.lieu)
+    const cabinetCalendarId = CALENDAR_ID_CABINET
+    const domicileCalendarId = CALENDAR_ID_DOMICILE
 
-        await deleteGoogleCalendarEvent(accessToken, old_record.google_event_id, oldCalendarId)
-        const newEventId = await createGoogleCalendarEvent(accessToken, newCalendarId, eventData)
+    if (type === "INSERT" || type === "UPDATE") {
+      const parsedIds = parseMirroredEventIds(record)
+      let cabinetEventId = parsedIds.cabinetEventId
+      let domicileEventId = parsedIds.domicileEventId
 
-        await supabase
-          .from("reservations")
-          .update({ google_event_id: newEventId })
-          .eq("id", record.id)
-
-        console.log(`✅ Moved event: ${old_record.google_event_id} -> ${newEventId}`)
+      if (cabinetEventId) {
+        await updateGoogleCalendarEvent(accessToken, cabinetEventId, cabinetCalendarId, eventData)
       } else {
-        const calendarId = getCalendarIdForLieu(record.lieu)
-        await updateGoogleCalendarEvent(accessToken, old_record.google_event_id, calendarId, eventData)
-        console.log(`✅ Updated event: ${old_record.google_event_id}`)
+        cabinetEventId = await createGoogleCalendarEvent(accessToken, cabinetCalendarId, eventData)
       }
-    } else if (type === "DELETE" && record?.google_event_id) {
-      const calendarId = getCalendarIdForLieu(record.lieu)
-      await deleteGoogleCalendarEvent(accessToken, record.google_event_id, calendarId)
-      console.log(`✅ Deleted event: ${record.google_event_id}`)
+
+      if (domicileEventId) {
+        await updateGoogleCalendarEvent(accessToken, domicileEventId, domicileCalendarId, eventData)
+      } else {
+        domicileEventId = await createGoogleCalendarEvent(accessToken, domicileCalendarId, eventData)
+      }
+
+      const { error: updateError } = await supabase
+        .from("reservations")
+        .update({
+          google_event_id: buildMirroredEventIds(cabinetEventId, domicileEventId)
+        })
+        .eq("id", record.id)
+
+      if (updateError) {
+        throw new Error(`Failed to persist mirrored event IDs: ${updateError.message}`)
+      }
+
+      console.log(`✅ Mirrored events saved: cabinet=${cabinetEventId}, domicile=${domicileEventId}`)
+    } else if (type === "DELETE") {
+      const parsedCurrent = parseMirroredEventIds(record || {})
+      const parsedOld = parseMirroredEventIds(old_record || {})
+      const cabinetEventId = parsedCurrent.cabinetEventId || parsedOld.cabinetEventId
+      const domicileEventId = parsedCurrent.domicileEventId || parsedOld.domicileEventId
+
+      if (cabinetEventId) {
+        await deleteGoogleCalendarEvent(accessToken, cabinetEventId, cabinetCalendarId)
+      }
+      if (domicileEventId) {
+        await deleteGoogleCalendarEvent(accessToken, domicileEventId, domicileCalendarId)
+      }
+
+      console.log(`✅ Deleted mirrored events: cabinet=${cabinetEventId || "none"}, domicile=${domicileEventId || "none"}`)
     }
 
     return new Response(JSON.stringify({ success: true }), {

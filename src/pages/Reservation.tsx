@@ -183,15 +183,12 @@ const Reservation = () => {
   const depositAmount = Math.ceil(totalPrice * DEPOSIT_PERCENTAGE / 100)
   const totalDuration = bookingData.soins.reduce((sum, soin) => sum + soin.duration, 0)
 
-  // Utilise les créneaux horaires depuis Supabase selon le lieu choisi
+  // Utilise les créneaux horaires fusionnés pour afficher la même disponibilité
+  // sur cabinet et domicile. Le lieu choisi sert uniquement à l'affectation métier.
   const timeSlotsForLocation = useMemo(() => {
-    if (!bookingData.locationType) return []
-    
-    if (bookingData.locationType === 'cabinet') {
-      return loadingCabinet ? [] : heuresCabinet
-    } else {
-      return loadingDomicile ? [] : heuresDomicile
-    }
+    if (!bookingData.locationType || loadingCabinet || loadingDomicile) return []
+    return Array.from(new Set([...heuresCabinet, ...heuresDomicile]))
+      .sort((a, b) => a.localeCompare(b))
   }, [bookingData.locationType, heuresCabinet, heuresDomicile, loadingCabinet, loadingDomicile])
 
   const blockedCabinet = getStoredBlocked('cabinet')

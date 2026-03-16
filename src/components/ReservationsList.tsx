@@ -52,7 +52,7 @@ const ReservationsList = () => {
           <div className="flex items-start justify-between mb-4">
             <div>
               <h3 className="font-heading font-bold text-lg text-dark">
-                {reservation.users?.prenom} {reservation.users?.nom}
+                {reservation.client_prenom} {reservation.client_nom}
               </h3>
               <p className="text-gold font-medium">{reservation.services?.nom}</p>
             </div>
@@ -125,14 +125,14 @@ const ReservationsList = () => {
           <div className="border-t border-gray-200 pt-4 space-y-2">
             <div className="flex items-center gap-2 text-sm text-gray-700">
               <Mail className="w-4 h-4 text-gold" />
-              <a href={`mailto:${reservation.users?.email}`} className="hover:text-gold transition-colors">
-                {reservation.users?.email}
+              <a href={`mailto:${reservation.client_email}`} className="hover:text-gold transition-colors">
+                {reservation.client_email}
               </a>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-700">
               <Phone className="w-4 h-4 text-gold" />
-              <a href={`tel:${reservation.users?.telephone}`} className="hover:text-gold transition-colors">
-                {reservation.users?.telephone}
+              <a href={`tel:${reservation.client_telephone}`} className="hover:text-gold transition-colors">
+                {reservation.client_telephone}
               </a>
             </div>
           </div>

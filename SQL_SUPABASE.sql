@@ -41,13 +41,18 @@ CREATE TABLE IF NOT EXISTS jours_bloques (
 -- 5. TABLE RESERVATIONS
 CREATE TABLE IF NOT EXISTS reservations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL, -- optionnel
   service_id UUID NOT NULL REFERENCES services(id),
   date DATE NOT NULL,
   heure TIME NOT NULL,
   lieu VARCHAR(255) NOT NULL, -- cabinet, domicile
   duree INTEGER NOT NULL, -- en minutes
   statut VARCHAR(50) DEFAULT 'en attente', -- en attente, confirmée, complétée, annulée, no-show
+  -- Infos client stockées directement
+  client_nom VARCHAR(255),
+  client_prenom VARCHAR(255),
+  client_email VARCHAR(255),
+  client_telephone VARCHAR(20),
   google_event_id VARCHAR(255),
   payment_status VARCHAR(50) DEFAULT 'pending', -- pending, paid, failed, canceled
   stripe_payment_intent_id VARCHAR(255),

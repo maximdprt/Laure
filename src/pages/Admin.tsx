@@ -348,7 +348,7 @@ const Admin = () => {
                                 {r.statut === 'confirmée' ? 'Confirmé' : 'En attente'}
                               </span>
                             </div>
-                            <p className="text-sm text-dark/70 font-body">{r.users?.prenom} {r.users?.nom}</p>
+                            <p className="text-sm text-dark/70 font-body">{r.client_prenom} {r.client_nom}</p>
                             <p className="text-xs text-dark/50 font-body">{r.services?.nom}</p>
                           </div>
                         ))}

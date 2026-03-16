@@ -20,40 +20,10 @@ export const createReservation = async (data: {
   depositAmountCents?: number
   totalAmountCents?: number
 }) => {
-  // 1. Crée ou trouve l'utilisateur
-  const { data: existingUsers } = await supabase
-    .from('users')
-    .select('id')
-    .eq('email', data.email)
-
-  let user_id: string
-
-  if (existingUsers && existingUsers.length > 0) {
-    user_id = existingUsers[0].id
-  } else {
-    const { data: newUser, error } = await supabase
-      .from('users')
-      .insert([
-        {
-          email: data.email,
-          nom: data.nom,
-          prenom: data.prenom,
-          telephone: data.telephone
-        }
-      ])
-      .select('id')
-      .single()
-
-    if (error) throw error
-    user_id = newUser!.id
-  }
-
-  // 2. Crée la réservation
   const { data: reservation, error } = await supabase
     .from('reservations')
     .insert([
       {
-        user_id,
         service_id: data.service_id,
         date: data.date,
         heure: data.heure,
@@ -65,6 +35,7 @@ export const createReservation = async (data: {
         total_amount_cents: data.totalAmountCents || null,
         client_nom: data.nom,
         client_prenom: data.prenom,
+        client_email: data.email,
         client_telephone: data.telephone
       }
     ])

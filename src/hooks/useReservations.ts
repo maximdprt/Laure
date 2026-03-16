@@ -15,8 +15,7 @@ export const useReservations = () => {
       try {
         const { data, error: fetchError } = await supabase
           .from('reservations')
-          .select('*, users(*), services(*)')
-          // Récupère toutes les réservations sauf celles annulées ou no-show
+          .select('*, services(*)')
           .not('statut', 'in', '("annulée","no-show")')
           .order('date', { ascending: true })
           .order('heure', { ascending: true })
@@ -56,7 +55,7 @@ export const useReservations = () => {
 
           const { data, error } = await supabase
             .from('reservations')
-            .select('*, users(*), services(*)')
+            .select('*, services(*)')
             .eq('id', reservationId)
             .single()
 

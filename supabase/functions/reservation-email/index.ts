@@ -56,20 +56,11 @@ Deno.serve(async (req: Request) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
     
-    // Récupérer l'utilisateur
-    const { data: user, error: userError } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", record.user_id)
-      .single()
-
-    if (userError || !user) {
-      console.error("User not found:", record.user_id, userError)
-      return new Response(JSON.stringify({ error: "User not found" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      })
-    }
+    // Utiliser les infos client stockées directement dans la réservation
+    const client_prenom = record.client_prenom || ""
+    const client_nom = record.client_nom || ""
+    const client_email = record.client_email || ""
+    const client_telephone = record.client_telephone || ""
 
     // Récupérer le service
     const { data: service, error: serviceError } = await supabase
@@ -105,7 +96,7 @@ Deno.serve(async (req: Request) => {
             <p style="margin: 6px 0 0; font-size: 13px; opacity: 0.85;">Votre rendez-vous a bien été enregistré</p>
           </div>
           <div style="padding: 24px; color: #3c3c3c;">
-            <p style="margin: 0 0 20px; font-size: 15px;">Bonjour <strong>${escapeHtml(user.prenom)}</strong>,</p>
+            <p style="margin: 0 0 20px; font-size: 15px;">Bonjour <strong>${escapeHtml(client_prenom)}</strong>,</p>
             <p style="margin: 0 0 20px; font-size: 15px;">Votre réservation a bien été confirmée :</p>
             
             <!-- RÉCAPITULATIF SOIN -->
@@ -163,9 +154,9 @@ Deno.serve(async (req: Request) => {
             <div style="background: #f0f0f0; border-radius: 12px; padding: 16px; margin-bottom: 20px; border-left: 4px solid #d4a574;">
               <span style="display: block; color: #6f7f7a; font-size: 13px; font-weight: 600; margin-bottom: 8px;">👤 VOS INFORMATIONS</span>
               <p style="margin: 0; font-size: 14px; color: #3c3c3c; line-height: 1.6;">
-                <strong>${escapeHtml(user.nom)}</strong><br>
-                ${user.email}<br>
-                ${escapeHtml(user.telephone)}
+                <strong>${escapeHtml(client_nom)}</strong><br>
+                ${escapeHtml(client_email)}<br>
+                ${escapeHtml(client_telephone)}
               </p>
             </div>
 
@@ -204,7 +195,7 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify({
         from: "Aura Massage <onboarding@resend.dev>",
         to: "massage.auraperformance@gmail.com",
-        replyTo: user.email,
+        replyTo: client_email,
         subject: `Confirmation de réservation - ${dateFormatted} à ${record.heure}`,
         html: html
       })

@@ -46,13 +46,18 @@ export interface CreneauHoraire {
 
 export interface Reservation {
   id: string
-  user_id: string
+  user_id?: string | null
   service_id: string
   date: string // format YYYY-MM-DD
   heure: string // format HH:MM
   lieu: 'cabinet' | 'domicile'
   duree: number // en minutes
   statut: 'en attente' | 'confirmée' | 'complétée' | 'annulée' | 'no-show'
+  // Infos client stockées directement
+  client_nom?: string | null
+  client_prenom?: string | null
+  client_email?: string | null
+  client_telephone?: string | null
   google_event_id?: string
   payment_status?: 'pending' | 'paid' | 'failed' | 'canceled'
   stripe_payment_intent_id?: string
@@ -61,12 +66,10 @@ export interface Reservation {
   notes?: string
   created_at: string
   updated_at: string
-  // Relations (optionnelles si joinées)
-  users?: User
+  // Relation service (optionnelle si joinée)
   services?: Service
 }
 
 export interface ReservationWithDetails extends Reservation {
-  users: User
   services: Service
 }

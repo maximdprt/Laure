@@ -266,29 +266,23 @@ Deno.serve(async (req: Request) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Récupérer les données du client et du service
-    const { data: user } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", record.user_id)
-      .single()
-
+    // Récupérer le service
     const { data: service } = await supabase
       .from("services")
       .select("*")
       .eq("id", record.service_id)
       .single()
 
-    if (!user || !service) {
-      console.error("User or service not found")
-      throw new Error("Missing user or service data")
+    if (!service) {
+      console.error("Service not found")
+      throw new Error("Missing service data")
     }
 
-    // Utiliser les infos stockées dans la réservation (au moment de la création)
-    // Pour que chaque réservation garde ses infos originales
-    const client_prenom = record.client_prenom || user.prenom
-    const client_nom = record.client_nom || user.nom
-    const client_telephone = record.client_telephone || user.telephone
+    // Utiliser les infos client stockées directement dans la réservation
+    const client_prenom = record.client_prenom || ""
+    const client_nom = record.client_nom || ""
+    const client_telephone = record.client_telephone || ""
+    const client_email = record.client_email || ""
 
     console.log(`Processing: ${client_prenom} ${client_nom} - ${service.nom}`)
 
@@ -347,7 +341,7 @@ Deno.serve(async (req: Request) => {
 
     const eventData: GoogleCalendarEvent = {
       summary: `${service.nom} - ${client_prenom} ${client_nom}`,
-      description: `Client: ${client_prenom} ${client_nom}\nEmail: ${user.email}\nTéléphone: ${client_telephone}\nDurée: ${record.duree} minutes\nNotes: ${record.notes || "Aucune"}`,
+      description: `Client: ${client_prenom} ${client_nom}\nEmail: ${client_email}\nTéléphone: ${client_telephone}\nDurée: ${record.duree} minutes\nNotes: ${record.notes || "Aucune"}`,
       start: {
         dateTime: startDateStr,
         timeZone: "Europe/Paris"

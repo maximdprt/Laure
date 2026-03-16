@@ -101,7 +101,34 @@ export const createPaymentIntent = async (data: {
     }
   )
 
-  if (error) throw error
+  if (error) {
+    const maybeContext = (error as { context?: { json?: () => Promise<unknown>; text?: () => Promise<string> } }).context
+
+    if (maybeContext?.json) {
+      try {
+        const payload = await maybeContext.json() as { error?: string }
+        if (payload?.error) {
+          throw new Error(payload.error)
+        }
+      } catch {
+        // Ignore JSON parse errors and fallback below.
+      }
+    }
+
+    if (maybeContext?.text) {
+      try {
+        const text = await maybeContext.text()
+        if (text) {
+          throw new Error(text)
+        }
+      } catch {
+        // Ignore text parse errors and fallback below.
+      }
+    }
+
+    throw error
+  }
+
   if (!result?.client_secret || !result?.payment_intent_id) {
     throw new Error('Réponse Stripe invalide')
   }

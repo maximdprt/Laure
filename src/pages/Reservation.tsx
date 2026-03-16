@@ -281,7 +281,10 @@ const Reservation = () => {
         setClientSecret(intent.client_secret)
       } catch (error) {
         console.error('Erreur init paiement:', error)
-        setPaymentInitError('Impossible de lancer le paiement. Veuillez réessayer.')
+        const message = error instanceof Error
+          ? error.message
+          : 'Impossible de lancer le paiement. Veuillez réessayer.'
+        setPaymentInitError(message)
       } finally {
         setIsPaymentInit(false)
       }

@@ -27,21 +27,27 @@ Deno.serve(async (req: Request) => {
 
   try {
     const payload = await req.json()
-    const { reservation_ids, amount_cents, total_amount_cents, currency, customer_email } = payload
+    const reservation_ids_raw = payload?.reservation_ids ?? payload?.reservationIds ?? []
+    const reservation_ids = Array.isArray(reservation_ids_raw)
+      ? reservation_ids_raw.map((id) => String(id)).filter(Boolean)
+      : []
 
-    if (!Array.isArray(reservation_ids)) {
-      return new Response(JSON.stringify({ error: "Invalid reservation_ids format" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      })
-    }
-
-    if (!Number.isInteger(amount_cents) || amount_cents <= 0) {
+    const amount_cents_raw = payload?.amount_cents ?? payload?.amountCents
+    const amount_cents = Number(amount_cents_raw)
+    if (!Number.isFinite(amount_cents) || amount_cents <= 0) {
       return new Response(JSON.stringify({ error: "Invalid amount_cents" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       })
     }
+
+    const total_amount_cents_raw = payload?.total_amount_cents ?? payload?.totalAmountCents
+    const total_amount_cents = Number.isFinite(Number(total_amount_cents_raw))
+      ? Number(total_amount_cents_raw)
+      : null
+
+    const currency = String(payload?.currency ?? "eur").toLowerCase()
+    const customer_email = String(payload?.customer_email ?? payload?.customerEmail ?? "").trim()
 
     if (!customer_email || !customer_email.includes("@")) {
       return new Response(JSON.stringify({ error: "Invalid customer_email" }), {
@@ -61,13 +67,13 @@ Deno.serve(async (req: Request) => {
     const stripe = new Stripe(stripeKey, { apiVersion: "2024-06-20" })
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount_cents,
+      amount: Math.round(amount_cents),
       currency: currency || "eur",
       receipt_email: customer_email,
       automatic_payment_methods: { enabled: true },
       metadata: {
         reservation_ids: reservation_ids.join(","),
-        total_amount_cents: typeof total_amount_cents === "number" ? String(total_amount_cents) : "",
+        total_amount_cents: typeof total_amount_cents === "number" ? String(Math.round(total_amount_cents)) : "",
         flow: "deposit"
       }
     })
@@ -82,8 +88,8 @@ Deno.serve(async (req: Request) => {
         .update({
           payment_status: "pending",
           stripe_payment_intent_id: paymentIntent.id,
-          deposit_amount_cents: amount_cents,
-          total_amount_cents: typeof total_amount_cents === "number" ? total_amount_cents : null
+          deposit_amount_cents: Math.round(amount_cents),
+          total_amount_cents: typeof total_amount_cents === "number" ? Math.round(total_amount_cents) : null
         })
         .in("id", reservation_ids)
     }

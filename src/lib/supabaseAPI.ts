@@ -102,30 +102,15 @@ export const createPaymentIntent = async (data: {
   )
 
   if (error) {
-    const maybeContext = (error as { context?: { json?: () => Promise<unknown>; text?: () => Promise<string> } }).context
-
-    if (maybeContext?.json) {
+    const maybeContext = (error as { context?: Response }).context
+    if (maybeContext) {
+      let specificMessage: string | null = null
       try {
-        const payload = await maybeContext.json() as { error?: string }
-        if (payload?.error) {
-          throw new Error(payload.error)
-        }
-      } catch {
-        // Ignore JSON parse errors and fallback below.
-      }
+        const body = await maybeContext.clone().json() as { error?: string }
+        if (body?.error) specificMessage = body.error
+      } catch { /* ignore JSON parse errors */ }
+      if (specificMessage) throw new Error(specificMessage)
     }
-
-    if (maybeContext?.text) {
-      try {
-        const text = await maybeContext.text()
-        if (text) {
-          throw new Error(text)
-        }
-      } catch {
-        // Ignore text parse errors and fallback below.
-      }
-    }
-
     throw error
   }
 

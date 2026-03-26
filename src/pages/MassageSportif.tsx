@@ -153,6 +153,10 @@ const BenefitsCarousel3D = () => {
                       <img
                         src={card.image}
                         alt={card.title}
+                        width={480}
+                        height={360}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                       />
                     </div>

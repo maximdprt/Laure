@@ -211,7 +211,15 @@ const Admin = () => {
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md px-4">
           <div className="card p-8">
             <div className="flex justify-center mb-6">
-              <img src="/Logo-site.png" alt="Logo" className="w-48 h-48 object-cover rounded-full" />
+              <img
+                src="/Logo-site.png"
+                alt="Logo"
+                width={192}
+                height={192}
+                loading="eager"
+                decoding="async"
+                className="w-48 h-48 object-cover rounded-full"
+              />
             </div>
             <h1 className="font-heading font-semibold text-2xl text-dark text-center mb-2">Espace Administration</h1>
             <p className="text-dark/60 text-center mb-8 font-body text-sm">Entrez votre code d'accès</p>
@@ -221,7 +229,12 @@ const Admin = () => {
                 <div className="relative">
                   <input type={showCode ? 'text' : 'password'} value={code} onChange={(e) => { setCode(e.target.value); setError('') }}
                     className={`w-full px-4 py-3 pr-12 rounded-lg border font-body ${error ? 'border-error' : 'border-sand focus:border-sage'}`} />
-                  <button type="button" onClick={() => setShowCode(!showCode)} className="absolute right-4 top-1/2 -translate-y-1/2 text-dark/50">
+                  <button
+                    type="button"
+                    onClick={() => setShowCode(!showCode)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-dark/50"
+                    aria-label={showCode ? "Masquer le code" : "Afficher le code"}
+                  >
                     {showCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
@@ -241,7 +254,7 @@ const Admin = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="font-heading font-semibold text-3xl text-dark mb-1">Administration</h1>
+            <h2 className="font-heading font-semibold text-3xl text-dark mb-1">Administration</h2>
             <p className="text-dark/60 font-body">Gérez vos réservations</p>
           </div>
           <button onClick={() => setIsAuth(false)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-sand text-dark/70 hover:bg-sand-dark">

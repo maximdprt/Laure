@@ -100,6 +100,10 @@ const ServicesCarousel = () => {
                 <img
                   src={carouselItems[currentIndex].image}
                   alt={carouselItems[currentIndex].title}
+                  width={600}
+                  height={800}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-dark/80 via-dark/20 to-transparent" />

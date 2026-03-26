@@ -1,12 +1,12 @@
 # Massage Aura Performance - Lacanau
-# https://aura-massage-lacanau.fr
+# https://massage-aura-performance.fr
 
 User-agent: *
 Allow: /
 Disallow: /admin
 
 # Sitemap (Google, Bing, etc.)
-Sitemap: https://aura-massage-lacanau.fr/sitemap.xml
+Sitemap: https://massage-aura-performance.fr/sitemap.xml
 
 # Yandex : hôte préféré (optionnel)
-Host: aura-massage-lacanau.fr
+Host: massage-aura-performance.fr

@@ -478,7 +478,7 @@ const MassageSportif = () => (
                 <div className="space-y-5 mb-8">
                   {soin.zonesSeules && soin.zonesSeules.length > 0 && (
                     <div>
-                      <h4 className="font-heading font-semibold text-dark text-sm uppercase tracking-wider mb-3 text-sage">
+                      <h4 className="font-heading font-semibold text-sage text-sm uppercase tracking-wider mb-3">
                         Zones seules
                       </h4>
                       <ul className="space-y-2">
@@ -493,7 +493,7 @@ const MassageSportif = () => (
                   )}
                   {soin.combos && soin.combos.length > 0 && (
                     <div>
-                      <h4 className="font-heading font-semibold text-dark text-sm uppercase tracking-wider mb-3 text-sage">
+                      <h4 className="font-heading font-semibold text-sage text-sm uppercase tracking-wider mb-3">
                         {soin.zonesSeules ? 'Ou combos' : 'Combos proposés'}
                       </h4>
                       <ul className="space-y-2">

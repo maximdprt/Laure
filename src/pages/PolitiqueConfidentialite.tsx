@@ -51,7 +51,7 @@ const PolitiqueConfidentialite = () => {
               <div className="space-y-4 text-dark/70 font-body">
                 <p>
                   Aura Massage, représenté par Laure Dupuch, s'engage à protéger la vie privée des 
-                  utilisateurs de son site internet aura-massage-lacanau.fr et de ses clients.
+                  utilisateurs de son site internet massage-aura-performance.fr et de ses clients.
                 </p>
                 <p>
                   Cette politique de confidentialité explique comment nous collectons, utilisons, 

@@ -96,7 +96,7 @@ const MentionsLegales = () => {
               </div>
               <div className="space-y-4 text-dark/70 font-body">
                 <p>
-                  Le site aura-massage-lacanau.fr est hébergé par :
+                  Le site massage-aura-performance.fr est hébergé par :
                 </p>
                 <p>
                   <strong className="text-dark">Vercel Inc.</strong><br />
@@ -192,7 +192,7 @@ const MentionsLegales = () => {
               </div>
               <div className="space-y-4 text-dark/70 font-body">
                 <p>
-                  Le site aura-massage-lacanau.fr peut utiliser des cookies pour améliorer l'expérience 
+                  Le site massage-aura-performance.fr peut utiliser des cookies pour améliorer l'expérience 
                   utilisateur et à des fins statistiques. Ces cookies ne collectent pas de données 
                   personnelles identifiables.
                 </p>

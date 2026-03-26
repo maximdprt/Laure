@@ -1,0 +1,22 @@
+# llms.txt
+#
+# Site: https://massage-aura-performance.fr
+# Objet: donner un contexte concis aux assistants IA qui consultent le site.
+
+Site: Massage Aura Performance (Lacanau Océan)
+URL: https://massage-aura-performance.fr
+
+Pages principales:
+- https://massage-aura-performance.fr/
+- https://massage-aura-performance.fr/massage-sportif
+- https://massage-aura-performance.fr/reservation
+- https://massage-aura-performance.fr/contact
+- https://massage-aura-performance.fr/informations
+
+Contact:
+- Téléphone: +33 7 59 70 19 41
+- Email: massage.auraperformance@gmail.com
+
+Adresse:
+HEAL LO LACANAU, 7 rue Jean Michel, 33680 Lacanau (France)
+

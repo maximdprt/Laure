@@ -65,8 +65,10 @@ const Admin = () => {
     else setError('Code incorrect')
   }
 
-  const setBlockedSlotsCurrent = locationCalendarType === 'cabinet' ? setBlockedSlotsCabinet : setBlockedSlotsDomicile
-  const heuresCurrent = locationCalendarType === 'cabinet' ? heuresCabinet : heuresDomicile
+  const heuresCurrent = useMemo(
+    () => Array.from(new Set([...heuresCabinet, ...heuresDomicile])).sort((a, b) => a.localeCompare(b)),
+    [heuresCabinet, heuresDomicile]
+  )
 
   const handleAjouterCreneau = async (lieu: LocationType, valeur: string) => {
     const normalized = valeur?.slice(0, 5)
@@ -149,10 +151,17 @@ const Admin = () => {
 
   const toggleBlockSlot = (date: Date, time: string) => {
     const key = toLocalDateKey(date)
-    setBlockedSlotsCurrent(prev => {
-      const current = prev[key] || []
-      return { ...prev, [key]: current.includes(time) ? current.filter(t => t !== time) : [...current, time] }
-    })
+    const nextForMap = (map: BlockedSlots) => {
+      const current = map[key] || []
+      return {
+        ...map,
+        [key]: current.includes(time) ? current.filter(t => t !== time) : [...current, time]
+      }
+    }
+
+    // Miroir sur les deux calendriers pour garder les mêmes indisponibilités.
+    setBlockedSlotsCabinet(prev => nextForMap(prev))
+    setBlockedSlotsDomicile(prev => nextForMap(prev))
   }
 
   const isSlotBlocked = (date: Date, time: string) => {

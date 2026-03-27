@@ -172,21 +172,29 @@ CREATE INDEX IF NOT EXISTS idx_avis_clients_created_at ON avis_clients(created_a
 
 ALTER TABLE avis_clients ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Avis publiés lisibles par tous"
-  ON avis_clients FOR SELECT
-  USING (is_published = TRUE OR auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "Avis publiés lisibles par tous" ON avis_clients;
+DROP POLICY IF EXISTS "Visiteurs peuvent soumettre un avis" ON avis_clients;
+DROP POLICY IF EXISTS "Admins peuvent modifier les avis" ON avis_clients;
+DROP POLICY IF EXISTS "Admins peuvent supprimer les avis" ON avis_clients;
 
-CREATE POLICY "Visiteurs peuvent soumettre un avis"
+-- Permet à l'admin (code UI, sans auth Supabase) de gérer les avis.
+-- Sécurité: on empêche au moins la publication directe via INSERT.
+CREATE POLICY "Avis sélectionnables"
+  ON avis_clients FOR SELECT
+  USING (true);
+
+CREATE POLICY "Soumission d'avis (non publié)"
   ON avis_clients FOR INSERT
+  WITH CHECK (is_published = FALSE);
+
+CREATE POLICY "Mise à jour des avis (UI admin)"
+  ON avis_clients FOR UPDATE
+  USING (true)
   WITH CHECK (true);
 
-CREATE POLICY "Admins peuvent modifier les avis"
-  ON avis_clients FOR UPDATE
-  USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Admins peuvent supprimer les avis"
+CREATE POLICY "Suppression des avis (UI admin)"
   ON avis_clients FOR DELETE
-  USING (auth.role() = 'authenticated');
+  USING (true);
 
 -- ==================== TABLE CRÉNEAUX BLOQUÉS ====================
 CREATE TABLE IF NOT EXISTS creneaux_bloques (
@@ -202,11 +210,15 @@ CREATE INDEX IF NOT EXISTS idx_creneaux_bloques_date_lieu ON creneaux_bloques(da
 
 ALTER TABLE creneaux_bloques ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Créneaux bloqués lisibles par tous" ON creneaux_bloques;
+DROP POLICY IF EXISTS "Admins peuvent gérer les créneaux bloqués" ON creneaux_bloques;
+
 CREATE POLICY "Créneaux bloqués lisibles par tous"
   ON creneaux_bloques FOR SELECT
   USING (true);
 
-CREATE POLICY "Admins peuvent gérer les créneaux bloqués"
+-- Permet à l'admin (front) de modifier les blocs depuis le code UI.
+CREATE POLICY "Mise à jour des créneaux bloqués (UI admin)"
   ON creneaux_bloques FOR ALL
-  USING (auth.role() = 'authenticated')
-  WITH CHECK (auth.role() = 'authenticated');
+  USING (true)
+  WITH CHECK (true);

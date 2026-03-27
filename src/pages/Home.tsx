@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ChevronLeft, ChevronRight, Waves, MapPin, Star, Quote, Plus, Minus } from 'lucide-react'
-import { getStoredAvis } from '../constants/services'
 import { PUBLIC_IMAGES } from '../constants/images'
+import { useAvis } from '../hooks/useAvis'
 
 const carouselItems = [
   { image: PUBLIC_IMAGES.whatsApp1602, title: 'Massage Sportif', words: 'Performance · Récupération · Énergie' },
@@ -145,6 +145,7 @@ const ServicesCarousel = () => {
 }
 
 const Home = () => {
+  const { publishedAvis } = useAvis()
   return (
     <div>
       {/* Hero Section */}
@@ -404,7 +405,7 @@ const Home = () => {
             </h2>
             <div className="flex items-center justify-center gap-2 mb-4">
               {(() => {
-                const avis = getStoredAvis()
+                const avis = publishedAvis
                 const count = avis.length
                 const avg = count ? (avis.reduce((s, a) => s + a.rating, 0) / count).toFixed(1) : '0'
                 const fullStars = Math.round(Number(avg))
@@ -421,7 +422,7 @@ const Home = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {getStoredAvis().map((review, i) => (
+            {publishedAvis.map((review, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}

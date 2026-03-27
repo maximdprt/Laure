@@ -1,12 +1,13 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Lock, Eye, EyeOff, LogOut, Calendar, Clock, Euro, TrendingUp, Users, X, ChevronLeft, ChevronRight, Settings, Ban, CalendarCheck, MapPin, Home, Star, MessageSquare, Plus, Pencil, Trash2, Check } from 'lucide-react'
-import { getStoredBlocked, setStoredBlocked, getStoredAvis, setStoredAvis, getStoredAvisPending, setStoredAvisPending } from '../constants/services'
 import { toLocalDateKey, getNowInParis } from '../lib/dateUtils'
 import { useReservations } from '../hooks/useReservations'
 import { useAllCreneauxHoraires } from '../hooks/useCreneauxHoraires'
+import { useCreneauxBloques } from '../hooks/useCreneauxBloques'
+import { useAvis } from '../hooks/useAvis'
 import ReservationsList from '../components/ReservationsList'
-import type { BlockedSlots, Avis } from '../types'
+import type { Avis } from '../types'
 import type { LocationType } from '../constants/services'
 
 const ADMIN_CODE = 'AURA2024'
@@ -20,15 +21,23 @@ const Admin = () => {
   const [currentMonth, setCurrentMonth] = useState(getNowInParis())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [locationCalendarType, setLocationCalendarType] = useState<LocationType>('cabinet')
-  const [blockedSlotsCabinet, setBlockedSlotsCabinet] = useState<BlockedSlots>(() => getStoredBlocked('cabinet'))
-  const [blockedSlotsDomicile, setBlockedSlotsDomicile] = useState<BlockedSlots>(() => getStoredBlocked('domicile'))
   const [activeTab, setActiveTab] = useState<'calendar' | 'reservations' | 'settings' | 'avis'>('calendar')
-  const [avisList, setAvisList] = useState<Avis[]>(() => getStoredAvis())
-  const [pendingAvisList, setPendingAvisList] = useState<Avis[]>(() => getStoredAvisPending())
   const [editingAvis, setEditingAvis] = useState<Avis | null>(null)
   const [newAvis, setNewAvis] = useState<Partial<Avis>>({ name: '', text: '', rating: 5, date: '' })
+  const [approvalReplaceTarget, setApprovalReplaceTarget] = useState<Record<string, string>>({})
   const [newTimeSlotCabinet, setNewTimeSlotCabinet] = useState('')
   const [newTimeSlotDomicile, setNewTimeSlotDomicile] = useState('')
+
+  const { isBlocked, toggleBlockedSlot } = useCreneauxBloques()
+  const {
+    publishedAvis: avisList,
+    pendingAvis: pendingAvisList,
+    addPublishedAvis,
+    updatePublishedAvis,
+    deleteAvis,
+    approvePendingAvis,
+    rejectPendingAvis
+  } = useAvis()
 
   // Utilise le hook pour gérer les créneaux depuis Supabase
   const {
@@ -49,16 +58,6 @@ const Admin = () => {
     supprimerCreneau: supprimerCreneauDomicile
   } = useAllCreneauxHoraires('domicile')
 
-  useEffect(() => {
-    setStoredBlocked('cabinet', blockedSlotsCabinet)
-  }, [blockedSlotsCabinet])
-  useEffect(() => {
-    setStoredBlocked('domicile', blockedSlotsDomicile)
-  }, [blockedSlotsDomicile])
-  useEffect(() => {
-    setStoredAvis(avisList)
-  }, [avisList])
-
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     if (code === ADMIN_CODE) { setIsAuth(true); setError('') }
@@ -66,8 +65,8 @@ const Admin = () => {
   }
 
   const heuresCurrent = useMemo(
-    () => Array.from(new Set([...heuresCabinet, ...heuresDomicile])).sort((a, b) => a.localeCompare(b)),
-    [heuresCabinet, heuresDomicile]
+    () => (locationCalendarType === 'cabinet' ? heuresCabinet : heuresDomicile),
+    [locationCalendarType, heuresCabinet, heuresDomicile]
   )
 
   const handleAjouterCreneau = async (lieu: LocationType, valeur: string) => {
@@ -112,63 +111,86 @@ const Admin = () => {
     }
   }
 
-  const generateId = () => `av_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
-  const handleAddAvis = () => {
+  const handleAddAvis = async () => {
     if (!newAvis.name?.trim() || !newAvis.text?.trim() || !newAvis.date?.trim()) {
       alert('Remplissez le nom, le texte et la date.')
       return
     }
-    setAvisList(prev => [...prev, { id: generateId(), name: newAvis.name!.trim(), text: newAvis.text!.trim(), rating: newAvis.rating ?? 5, date: newAvis.date!.trim() }])
+    try {
+      await addPublishedAvis({
+        name: newAvis.name.trim(),
+        text: newAvis.text.trim(),
+        rating: newAvis.rating ?? 5,
+        date: newAvis.date.trim()
+      })
+    } catch (err) {
+      console.error(err)
+      alert('Impossible d’ajouter cet avis pour le moment.')
+      return
+    }
     setNewAvis({ name: '', text: '', rating: 5, date: '' })
   }
-  const handleUpdateAvis = () => {
+  const handleUpdateAvis = async () => {
     if (!editingAvis || !editingAvis.name?.trim() || !editingAvis.text?.trim() || !editingAvis.date?.trim()) {
       alert('Remplissez le nom, le texte et la date.')
       return
     }
-    setAvisList(prev => prev.map(a => a.id === editingAvis.id ? { ...editingAvis, name: editingAvis.name.trim(), text: editingAvis.text.trim(), date: editingAvis.date.trim() } : a))
+    try {
+      await updatePublishedAvis({
+        ...editingAvis,
+        name: editingAvis.name.trim(),
+        text: editingAvis.text.trim(),
+        date: editingAvis.date.trim()
+      })
+    } catch (err) {
+      console.error(err)
+      alert('Impossible de modifier cet avis pour le moment.')
+      return
+    }
     setEditingAvis(null)
   }
-  const handleDeleteAvis = (id: string) => {
+  const handleDeleteAvis = async (id: string) => {
     if (!confirm('Supprimer cet avis ?')) return
-    setAvisList(prev => prev.filter(a => a.id !== id))
+    try {
+      await deleteAvis(id)
+    } catch (err) {
+      console.error(err)
+      alert('Impossible de supprimer cet avis pour le moment.')
+      return
+    }
     if (editingAvis?.id === id) setEditingAvis(null)
   }
 
-  useEffect(() => {
-    setStoredAvisPending(pendingAvisList)
-  }, [pendingAvisList])
-
-  const handleApproveAvis = (a: Avis) => {
-    const newId = generateId()
-    setAvisList(prev => [...prev, { ...a, id: newId }])
-    setPendingAvisList(prev => prev.filter(p => p.id !== a.id))
-  }
-  const handleRejectAvis = (id: string) => {
-    if (!confirm('Refuser cet avis ? Il sera supprimé.')) return
-    setPendingAvisList(prev => prev.filter(p => p.id !== id))
-  }
-
-  const toggleBlockSlot = (date: Date, time: string) => {
-    const key = toLocalDateKey(date)
-    const nextForMap = (map: BlockedSlots) => {
-      const current = map[key] || []
-      return {
-        ...map,
-        [key]: current.includes(time) ? current.filter(t => t !== time) : [...current, time]
-      }
+  const handleApproveAvis = async (a: Avis) => {
+    const replaceId = approvalReplaceTarget[a.id]
+    try {
+      await approvePendingAvis(a.id, replaceId || undefined)
+    } catch (err) {
+      console.error(err)
+      alert('Impossible d’approuver cet avis pour le moment.')
     }
+  }
+  const handleRejectAvis = async (id: string) => {
+    if (!confirm('Refuser cet avis ? Il sera supprimé.')) return
+    try {
+      await rejectPendingAvis(id)
+    } catch (err) {
+      console.error(err)
+      alert('Impossible de refuser cet avis pour le moment.')
+    }
+  }
 
-    // Miroir sur les deux calendriers pour garder les mêmes indisponibilités.
-    setBlockedSlotsCabinet(prev => nextForMap(prev))
-    setBlockedSlotsDomicile(prev => nextForMap(prev))
+  const toggleBlockSlot = async (date: Date, time: string) => {
+    try {
+      await toggleBlockedSlot(date, time, locationCalendarType)
+    } catch (err) {
+      console.error(err)
+      alert('Impossible de mettre à jour ce blocage pour le moment.')
+    }
   }
 
   const isSlotBlocked = (date: Date, time: string) => {
-    const key = toLocalDateKey(date)
-    const blockedCabinet = blockedSlotsCabinet[key]?.includes(time) || false
-    const blockedDomicile = blockedSlotsDomicile[key]?.includes(time) || false
-    return blockedCabinet || blockedDomicile
+    return isBlocked(date, time, locationCalendarType)
   }
   const normalizeTime = (value: string) => value.slice(0, 5)
   const getReservationsForDate = (date: Date, location?: LocationType) => reservations.filter(r => {
@@ -200,8 +222,12 @@ const Admin = () => {
       return r.date >= todayKey && r.date <= weekKey 
     }).length,
     pending: reservations.filter(r => r.statut === 'en attente').length,
-    revenue: reservations.filter(r => r.statut === 'confirmée').reduce((s, r) => s + (r.services?.prix || 0), 0),
-    deposits: reservations.filter(r => r.statut === 'confirmée').reduce((s, r) => s + ((r.services?.prix || 0) * 0.3), 0)
+    revenue: reservations
+      .filter(r => r.statut === 'confirmée')
+      .reduce((s, r) => s + (r.total_amount_cents ?? Math.round((r.services?.prix || 0) * 100)), 0),
+    deposits: reservations
+      .filter(r => r.statut === 'confirmée')
+      .reduce((s, r) => s + (r.deposit_amount_cents ?? Math.round((r.services?.prix || 0) * 30)), 0)
   }
 
   // Login Screen
@@ -268,8 +294,8 @@ const Admin = () => {
             { icon: Calendar, label: "Aujourd'hui", value: stats.today },
             { icon: TrendingUp, label: 'Cette semaine', value: stats.week },
             { icon: Users, label: 'En attente', value: stats.pending },
-            { icon: Euro, label: 'Acomptes', value: `${stats.deposits}€` },
-            { icon: Euro, label: 'CA confirmé', value: `${stats.revenue}€` }
+            { icon: Euro, label: 'Acomptes', value: `${(stats.deposits / 100).toFixed(2)}€` },
+            { icon: Euro, label: 'CA confirmé', value: `${(stats.revenue / 100).toFixed(2)}€` }
           ].map((stat, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="card p-4">
               <stat.icon className="w-6 h-6 mb-2 text-sage" />
@@ -427,6 +453,19 @@ const Admin = () => {
                         <p className="text-dark/70 font-body text-sm italic line-clamp-2">"{a.text}"</p>
                       </div>
                       <div className="flex gap-2 shrink-0">
+                        <select
+                          value={approvalReplaceTarget[a.id] || ''}
+                          onChange={(e) => setApprovalReplaceTarget(prev => ({ ...prev, [a.id]: e.target.value }))}
+                          className="px-2 py-1 rounded-lg border border-sand text-xs font-body text-dark"
+                          title="Choisir un avis à remplacer (optionnel)"
+                        >
+                          <option value="">Publier en plus</option>
+                          {avisList.map(existing => (
+                            <option key={existing.id} value={existing.id}>
+                              Remplacer: {existing.name}
+                            </option>
+                          ))}
+                        </select>
                         <button type="button" onClick={() => handleApproveAvis(a)} className="p-2 rounded-lg bg-sage text-cream hover:bg-sage-dark" aria-label="Approuver">
                           <Check className="w-4 h-4" />
                         </button>

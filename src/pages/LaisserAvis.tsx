@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Star, Send, CheckCircle } from 'lucide-react'
-import { getStoredAvisPending, setStoredAvisPending } from '../constants/services'
 import type { Avis } from '../types'
 import { supabase } from '../lib/supabase'
+import { submitPendingAvis } from '../lib/avisAPI'
 
 const MONTHS_FR = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
 
@@ -43,8 +43,12 @@ const LaisserAvis = () => {
         date: dateStr
       }
 
-      const pending = getStoredAvisPending()
-      setStoredAvisPending([...pending, newAvis])
+      await submitPendingAvis({
+        name: newAvis.name,
+        text: newAvis.text,
+        rating: newAvis.rating,
+        date: newAvis.date
+      })
 
       // Envoi de l'avis par email via Supabase Functions (Resend)
       try {

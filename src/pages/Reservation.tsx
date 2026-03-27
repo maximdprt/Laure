@@ -2,9 +2,10 @@ import { useState, useEffect, useMemo, type FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Check, Clock, Calendar, User, Phone, Mail, ChevronLeft, ChevronRight, CreditCard, Shield, CalendarCheck, Euro, MapPin, Home } from 'lucide-react'
-import { allSoins, PREMIUM_OPTION_PRICE, DEPOSIT_PERCENTAGE, getSoinById, getStoredBlocked } from '../constants/services'
+import { allSoins, PREMIUM_OPTION_PRICE, DEPOSIT_PERCENTAGE, getSoinById } from '../constants/services'
 import { useReservations } from '../hooks/useReservations'
 import { useCreneauxHoraires } from '../hooks/useCreneauxHoraires'
+import { useCreneauxBloques } from '../hooks/useCreneauxBloques'
 import { createPaymentIntent, createReservation } from '../lib/supabaseAPI'
 import { toLocalDateKey, getTodayInParis, getNowInParis } from '../lib/dateUtils'
 import { supabase } from '../lib/supabase'
@@ -127,6 +128,7 @@ const Reservation = () => {
   // Récupère les créneaux horaires depuis Supabase en fonction du lieu
   const { heures: heuresCabinet, loading: loadingCabinet } = useCreneauxHoraires('cabinet')
   const { heures: heuresDomicile, loading: loadingDomicile } = useCreneauxHoraires('domicile')
+  const { isBlocked } = useCreneauxBloques()
 
   // Initialiser Stripe une seule fois
   const stripePromise = useMemo(() => 
@@ -183,23 +185,17 @@ const Reservation = () => {
   const depositAmount = Math.ceil(totalPrice * DEPOSIT_PERCENTAGE / 100)
   const totalDuration = bookingData.soins.reduce((sum, soin) => sum + soin.duration, 0)
 
-  // Utilise les créneaux horaires fusionnés pour afficher la même disponibilité
-  // sur cabinet et domicile. Le lieu choisi sert uniquement à l'affectation métier.
+  // N'affiche que les créneaux actifs du lieu choisi
   const timeSlotsForLocation = useMemo(() => {
     if (!bookingData.locationType || loadingCabinet || loadingDomicile) return []
-    return Array.from(new Set([...heuresCabinet, ...heuresDomicile]))
-      .sort((a, b) => a.localeCompare(b))
+    const base = bookingData.locationType === 'cabinet' ? heuresCabinet : heuresDomicile
+    return [...base].sort((a, b) => a.localeCompare(b))
   }, [bookingData.locationType, heuresCabinet, heuresDomicile, loadingCabinet, loadingDomicile])
-
-  const blockedCabinet = getStoredBlocked('cabinet')
-  const blockedDomicile = getStoredBlocked('domicile')
   const normalizeTime = (value: string) => value.slice(0, 5)
   const isSlotBlocked = (date: Date, time: string) => {
     const key = toLocalDateKey(date)
-    
-    // Vérifie les créneaux bloqués manuellement sur les deux calendriers
-    const manuallyBlocked = (blockedCabinet[key] || []).includes(time) || (blockedDomicile[key] || []).includes(time)
-    if (manuallyBlocked) return true
+
+    if (bookingData.locationType && isBlocked(date, time, bookingData.locationType)) return true
     
     // Vérifie les créneaux occupés par des réservations confirmées
     const isReserved = reservations.some(r => {

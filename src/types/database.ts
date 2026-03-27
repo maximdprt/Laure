@@ -73,3 +73,22 @@ export interface Reservation {
 export interface ReservationWithDetails extends Reservation {
   services: Service
 }
+
+export interface AvisRecord {
+  id: string
+  name: string
+  text: string
+  rating: number
+  date: string
+  is_published: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface CreneauBloque {
+  id: string
+  date: string // YYYY-MM-DD
+  heure: string // HH:MM
+  lieu: 'cabinet' | 'domicile'
+  created_at: string
+}

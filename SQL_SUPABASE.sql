@@ -154,3 +154,59 @@ CREATE POLICY "Les admins peuvent voir les messages"
 CREATE POLICY "Tout le monde peut insérer un message"
   ON contact_messages FOR INSERT
   WITH CHECK (true);
+
+-- ==================== TABLE AVIS CLIENTS ====================
+CREATE TABLE IF NOT EXISTS avis_clients (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(120) NOT NULL,
+  text TEXT NOT NULL,
+  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  date VARCHAR(40) NOT NULL,
+  is_published BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_avis_clients_published ON avis_clients(is_published);
+CREATE INDEX IF NOT EXISTS idx_avis_clients_created_at ON avis_clients(created_at DESC);
+
+ALTER TABLE avis_clients ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Avis publiés lisibles par tous"
+  ON avis_clients FOR SELECT
+  USING (is_published = TRUE OR auth.role() = 'authenticated');
+
+CREATE POLICY "Visiteurs peuvent soumettre un avis"
+  ON avis_clients FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Admins peuvent modifier les avis"
+  ON avis_clients FOR UPDATE
+  USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Admins peuvent supprimer les avis"
+  ON avis_clients FOR DELETE
+  USING (auth.role() = 'authenticated');
+
+-- ==================== TABLE CRÉNEAUX BLOQUÉS ====================
+CREATE TABLE IF NOT EXISTS creneaux_bloques (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  date DATE NOT NULL,
+  heure TIME NOT NULL,
+  lieu VARCHAR(20) NOT NULL CHECK (lieu IN ('cabinet', 'domicile')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(date, heure, lieu)
+);
+
+CREATE INDEX IF NOT EXISTS idx_creneaux_bloques_date_lieu ON creneaux_bloques(date, lieu);
+
+ALTER TABLE creneaux_bloques ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Créneaux bloqués lisibles par tous"
+  ON creneaux_bloques FOR SELECT
+  USING (true);
+
+CREATE POLICY "Admins peuvent gérer les créneaux bloqués"
+  ON creneaux_bloques FOR ALL
+  USING (auth.role() = 'authenticated')
+  WITH CHECK (auth.role() = 'authenticated');

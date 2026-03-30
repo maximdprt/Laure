@@ -183,34 +183,52 @@ Deno.serve(async (req: Request) => {
       </div>
     `
 
-    const recipients = ["massage.auraperformance@gmail.com"]
-    if (client_email && client_email.includes("@")) {
-      recipients.push(client_email)
+    const adminEmail = "massage.auraperformance@gmail.com"
+    const isClientEmailValid = Boolean(client_email && client_email.includes("@"))
+    const resendFrom = Deno.env.get("RESEND_FROM_EMAIL") || "Aura Massage <no-reply@aura-massage.fr>"
+
+    const sendEmail = async (to: string, reply_to?: string) => {
+      const payload: Record<string, unknown> = {
+        from: resendFrom,
+        to,
+        subject: `Confirmation de réservation - ${dateFormatted} à ${record.heure}`,
+        html
+      }
+      if (reply_to) payload.reply_to = reply_to
+
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      })
+
+      if (!response.ok) {
+        const bodyText = await response.text()
+        throw new Error(`Resend ${response.status}: ${bodyText}`)
+      }
     }
 
-    // Envoyer le même récapitulatif à l'admin et au client
-    const resendResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${resendApiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        from: "Aura Massage <contact@massage-aura-performance.fr>",
-        to: recipients,
-        replyTo: client_email,
-        subject: `Confirmation de réservation - ${dateFormatted} à ${record.heure}`,
-        html: html
-      })
-    })
-
-    if (!resendResponse.ok) {
-      const error = await resendResponse.text()
-      console.error("Resend API error:", error)
-      return new Response(JSON.stringify({ error }), {
+    // 1) Notification admin (prioritaire)
+    try {
+      await sendEmail(adminEmail, isClientEmailValid ? client_email : undefined)
+    } catch (err) {
+      console.error("Resend admin email error:", err)
+      return new Response(JSON.stringify({ error: String(err) }), {
         status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       })
+    }
+
+    // 2) Confirmation client (non bloquante)
+    if (isClientEmailValid && client_email !== adminEmail) {
+      try {
+        await sendEmail(client_email, adminEmail)
+      } catch (err) {
+        console.error("Resend client email error:", err)
+      }
     }
 
     // Marquer comme envoyé dans la base de données (optionnel)

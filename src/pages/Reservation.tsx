@@ -30,6 +30,9 @@ const steps = [
   { id: 5, label: 'Acompte' }
 ]
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+const PHONE_REGEX = /^\d{10,15}$/
+
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
 
 const StripePaymentForm = ({
@@ -125,6 +128,11 @@ const Reservation = () => {
     soins: [], locationType: null, premiumOption: false, date: null, timeSlot: null, clientInfo: null
   })
 
+  const normalizedEmail = formData.email.trim().toLowerCase()
+  const normalizedPhone = formData.phone.replace(/\D/g, '')
+  const isEmailValid = EMAIL_REGEX.test(normalizedEmail)
+  const isPhoneValid = PHONE_REGEX.test(normalizedPhone)
+
   // Récupère les créneaux horaires depuis Supabase en fonction du lieu
   const { heures: heuresCabinet, loading: loadingCabinet } = useCreneauxHoraires('cabinet')
   const { heures: heuresDomicile, loading: loadingDomicile } = useCreneauxHoraires('domicile')
@@ -212,7 +220,13 @@ const Reservation = () => {
       case 1: return bookingData.soins.length > 0
       case 2: return bookingData.locationType !== null
       case 3: return bookingData.date && bookingData.timeSlot
-      case 4: return formData.firstName && formData.lastName && formData.email && formData.phone
+      case 4:
+        return Boolean(
+          formData.firstName.trim() &&
+          formData.lastName.trim() &&
+          isEmailValid &&
+          isPhoneValid
+        )
       default: return true
     }
   }
@@ -750,13 +764,25 @@ const Reservation = () => {
                       </div>
                       <div>
                         <label className="block font-body text-sm text-dark mb-2"><Mail className="w-4 h-4 inline mr-1" /> Email *</label>
-                        <input type="email" value={formData.email} onChange={(e) => setFormData(p => ({ ...p, email: e.target.value }))}
+                        <input type="email" value={formData.email} onChange={(e) => setFormData(p => ({ ...p, email: e.target.value.replace(/\s+/g, '') }))}
+                          autoComplete="email"
+                          inputMode="email"
                           className="w-full px-4 py-3 rounded-lg border border-sand focus:border-sage outline-none font-body" />
+                        {formData.email.length > 0 && !isEmailValid && (
+                          <p className="mt-1 text-xs text-red-600 font-body">Veuillez saisir une adresse email valide.</p>
+                        )}
                       </div>
                       <div>
                         <label className="block font-body text-sm text-dark mb-2"><Phone className="w-4 h-4 inline mr-1" /> Téléphone *</label>
-                        <input type="tel" value={formData.phone} onChange={(e) => setFormData(p => ({ ...p, phone: e.target.value }))}
+                        <input type="tel" value={formData.phone} onChange={(e) => setFormData(p => ({ ...p, phone: e.target.value.replace(/\D/g, '').slice(0, 15) }))}
+                          autoComplete="tel"
+                          inputMode="numeric"
+                          pattern="[0-9]{10,15}"
+                          maxLength={15}
                           className="w-full px-4 py-3 rounded-lg border border-sand focus:border-sage outline-none font-body" />
+                        {formData.phone.length > 0 && !isPhoneValid && (
+                          <p className="mt-1 text-xs text-red-600 font-body">Veuillez saisir un numéro valide (10 à 15 chiffres).</p>
+                        )}
                       </div>
                     </div>
                   </div>

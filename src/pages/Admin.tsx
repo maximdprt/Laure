@@ -222,12 +222,8 @@ const Admin = () => {
       return r.date >= todayKey && r.date <= weekKey 
     }).length,
     pending: reservations.filter(r => r.statut === 'en attente').length,
-    revenue: reservations
-      .filter(r => r.statut === 'confirmée')
-      .reduce((s, r) => s + (r.total_amount_cents ?? Math.round((r.services?.prix || 0) * 100)), 0),
-    deposits: reservations
-      .filter(r => r.statut === 'confirmée')
-      .reduce((s, r) => s + (r.deposit_amount_cents ?? Math.round((r.services?.prix || 0) * 30)), 0)
+    revenue: 0,
+    deposits: 0
   }
 
   // Login Screen

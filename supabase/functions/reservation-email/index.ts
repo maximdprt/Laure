@@ -183,9 +183,12 @@ Deno.serve(async (req: Request) => {
       </div>
     `
 
-    // Envoyer l'email au client via Resend
-    // NOTE: En mode test/free, Resend ne peut envoyer qu'à massage.auraperformance@gmail.com
-    // Une fois un domaine vérifié sur Resend, changer "to" par user.email pour envoyer au client
+    const recipients = ["massage.auraperformance@gmail.com"]
+    if (client_email && client_email.includes("@")) {
+      recipients.push(client_email)
+    }
+
+    // Envoyer le même récapitulatif à l'admin et au client
     const resendResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -194,7 +197,7 @@ Deno.serve(async (req: Request) => {
       },
       body: JSON.stringify({
         from: "Aura Massage <contact@massage-aura-performance.fr>",
-        to: "massage.auraperformance@gmail.com",
+        to: recipients,
         replyTo: client_email,
         subject: `Confirmation de réservation - ${dateFormatted} à ${record.heure}`,
         html: html

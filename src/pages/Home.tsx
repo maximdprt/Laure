@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ChevronLeft, ChevronRight, Waves, MapPin, Star, Quote, Plus, Minus } from 'lucide-react'
@@ -146,6 +146,19 @@ const ServicesCarousel = () => {
 
 const Home = () => {
   const { publishedAvis } = useAvis()
+
+  useEffect(() => {
+    document.title = 'Accueil | Massage Lacanau - Sportif & Bien-être'
+
+    const metaDescription = document.querySelector('meta[name="description"]')
+    if (metaDescription) {
+      metaDescription.setAttribute(
+        'content',
+        'Massage à Lacanau Océan : massages sportifs, bien-être et soins énergétiques au cabinet ou à domicile.'
+      )
+    }
+  }, [])
+
   return (
     <div>
       {/* Hero Section */}

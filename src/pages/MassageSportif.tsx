@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Clock, Check, Star, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -336,7 +336,20 @@ const MassagesList = () => {
   )
 }
 
-const MassageSportif = () => (
+const MassageSportif = () => {
+  useEffect(() => {
+    document.title = 'Nos Massages à Lacanau | Massage Sportif & Soins Énergétiques'
+
+    const metaDescription = document.querySelector('meta[name="description"]')
+    if (metaDescription) {
+      metaDescription.setAttribute(
+        'content',
+        'Massages sportifs, bien-être et énergétiques à Lacanau Océan : récupération, détente, prévention et mobilité.'
+      )
+    }
+  }, [])
+
+  return (
   <div className="min-h-screen pt-24">
     {/* Header - SEO optimisé */}
     <section className="bg-sage text-cream py-20">
@@ -722,6 +735,7 @@ const MassageSportif = () => (
       </div>
     </section>
   </div>
-)
+  )
+}
 
 export default MassageSportif

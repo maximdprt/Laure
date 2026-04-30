@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
 
@@ -26,10 +27,33 @@ const PageLoader = () => (
 
 import ScrollToTop from './components/layout/ScrollToTop'
 
+const RouteSeo = () => {
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    const titleByPath: Record<string, string> = {
+      '/': 'Massage Lacanau | Sportif & Bien-être',
+      '/massage-sportif': 'Massage Lacanau | Nos Massages Sportifs & Soins Énergétiques',
+      '/contact': 'Massage Lacanau | Contact & Réservation',
+      '/reservation': 'Massage Lacanau | Réservation en ligne',
+      '/admin': 'Massage Lacanau | Administration',
+      '/mentions-legales': 'Massage Lacanau | Mentions légales',
+      '/politique-confidentialite': 'Massage Lacanau | Politique de confidentialité',
+      '/cgv': 'Massage Lacanau | Conditions générales de vente',
+      '/informations': 'Massage Lacanau | Informations & FAQ'
+    }
+
+    document.title = titleByPath[pathname] ?? 'Massage Lacanau'
+  }, [pathname])
+
+  return null
+}
+
 function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <RouteSeo />
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-grow">

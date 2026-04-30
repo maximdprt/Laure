@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ChevronLeft, ChevronRight, Waves, MapPin, Star, Quote, Plus, Minus } from 'lucide-react'
@@ -146,18 +146,16 @@ const ServicesCarousel = () => {
 
 const Home = () => {
   const { publishedAvis } = useAvis()
-
-  useEffect(() => {
-    document.title = 'Accueil | Massage Lacanau - Sportif & Bien-être'
-
-    const metaDescription = document.querySelector('meta[name="description"]')
-    if (metaDescription) {
-      metaDescription.setAttribute(
-        'content',
-        'Massage à Lacanau Océan : massages sportifs, bien-être et soins énergétiques au cabinet ou à domicile.'
-      )
-    }
-  }, [])
+  const charlesAvis = {
+    id: 'featured-charles-henno',
+    name: 'Charles Henno',
+    rating: 5,
+    date: 'Avril 2026',
+    text: "Des journées entières debout à la plage à enseigner le surf et à surveiller mes élèves dans ma combi, y'a des soirs où je n'en peux plus du tout ! Des jambes lourdes de 3 tonnes ! Alors vous savez quoi ? Je vais voir Laure et elle me sauve à chaque fois, et je repars de plus belle. Merci à toi Laure pour tes précieux massages ! Amitiés, Charles."
+  }
+  const displayedAvis = publishedAvis.some(a => a.name === charlesAvis.name && a.text.includes('jambes lourdes'))
+    ? publishedAvis
+    : [charlesAvis, ...publishedAvis]
 
   return (
     <div>
@@ -418,7 +416,7 @@ const Home = () => {
             </h2>
             <div className="flex items-center justify-center gap-2 mb-4">
               {(() => {
-                const avis = publishedAvis
+                const avis = displayedAvis
                 const count = avis.length
                 const avg = count ? (avis.reduce((s, a) => s + a.rating, 0) / count).toFixed(1) : '0'
                 const fullStars = Math.round(Number(avg))
@@ -435,7 +433,7 @@ const Home = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {publishedAvis.map((review, i) => (
+            {displayedAvis.map((review, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}

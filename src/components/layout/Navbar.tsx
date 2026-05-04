@@ -61,6 +61,7 @@ const Navbar = () => {
               key={link.path}
               to={link.path}
               title={link.title}
+              aria-current={isActive(link.path) ? 'page' : undefined}
               className={`font-body font-medium text-sm lg:text-base text-gold transition-all duration-300 relative py-2 
                         hover:text-gold-dark ${isActive(link.path) ? 'font-bold' : ''}`}
             >
@@ -103,6 +104,7 @@ const Navbar = () => {
                   key={link.path}
                   to={link.path}
                   title={link.title}
+                  aria-current={isActive(link.path) ? 'page' : undefined}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`font-body font-medium py-3 px-4 rounded-lg transition-all duration-300 text-gold
                             ${isActive(link.path) ? 'bg-gold/10 font-bold' : 'hover:bg-gold/5'}`}

@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, ChevronLeft, ChevronRight, Waves, MapPin, Star, Quote, Plus, Minus } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, Waves, MapPin, Star, Quote, Plus, Minus, ExternalLink } from 'lucide-react'
 import { PUBLIC_IMAGES } from '../constants/images'
+import { HOME_FAQ_ITEMS } from '../constants/homeFAQ'
 import { useAvis } from '../hooks/useAvis'
 
 const carouselItems = [
@@ -292,9 +293,17 @@ const Home = () => {
                   simple et sans contrainte.
                 </p>
               </div>
-              <Link to="/massage-sportif" className="inline-flex items-center gap-2 mt-6 text-gold font-body font-semibold hover:gap-4 transition-all">
-                Découvrir nos massages à Lacanau <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
-              </Link>
+              <div className="mt-6 flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4">
+                <Link to="/massage-sportif" className="inline-flex items-center gap-2 text-gold font-body font-semibold hover:gap-4 transition-all">
+                  Découvrir nos massages à Lacanau <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                </Link>
+                <Link to="/informations#domicile" className="inline-flex items-center gap-2 text-sage font-body font-semibold hover:underline">
+                  Massage à domicile Lacanau
+                </Link>
+                <Link to="/reservation" className="inline-flex items-center gap-2 text-dark/70 font-body font-medium hover:text-gold transition-colors">
+                  Réserver un créneau
+                </Link>
+              </div>
             </motion.div>
 
             <motion.div
@@ -393,6 +402,51 @@ const Home = () => {
               </div>
             </motion.div>
           </div>
+        </div>
+      </section>
+
+      {/* Cadre & crédibilité (E-E-A-T / GEO) — sources externes vérifiables */}
+      <section className="section-padding bg-white border-y border-sand/60">
+        <div className="container-custom max-w-3xl mx-auto">
+          <h2 className="font-heading font-bold text-2xl sm:text-3xl text-dark mb-3 text-center">
+            Cadre du massage bien-être <span className="text-gold">en France</span>
+          </h2>
+          <p className="text-dark/70 font-body text-center mb-8 leading-relaxed">
+            Les prestations proposées relèvent du <strong className="text-dark">massage bien-être</strong> (non médical, non paramédical),
+            distinct du massage thérapeutique réservé aux professionnels de santé habilités. La transparence sur l’offre et le respect du cadre légal renforcent la confiance des moteurs de recherche et des visiteurs.
+          </p>
+          <ul className="space-y-4">
+            <li className="flex gap-3 text-dark/80 font-body text-sm sm:text-base leading-relaxed">
+              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gold shrink-0" />
+              <span>
+                <strong className="text-dark">Activité physique et santé</strong> — l’OMS rappelle les bénéfices d’une activité physique régulière pour la santé générale&nbsp;
+                <a
+                  href="https://www.who.int/fr/news-room/fact-sheets/detail/physical-activity"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sage font-semibold inline-flex items-center gap-1 hover:text-gold transition-colors"
+                >
+                  Fiche OMS (français) <ExternalLink className="w-3.5 h-3.5 shrink-0" aria-hidden />
+                </a>
+                . Les massages bien-être peuvent compléter un mode de vie actif mais ne les substituent pas à un avis médical.
+              </span>
+            </li>
+            <li className="flex gap-3 text-dark/80 font-body text-sm sm:text-base leading-relaxed">
+              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gold shrink-0" />
+              <span>
+                <strong className="text-dark">Métier de masseur·se bien-être</strong> — cadre déontologique et informations sur la pratique professionnelle en France&nbsp;
+                <a
+                  href="https://ffmbe.fr/metier-masseur-bien-etre/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sage font-semibold inline-flex items-center gap-1 hover:text-gold transition-colors"
+                >
+                  Fédération française de massage bien-être (FFMBE) <ExternalLink className="w-3.5 h-3.5 shrink-0" aria-hidden />
+                </a>
+                .
+              </span>
+            </li>
+          </ul>
         </div>
       </section>
 
@@ -503,36 +557,34 @@ const Home = () => {
   )
 }
 
-// Composant FAQ avec Schema.org
+// Composant FAQ avec Schema.org FAQPage (données alignées sur le contenu visible)
 const FAQSection = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
-  const faqs = [
-    {
-      question: "Où trouver un bon massage à Lacanau ?",
-      answer: "Aura Massage est situé au 7 rue Jean Michel à Lacanau Océan, dans le centre HEAL LO LACANAU, à seulement 800m de la plage. Nous proposons des massages sportifs, bien-être et chromothérapie. Vous pouvez également bénéficier d'un massage à domicile sur tout Lacanau et ses environs."
-    },
-    {
-      question: "Quels types de massage proposez-vous à Lacanau Océan ?",
-      answer: "Nous proposons plusieurs types de massages à Lacanau : massage sportif (préparation et récupération), massage relaxant aux huiles, soins énergétiques et chromothérapie. Nos massages sont particulièrement adaptés aux surfeurs et sportifs pratiquant à Lacanau."
-    },
-    {
-      question: "Quel est le prix d'un massage à Lacanau ?",
-      answer: "Nos massages à Lacanau débutent à 45€ pour une séance de 30 minutes (activation ou récupération). Le massage sportif complet de 60 minutes est à 85€, et le soin premium de 90 minutes à 130€. Nous proposons également des soins énergétiques à partir de 90€."
-    },
-    {
-      question: "Faites-vous des massages à domicile à Lacanau ?",
-      answer: "Oui, nous intervenons à domicile sur tout Lacanau, Lacanau Océan, Le Porge et Carcans. Le massage à domicile vous permet de profiter d'un moment de détente dans le confort de votre location de vacances ou de votre résidence."
-    },
-    {
-      question: "Le massage sportif à Lacanau est-il adapté aux surfeurs ?",
-      answer: "Absolument ! Le massage sportif à Lacanau est spécialement conçu pour les pratiquants de sports nautiques et de glisse. Il aide à prévenir les blessures, améliore la récupération musculaire après une session de surf, et optimise vos performances. Idéal avant ou après vos sessions à la plage centrale ou au spot du Lion."
-    },
-    {
-      question: "Comment prendre rendez-vous pour un massage à Lacanau ?",
-      answer: "Vous pouvez réserver votre massage à Lacanau directement en ligne sur notre site, par téléphone au 07 59 70 19 41, ou par email. Nous vous recommandons de réserver à l'avance, surtout en période estivale où la demande est forte."
+  useEffect(() => {
+    const data = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: HOME_FAQ_ITEMS.map((f) => ({
+        '@type': 'Question',
+        name: f.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `${f.directAnswer} ${f.answer}`
+        }
+      }))
     }
-  ]
+    const existing = document.getElementById('jsonld-faq-home')
+    if (existing) existing.remove()
+    const script = document.createElement('script')
+    script.type = 'application/ld+json'
+    script.id = 'jsonld-faq-home'
+    script.textContent = JSON.stringify(data)
+    document.head.appendChild(script)
+    return () => {
+      document.getElementById('jsonld-faq-home')?.remove()
+    }
+  }, [])
 
   return (
     <section className="section-padding bg-sand">
@@ -555,9 +607,9 @@ const FAQSection = () => {
         </motion.div>
 
         <div className="max-w-3xl mx-auto space-y-4">
-          {faqs.map((faq, i) => (
+          {HOME_FAQ_ITEMS.map((faq, i) => (
             <motion.div
-              key={i}
+              key={faq.question}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -565,18 +617,26 @@ const FAQSection = () => {
               className="bg-white rounded-xl overflow-hidden shadow-soft"
             >
               <button
+                type="button"
                 onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                className="w-full flex items-center justify-between p-5 text-left"
+                className="w-full flex items-center justify-between gap-4 p-5 text-left min-h-[3.25rem]"
+                aria-expanded={openIndex === i}
               >
-                <h3 className="font-heading font-semibold text-dark pr-4">{faq.question}</h3>
+                <h3 className="font-heading font-semibold text-dark pr-2 text-base sm:text-lg leading-snug">{faq.question}</h3>
                 <div className="flex-shrink-0">
                   {openIndex === i ? (
-                    <Minus className="w-5 h-5 text-gold" />
+                    <Minus className="w-5 h-5 text-gold" aria-hidden />
                   ) : (
-                    <Plus className="w-5 h-5 text-sage" />
+                    <Plus className="w-5 h-5 text-sage" aria-hidden />
                   )}
                 </div>
               </button>
+              <p className="px-5 pb-3 text-dark/85 font-body text-sm sm:text-base leading-relaxed">
+                <span className="text-sage text-xs font-semibold uppercase tracking-wide block mb-1.5">
+                  Réponse courte
+                </span>
+                {faq.directAnswer}
+              </p>
               <AnimatePresence>
                 {openIndex === i && (
                   <motion.div
@@ -586,7 +646,7 @@ const FAQSection = () => {
                     transition={{ duration: 0.3 }}
                     className="overflow-hidden"
                   >
-                    <p className="px-5 pb-5 text-dark/70 font-body leading-relaxed">
+                    <p className="px-5 pb-5 text-dark/65 font-body text-sm sm:text-base leading-relaxed">
                       {faq.answer}
                     </p>
                   </motion.div>

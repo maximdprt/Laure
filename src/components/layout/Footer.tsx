@@ -51,6 +51,9 @@ const Footer = () => {
                 { to: '/', label: 'Massage Lacanau - Accueil' },
                 { to: '/massage-sportif', label: 'Massage Sportif Lacanau' },
                 { to: '/informations', label: 'Massage à domicile & FAQ' },
+                { to: '/informations#domicile', label: 'Massage à domicile Lacanau' },
+                { to: '/informations#chromo', label: 'Chromothérapie Lacanau' },
+                { to: '/informations#surfers', label: 'Massage surfeurs & sportifs' },
                 { to: '/contact', label: 'Contact Lacanau Océan' },
                 { to: '/reservation', label: 'Réserver un massage' },
               ].map(link => (

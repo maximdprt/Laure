@@ -1,13 +1,11 @@
 // ==================== BLOCAGES MANUELS (définis dans le code) ====================
 //
-// Ces blocages s'ajoutent à ceux gérés depuis l'espace admin (tables Supabase
-// `jours_bloques` et `creneaux_bloques`). Ils servent de solution immédiate tant
-// que la migration `migration_blocages.sql` n'a pas été exécutée sur Supabase.
+// Ces blocages s'ajoutent à ceux gérés depuis l'espace admin (table Supabase
+// `creneaux_bloques`). Ils sont appliqués côté client, sans aucun appel à la
+// base : ils fonctionnent donc même si Supabase est indisponible.
 //
-// ⚠️ Ils ne peuvent PAS être retirés depuis l'espace admin : pour débloquer une
+// ⚠️ Ils ne peuvent PAS être retirés depuis l'espace admin : pour rouvrir une
 // date listée ici, il faut supprimer sa ligne dans ce fichier puis redéployer.
-// Une fois la migration Supabase passée, videz ces deux listes et gérez tout
-// depuis l'espace admin.
 
 import type { LocationType } from './services'
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { LocationType } from '../constants/services'
 import { toLocalDateKey } from '../lib/dateUtils'
-import { estCreneauBloqueManuel } from '../constants/blocagesManuels'
+import { estCreneauBloqueManuel, estJourBloqueManuel } from '../constants/blocagesManuels'
 import type { CreneauBloque } from '../types/database'
 
 const normalizeHeure = (value: string) => value.slice(0, 5)
@@ -59,12 +59,15 @@ export const useCreneauxBloques = () => {
   }, [])
 
   // Blocage manuel (défini dans le code) : non modifiable depuis l'espace admin
-  const isBlockedManuel = (date: Date, heure: string, lieu: LocationType) =>
-    estCreneauBloqueManuel(toLocalDateKey(date), heure, lieu)
+  const isBlockedManuel = (date: Date, heure: string, lieu: LocationType) => {
+    const dateKey = toLocalDateKey(date)
+    return estJourBloqueManuel(dateKey) || estCreneauBloqueManuel(dateKey, heure, lieu)
+  }
 
   const isBlocked = (date: Date, heure: string, lieu: LocationType) => {
     const dateKey = toLocalDateKey(date)
     const heureKey = normalizeHeure(heure)
+    if (estJourBloqueManuel(dateKey)) return true
     if (estCreneauBloqueManuel(dateKey, heureKey, lieu)) return true
     return blockedSlots.some(slot =>
       slot.date === dateKey &&
@@ -115,13 +118,37 @@ export const useCreneauxBloques = () => {
 
     try {
       if (block) {
-        const rows = normalizedHeures.map(h => ({ date: dateKey, heure: h, lieu }))
-
-        const { error: upsertError } = await supabase
+        // On relit l'existant en base (et non l'état local, qui peut être décalé)
+        // pour n'insérer que ce qui manque réellement.
+        const { data: existing, error: selectError } = await supabase
           .from('creneaux_bloques')
-          .upsert(rows, { onConflict: 'date,heure,lieu', ignoreDuplicates: true })
+          .select('heure')
+          .eq('date', dateKey)
+          .eq('lieu', lieu)
 
-        if (upsertError) throw upsertError
+        if (selectError) throw selectError
+
+        const dejaBloquees = new Set((existing || []).map(row => normalizeHeure(row.heure as string)))
+        const toInsert = normalizedHeures
+          .filter(h => !dejaBloquees.has(h))
+          .map(h => ({ date: dateKey, heure: h, lieu }))
+
+        if (toInsert.length > 0) {
+          const { error: insertError } = await supabase
+            .from('creneaux_bloques')
+            .insert(toInsert)
+
+          // 23505 = une ligne existait déjà (course entre deux onglets). L'insert en lot
+          // est atomique : on rejoue ligne par ligne pour bloquer tout le reste.
+          if (insertError?.code === '23505') {
+            for (const row of toInsert) {
+              const { error: rowError } = await supabase.from('creneaux_bloques').insert([row])
+              if (rowError && rowError.code !== '23505') throw rowError
+            }
+          } else if (insertError) {
+            throw insertError
+          }
+        }
       } else {
         const { error: deleteError } = await supabase
           .from('creneaux_bloques')

@@ -5,8 +5,8 @@ import { toLocalDateKey, getTodayInParis, getNowInParis, createCalendarDate, isS
 import { useReservations } from '../hooks/useReservations'
 import { useAllCreneauxHoraires } from '../hooks/useCreneauxHoraires'
 import { useCreneauxBloques } from '../hooks/useCreneauxBloques'
-import { useJoursBloques } from '../hooks/useJoursBloques'
 import { useAvis } from '../hooks/useAvis'
+import { estJourBloqueManuel } from '../constants/blocagesManuels'
 import ReservationsList from '../components/ReservationsList'
 import type { Avis } from '../types'
 import type { LocationType } from '../constants/services'
@@ -30,7 +30,9 @@ const Admin = () => {
   const [newTimeSlotDomicile, setNewTimeSlotDomicile] = useState('')
 
   const { isBlocked, isBlockedManuel, toggleBlockedSlot, isDayFullyBlocked, setDayBlocked, error: creneauxBloquesError } = useCreneauxBloques()
-  const { isJourBloque, isJourBloqueManuel, toggleJourBloque, error: joursBloquesError } = useJoursBloques()
+
+  // Jour ferme en dur dans le code (src/constants/blocagesManuels.ts)
+  const isJourBloqueManuel = (date: Date) => estJourBloqueManuel(toLocalDateKey(date))
   const {
     publishedAvis: avisList,
     pendingAvis: pendingAvisList,
@@ -204,7 +206,7 @@ const Admin = () => {
     if (heuresCurrent.length === 0) {
       alert(
         `Aucun créneau actif pour "${locationCalendarType === 'cabinet' ? 'Cabinet' : 'Domicile'}".\n\n` +
-        'Utilisez « Bloquer toute la journée (cabinet + domicile) » ou ajoutez des créneaux dans Paramètres.'
+        'Ajoutez des créneaux dans Paramètres avant de bloquer cette journée.'
       )
       return
     }
@@ -217,19 +219,36 @@ const Admin = () => {
     }
   }
 
-  // Bloque/débloque la date entière, quels que soient les créneaux configurés (cabinet + domicile)
+  // Bloque/débloque la journée sur les deux lieux à la fois
   const toggleBlockGlobalDay = async (date: Date) => {
+    if (heuresCabinet.length === 0 && heuresDomicile.length === 0) {
+      alert('Aucun créneau actif. Ajoutez des créneaux dans Paramètres avant de bloquer cette journée.')
+      return
+    }
+    const fullyBlocked = isJourBloque(date)
     try {
-      await toggleJourBloque(date)
+      if (heuresCabinet.length > 0) await setDayBlocked(date, heuresCabinet, 'cabinet', !fullyBlocked)
+      if (heuresDomicile.length > 0) await setDayBlocked(date, heuresDomicile, 'domicile', !fullyBlocked)
     } catch (err) {
       console.error(err)
       alert(`Impossible de bloquer/débloquer ce jour.\n\n${describeError(err)}`)
     }
   }
 
-  // Un jour bloqué globalement rend tous ses créneaux indisponibles
+  // Un lieu sans créneau actif ne peut pas empêcher la journée d'être considérée fermée
+  const isLieuFullyBlocked = (date: Date, heures: string[], lieu: LocationType) =>
+    heures.length === 0 || isDayFullyBlocked(date, heures, lieu)
+
+  // Journée fermée sur les deux lieux (ou fermée en dur dans le code)
+  const isJourBloque = (date: Date) =>
+    isJourBloqueManuel(date) || (
+      (heuresCabinet.length > 0 || heuresDomicile.length > 0) &&
+      isLieuFullyBlocked(date, heuresCabinet, 'cabinet') &&
+      isLieuFullyBlocked(date, heuresDomicile, 'domicile')
+    )
+
   const isSlotBlocked = (date: Date, time: string) => {
-    return isJourBloque(date) || isBlocked(date, time, locationCalendarType)
+    return isBlocked(date, time, locationCalendarType)
   }
   const normalizeTime = (value: string) => value.slice(0, 5)
   const getReservationsForDate = (date: Date, location?: LocationType) => reservations.filter(r => {
@@ -372,9 +391,9 @@ const Admin = () => {
               <p className="text-dark/60 text-sm font-body mb-4">
                 {locationCalendarType === 'cabinet' ? 'Bloquez des créneaux pour le cabinet (7 rue Jean Michel).' : 'Bloquez des créneaux pour les interventions à domicile.'}
               </p>
-              {(creneauxBloquesError || joursBloquesError) && (
+              {creneauxBloquesError && (
                 <div className="mb-4 rounded-lg bg-error/10 text-error text-xs font-body p-3">
-                  Synchronisation des blocages impossible : {creneauxBloquesError || joursBloquesError}
+                  Synchronisation des blocages impossible : {creneauxBloquesError}
                 </div>
               )}
               <div className="flex flex-wrap items-center gap-4 mb-4 text-[11px] font-body text-dark/60">

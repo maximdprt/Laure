@@ -6,7 +6,7 @@ import { allSoins, PREMIUM_OPTION_PRICE, DEPOSIT_PERCENTAGE, getSoinById } from 
 import { useReservations } from '../hooks/useReservations'
 import { useCreneauxHoraires } from '../hooks/useCreneauxHoraires'
 import { useCreneauxBloques } from '../hooks/useCreneauxBloques'
-import { useJoursBloques } from '../hooks/useJoursBloques'
+import { estJourBloqueManuel } from '../constants/blocagesManuels'
 import { createPaymentIntent, createReservation } from '../lib/supabaseAPI'
 import { toLocalDateKey, getNowInParis, createCalendarDate, isSameCalendarDay, isOnOrAfterToday } from '../lib/dateUtils'
 import { supabase } from '../lib/supabase'
@@ -138,7 +138,9 @@ const Reservation = () => {
   const { heures: heuresCabinet, loading: loadingCabinet } = useCreneauxHoraires('cabinet')
   const { heures: heuresDomicile, loading: loadingDomicile } = useCreneauxHoraires('domicile')
   const { isBlocked, isDayFullyBlocked, blockedSlots } = useCreneauxBloques()
-  const { isJourBloque, joursBloques } = useJoursBloques()
+
+  // Journée fermée en dur dans le code (src/constants/blocagesManuels.ts)
+  const isJourBloque = (date: Date) => estJourBloqueManuel(toLocalDateKey(date))
 
   // Initialiser Stripe une seule fois
   const stripePromise = useMemo(() => 
@@ -237,7 +239,7 @@ const Reservation = () => {
       setBookingData(prev => ({ ...prev, timeSlot: null }))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStep, joursBloques, blockedSlots, reservations, bookingData.date, bookingData.timeSlot, bookingData.locationType])
+  }, [currentStep, blockedSlots, reservations, bookingData.date, bookingData.timeSlot, bookingData.locationType])
 
   // Price calculations
   const soinsTotal = bookingData.soins.reduce((sum, soin) => sum + soin.price, 0)

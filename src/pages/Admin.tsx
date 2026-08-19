@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Lock, Eye, EyeOff, LogOut, Calendar, Clock, Euro, TrendingUp, Users, X, ChevronLeft, ChevronRight, Settings, Ban, CalendarCheck, MapPin, Home, Star, MessageSquare, Plus, Pencil, Trash2, Check } from 'lucide-react'
-import { toLocalDateKey, getNowInParis } from '../lib/dateUtils'
+import { toLocalDateKey, getTodayInParis, getNowInParis, createCalendarDate, isSameCalendarDay } from '../lib/dateUtils'
 import { useReservations } from '../hooks/useReservations'
 import { useAllCreneauxHoraires } from '../hooks/useCreneauxHoraires'
 import { useCreneauxBloques } from '../hooks/useCreneauxBloques'
+import { useJoursBloques } from '../hooks/useJoursBloques'
 import { useAvis } from '../hooks/useAvis'
 import ReservationsList from '../components/ReservationsList'
 import type { Avis } from '../types'
@@ -28,7 +29,8 @@ const Admin = () => {
   const [newTimeSlotCabinet, setNewTimeSlotCabinet] = useState('')
   const [newTimeSlotDomicile, setNewTimeSlotDomicile] = useState('')
 
-  const { isBlocked, toggleBlockedSlot } = useCreneauxBloques()
+  const { isBlocked, isBlockedManuel, toggleBlockedSlot, isDayFullyBlocked, setDayBlocked, error: creneauxBloquesError } = useCreneauxBloques()
+  const { isJourBloque, isJourBloqueManuel, toggleJourBloque, error: joursBloquesError } = useJoursBloques()
   const {
     publishedAvis: avisList,
     pendingAvis: pendingAvisList,
@@ -180,17 +182,54 @@ const Admin = () => {
     }
   }
 
+  // Remonte la vraie cause d'un échec Supabase (RLS, contrainte, réseau) au lieu d'un message générique
+  const describeError = (err: unknown) => {
+    const e = err as { message?: string; hint?: string; details?: string; code?: string } | null
+    const parts = [e?.message, e?.details, e?.hint].filter(Boolean)
+    const suffix = e?.code ? ` (code ${e.code})` : ''
+    return parts.length > 0 ? `${parts.join(' — ')}${suffix}` : 'Erreur inconnue'
+  }
+
   const toggleBlockSlot = async (date: Date, time: string) => {
     try {
       await toggleBlockedSlot(date, time, locationCalendarType)
     } catch (err) {
       console.error(err)
-      alert('Impossible de mettre à jour ce blocage pour le moment.')
+      alert(`Impossible de mettre à jour ce blocage.\n\n${describeError(err)}`)
     }
   }
 
+  // Bloque/débloque tous les créneaux du lieu affiché pour la journée
+  const toggleBlockEntireDay = async (date: Date) => {
+    if (heuresCurrent.length === 0) {
+      alert(
+        `Aucun créneau actif pour "${locationCalendarType === 'cabinet' ? 'Cabinet' : 'Domicile'}".\n\n` +
+        'Utilisez « Bloquer toute la journée (cabinet + domicile) » ou ajoutez des créneaux dans Paramètres.'
+      )
+      return
+    }
+    const fullyBlocked = isDayFullyBlocked(date, heuresCurrent, locationCalendarType)
+    try {
+      await setDayBlocked(date, heuresCurrent, locationCalendarType, !fullyBlocked)
+    } catch (err) {
+      console.error(err)
+      alert(`Impossible de bloquer/débloquer cette journée.\n\n${describeError(err)}`)
+    }
+  }
+
+  // Bloque/débloque la date entière, quels que soient les créneaux configurés (cabinet + domicile)
+  const toggleBlockGlobalDay = async (date: Date) => {
+    try {
+      await toggleJourBloque(date)
+    } catch (err) {
+      console.error(err)
+      alert(`Impossible de bloquer/débloquer ce jour.\n\n${describeError(err)}`)
+    }
+  }
+
+  // Un jour bloqué globalement rend tous ses créneaux indisponibles
   const isSlotBlocked = (date: Date, time: string) => {
-    return isBlocked(date, time, locationCalendarType)
+    return isJourBloque(date) || isBlocked(date, time, locationCalendarType)
   }
   const normalizeTime = (value: string) => value.slice(0, 5)
   const getReservationsForDate = (date: Date, location?: LocationType) => reservations.filter(r => {
@@ -206,7 +245,7 @@ const Admin = () => {
     if (startDay < 0) startDay = 6
     const days: (Date | null)[] = []
     for (let i = 0; i < startDay; i++) days.push(null)
-    for (let d = 1; d <= lastDay.getDate(); d++) days.push(new Date(year, month, d))
+    for (let d = 1; d <= lastDay.getDate(); d++) days.push(createCalendarDate(year, month, d))
     return days
   }, [currentMonth])
 
@@ -333,6 +372,16 @@ const Admin = () => {
               <p className="text-dark/60 text-sm font-body mb-4">
                 {locationCalendarType === 'cabinet' ? 'Bloquez des créneaux pour le cabinet (7 rue Jean Michel).' : 'Bloquez des créneaux pour les interventions à domicile.'}
               </p>
+              {(creneauxBloquesError || joursBloquesError) && (
+                <div className="mb-4 rounded-lg bg-error/10 text-error text-xs font-body p-3">
+                  Synchronisation des blocages impossible : {creneauxBloquesError || joursBloquesError}
+                </div>
+              )}
+              <div className="flex flex-wrap items-center gap-4 mb-4 text-[11px] font-body text-dark/60">
+                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-error/20 inline-block" /> Jour bloqué</span>
+                <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-gold inline-block" /> Réservation</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-gold/20 inline-block" /> Aujourd'hui</span>
+              </div>
               <div className="flex items-center justify-between mb-6">
                 <button onClick={() => setCurrentMonth(p => new Date(p.getFullYear(), p.getMonth() - 1))} className="p-2 rounded-lg hover:bg-sand"><ChevronLeft className="w-5 h-5 text-dark" /></button>
                 <h3 className="font-heading font-semibold text-xl text-dark capitalize">{currentMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</h3>
@@ -345,13 +394,15 @@ const Admin = () => {
                 {calendarDays.map((date, i) => {
                   if (!date) return <div key={`e-${i}`} />
                   const dayRes = getReservationsForDate(date, locationCalendarType)
-                  const isSelected = selectedDate?.toDateString() === date.toDateString()
-                  const isToday = date.toDateString() === getNowInParis().toDateString()
+                  const isSelected = selectedDate && isSameCalendarDay(selectedDate, date)
+                  const isToday = isSameCalendarDay(date, getTodayInParis())
+                  const dayBlocked = isJourBloque(date) || isDayFullyBlocked(date, heuresCurrent, locationCalendarType)
                   return (
                     <button key={date.toISOString()} onClick={() => setSelectedDate(date)}
-                      className={`aspect-square rounded-lg text-sm font-body relative ${isSelected ? 'bg-sage text-cream' : isToday ? 'bg-gold/20 text-dark' : 'hover:bg-sand text-dark'}`}>
+                      className={`aspect-square rounded-lg text-sm font-body relative ${isSelected ? 'bg-sage text-cream' : dayBlocked ? 'bg-error/10 text-error' : isToday ? 'bg-gold/20 text-dark' : 'hover:bg-sand text-dark'}`}>
                       {date.getDate()}
                       {dayRes.length > 0 && <span className={`absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-cream' : 'bg-gold'}`} />}
+                      {dayBlocked && dayRes.length === 0 && <span className={`absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-cream' : 'bg-error'}`} />}
                     </button>
                   )
                 })}
@@ -362,26 +413,69 @@ const Admin = () => {
               {selectedDate ? (
                 <>
                   <h3 className="font-heading font-semibold text-dark mb-4">{selectedDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</h3>
+                  <div className="flex flex-col gap-2 mb-4">
+                    <button
+                      type="button"
+                      onClick={() => toggleBlockGlobalDay(selectedDate)}
+                      disabled={isJourBloqueManuel(selectedDate)}
+                      title={isJourBloqueManuel(selectedDate) ? 'Blocage défini dans le code (src/constants/blocagesManuels.ts)' : undefined}
+                      className={`w-full py-2.5 px-3 rounded-lg text-xs font-body font-medium flex items-center justify-center gap-2 ${isJourBloqueManuel(selectedDate) ? 'bg-error/60 text-cream cursor-not-allowed' : isJourBloque(selectedDate) ? 'bg-error text-cream' : 'bg-dark text-cream hover:bg-error'}`}
+                    >
+                      <Ban className="w-4 h-4" />
+                      {isJourBloqueManuel(selectedDate)
+                        ? 'Jour bloqué (défini dans le code)'
+                        : isJourBloque(selectedDate)
+                          ? 'Débloquer ce jour (cabinet + domicile)'
+                          : 'Bloquer toute la journée (cabinet + domicile)'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => toggleBlockEntireDay(selectedDate)}
+                      disabled={isJourBloqueManuel(selectedDate)}
+                      className={`w-full py-2 px-3 rounded-lg text-xs font-body ${isJourBloqueManuel(selectedDate) ? 'bg-sand/50 text-dark/30 cursor-not-allowed' : isDayFullyBlocked(selectedDate, heuresCurrent, locationCalendarType) ? 'bg-error/20 text-error' : 'bg-sand text-dark hover:bg-error/10 hover:text-error'}`}
+                    >
+                      {isDayFullyBlocked(selectedDate, heuresCurrent, locationCalendarType)
+                        ? `Débloquer tous les créneaux ${locationCalendarType === 'cabinet' ? 'Cabinet' : 'Domicile'}`
+                        : `Bloquer tous les créneaux ${locationCalendarType === 'cabinet' ? 'Cabinet' : 'Domicile'} uniquement`}
+                    </button>
+                    {isJourBloque(selectedDate) && (
+                      <p className="text-[11px] font-body text-error">
+                        Journée bloquée : les clients ne peuvent plus la sélectionner sur le site.
+                        {isJourBloqueManuel(selectedDate) && ' Pour la rouvrir, retirez-la de src/constants/blocagesManuels.ts.'}
+                      </p>
+                    )}
+                  </div>
                   <div className="mb-6">
                     <h4 className="text-sm font-body text-dark/60 mb-2 flex items-center gap-2"><Clock className="w-4 h-4" /> Créneaux ({locationCalendarType === 'cabinet' ? 'Cabinet' : 'Domicile'})</h4>
+                    {heuresCurrent.length === 0 ? (
+                      <p className="text-sm text-dark/50 italic font-body">
+                        Aucun créneau actif pour ce lieu (à configurer dans Paramètres).
+                      </p>
+                    ) : (
                     <div className="grid grid-cols-2 gap-2">
                       {heuresCurrent.map(time => {
                         const res = reservations.find(r => {
                           const heureFormatted = normalizeTime(r.heure)
-                          return r.date === toLocalDateKey(selectedDate) && heureFormatted === normalizeTime(time)
+                          return r.date === toLocalDateKey(selectedDate) &&
+                            heureFormatted === normalizeTime(time) &&
+                            r.lieu === locationCalendarType
                         })
-                        const isOtherLocationReservation = !!res && res.lieu !== locationCalendarType
+                        const dayBlocked = isJourBloque(selectedDate)
+                        const manuel = isBlockedManuel(selectedDate, time, locationCalendarType)
                         const blocked = isSlotBlocked(selectedDate, time)
+                        const locked = !!res || dayBlocked || manuel
                         return (
-                          <button key={time} onClick={() => !res && toggleBlockSlot(selectedDate, time)} disabled={!!res}
-                            className={`py-2 px-3 rounded-lg text-xs font-body ${res ? 'bg-gold/20 text-gold cursor-not-allowed' : blocked ? 'bg-error/10 text-error' : 'bg-sand text-dark hover:bg-sage/20'}`}>
+                          <button key={time} onClick={() => !locked && toggleBlockSlot(selectedDate, time)} disabled={locked}
+                            title={dayBlocked ? 'Journée entièrement bloquée' : manuel ? 'Blocage défini dans le code (src/constants/blocagesManuels.ts)' : undefined}
+                            className={`py-2 px-3 rounded-lg text-xs font-body ${res ? 'bg-gold/20 text-gold cursor-not-allowed' : blocked ? `bg-error/10 text-error${locked ? ' cursor-not-allowed' : ''}` : 'bg-sand text-dark hover:bg-sage/20'}`}>
                             {time}
-                            {res && <span className="block text-[10px]">{isOtherLocationReservation ? 'Réservé (autre lieu)' : 'Réservé'}</span>}
-                            {blocked && !res && <span className="block text-[10px]">Bloqué</span>}
+                            {res && <span className="block text-[10px]">Réservé</span>}
+                            {blocked && !res && <span className="block text-[10px]">{dayBlocked ? 'Jour bloqué' : manuel ? 'Bloqué (code)' : 'Bloqué'}</span>}
                           </button>
                         )
                       })}
                     </div>
+                    )}
                   </div>
                   <div>
                     <h4 className="text-sm font-body text-dark/60 mb-2">Réservations</h4>

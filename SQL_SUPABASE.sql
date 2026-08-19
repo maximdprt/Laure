@@ -127,9 +127,17 @@ CREATE POLICY "Disponibilités publiques"
 
 -- Active RLS sur jours_bloques (lecture publique)
 ALTER TABLE jours_bloques ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Jours bloqués publics" ON jours_bloques;
+DROP POLICY IF EXISTS "Mise à jour des jours bloqués (UI admin)" ON jours_bloques;
 CREATE POLICY "Jours bloqués publics"
   ON jours_bloques FOR SELECT
   USING (true);
+
+-- Permet à l'admin (front) de gérer les jours bloqués depuis le code UI.
+CREATE POLICY "Mise à jour des jours bloqués (UI admin)"
+  ON jours_bloques FOR ALL
+  USING (true)
+  WITH CHECK (true);
 
 -- ==================== TABLE CONTACT MESSAGES ====================
 CREATE TABLE IF NOT EXISTS contact_messages (

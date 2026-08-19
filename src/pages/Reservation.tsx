@@ -6,8 +6,9 @@ import { allSoins, PREMIUM_OPTION_PRICE, DEPOSIT_PERCENTAGE, getSoinById } from 
 import { useReservations } from '../hooks/useReservations'
 import { useCreneauxHoraires } from '../hooks/useCreneauxHoraires'
 import { useCreneauxBloques } from '../hooks/useCreneauxBloques'
+import { useJoursBloques } from '../hooks/useJoursBloques'
 import { createPaymentIntent, createReservation } from '../lib/supabaseAPI'
-import { toLocalDateKey, getTodayInParis, getNowInParis } from '../lib/dateUtils'
+import { toLocalDateKey, getNowInParis, createCalendarDate, isSameCalendarDay, isOnOrAfterToday } from '../lib/dateUtils'
 import { supabase } from '../lib/supabase'
 import type { Soin, ClientInfo } from '../types'
 import { loadStripe } from '@stripe/stripe-js'
@@ -136,7 +137,8 @@ const Reservation = () => {
   // Récupère les créneaux horaires depuis Supabase en fonction du lieu
   const { heures: heuresCabinet, loading: loadingCabinet } = useCreneauxHoraires('cabinet')
   const { heures: heuresDomicile, loading: loadingDomicile } = useCreneauxHoraires('domicile')
-  const { isBlocked } = useCreneauxBloques()
+  const { isBlocked, isDayFullyBlocked, blockedSlots } = useCreneauxBloques()
+  const { isJourBloque, joursBloques } = useJoursBloques()
 
   // Initialiser Stripe une seule fois
   const stripePromise = useMemo(() => 
@@ -175,23 +177,9 @@ const Reservation = () => {
     if (startDay < 0) startDay = 6
     const days: (Date | null)[] = []
     for (let i = 0; i < startDay; i++) days.push(null)
-    for (let d = 1; d <= lastDay.getDate(); d++) days.push(new Date(year, month, d))
+    for (let d = 1; d <= lastDay.getDate(); d++) days.push(createCalendarDate(year, month, d))
     return days
   }, [currentMonth])
-
-  const isDateAvailable = (date: Date) => {
-    const today = getTodayInParis()
-    return date >= today && date.getDay() !== 0
-  }
-
-  const isSameDay = (d1: Date, d2: Date | null) => d2 && d1.toDateString() === d2.toDateString()
-
-  // Price calculations
-  const soinsTotal = bookingData.soins.reduce((sum, soin) => sum + soin.price, 0)
-  const hasSportifSoin = bookingData.soins.some(s => s.category === 'sportif')
-  const totalPrice = soinsTotal + (premiumOption && hasSportifSoin ? PREMIUM_OPTION_PRICE : 0)
-  const depositAmount = Math.ceil(totalPrice * DEPOSIT_PERCENTAGE / 100)
-  const totalDuration = bookingData.soins.reduce((sum, soin) => sum + soin.duration, 0)
 
   // N'affiche que les créneaux actifs du lieu choisi
   const timeSlotsForLocation = useMemo(() => {
@@ -199,20 +187,64 @@ const Reservation = () => {
     const base = bookingData.locationType === 'cabinet' ? heuresCabinet : heuresDomicile
     return [...base].sort((a, b) => a.localeCompare(b))
   }, [bookingData.locationType, heuresCabinet, heuresDomicile, loadingCabinet, loadingDomicile])
+
   const normalizeTime = (value: string) => value.slice(0, 5)
+
+  // Un créneau est indisponible s'il est bloqué par l'admin (jour entier ou créneau) ou déjà réservé
   const isSlotBlocked = (date: Date, time: string) => {
     const key = toLocalDateKey(date)
 
+    if (isJourBloque(date)) return true
+
     if (bookingData.locationType && isBlocked(date, time, bookingData.locationType)) return true
-    
+
     // Vérifie les créneaux occupés par des réservations confirmées
     const isReserved = reservations.some(r => {
       const resDate = r.date
       return resDate === key && normalizeTime(r.heure) === normalizeTime(time)
     })
-    
+
     return isReserved
   }
+
+  // Journée rendue indisponible par l'admin (jour bloqué, tous les créneaux bloqués, ou complet)
+  const isDayUnavailable = (date: Date) => {
+    if (isJourBloque(date)) return true
+    if (!bookingData.locationType) return false
+    if (isDayFullyBlocked(date, timeSlotsForLocation, bookingData.locationType)) return true
+    if (timeSlotsForLocation.length === 0) return false
+    return timeSlotsForLocation.every(time => isSlotBlocked(date, time))
+  }
+
+  const isDateAvailable = (date: Date) => {
+    if (!isOnOrAfterToday(date)) return false
+    if (date.getDay() === 0) return false
+    return !isDayUnavailable(date)
+  }
+
+  const isSameDay = (d1: Date, d2: Date | null) => d2 && isSameCalendarDay(d1, d2)
+
+  // Si l'institut bloque la date/le créneau pendant la navigation, on annule la sélection
+  useEffect(() => {
+    // Uniquement pendant le choix de la date : après validation, on ne casse pas le tunnel de paiement
+    if (currentStep > 3) return
+    if (!bookingData.date) return
+    if (isDayUnavailable(bookingData.date)) {
+      setBookingData(prev => ({ ...prev, date: null, timeSlot: null }))
+      return
+    }
+    if (bookingData.timeSlot && isSlotBlocked(bookingData.date, bookingData.timeSlot)) {
+      setBookingData(prev => ({ ...prev, timeSlot: null }))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep, joursBloques, blockedSlots, reservations, bookingData.date, bookingData.timeSlot, bookingData.locationType])
+
+  // Price calculations
+  const soinsTotal = bookingData.soins.reduce((sum, soin) => sum + soin.price, 0)
+  const hasSportifSoin = bookingData.soins.some(s => s.category === 'sportif')
+  const totalPrice = soinsTotal + (premiumOption && hasSportifSoin ? PREMIUM_OPTION_PRICE : 0)
+  const depositAmount = Math.ceil(totalPrice * DEPOSIT_PERCENTAGE / 100)
+  const totalDuration = bookingData.soins.reduce((sum, soin) => sum + soin.duration, 0)
 
   // Step validation
   const canProceed = () => {
@@ -695,19 +727,34 @@ const Reservation = () => {
                             if (!date) return <div key={`e-${i}`} />
                             const available = isDateAvailable(date)
                             const isSelected = isSameDay(date, bookingData.date)
+                            // Date ouvrable à venir mais rendue indisponible par l'institut
+                            const fullyBlocked = !available && isOnOrAfterToday(date) && date.getDay() !== 0
                             return (
                               <button
                                 key={date.toISOString()}
                                 onClick={() => available && setBookingData(prev => ({ ...prev, date, timeSlot: null }))}
                                 disabled={!available}
+                                aria-label={`${date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}${fullyBlocked ? ' — indisponible' : ''}`}
+                                title={fullyBlocked ? 'Journée indisponible' : undefined}
                                 className={`aspect-square rounded-lg text-sm font-body ${
-                                  isSelected ? 'bg-sage text-cream' : available ? 'hover:bg-white text-dark' : 'text-dark/20 cursor-not-allowed'
+                                  isSelected
+                                    ? 'bg-sage text-cream'
+                                    : available
+                                      ? 'hover:bg-white text-dark'
+                                      : fullyBlocked
+                                        ? 'bg-error/10 text-error/60 line-through cursor-not-allowed'
+                                        : 'text-dark/20 cursor-not-allowed'
                                 }`}
                               >
                                 {date.getDate()}
                               </button>
                             )
                           })}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-4 mt-3 text-[11px] font-body text-dark/50">
+                          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-sage inline-block" /> Sélectionné</span>
+                          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-error/10 inline-block" /> Indisponible</span>
+                          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-white border border-sand inline-block" /> Disponible</span>
                         </div>
                       </div>
                       {/* Time Slots */}
@@ -716,24 +763,31 @@ const Reservation = () => {
                           <Clock className="w-4 h-4" /> Créneaux disponibles
                         </h3>
                         {bookingData.date ? (
-                          <div className="grid grid-cols-2 gap-2">
-                            {timeSlotsForLocation.map(time => {
-                              const blocked = isSlotBlocked(bookingData.date!, time)
-                              return (
-                                <button
-                                  key={time}
-                                  onClick={() => !blocked && setBookingData(prev => ({ ...prev, timeSlot: time }))}
-                                  disabled={blocked}
-                                  className={`py-3 rounded-lg text-sm font-body transition-all ${
-                                    bookingData.timeSlot === time ? 'bg-sage text-cream' : blocked ? 'bg-sand/50 text-dark/30 cursor-not-allowed' : 'bg-sand text-dark hover:bg-gold/20'
-                                  }`}
-                                >
-                                  {time}
-                                  {blocked && <span className="block text-xs opacity-70">Indisponible</span>}
-                                </button>
-                              )
-                            })}
-                          </div>
+                          <>
+                            {timeSlotsForLocation.length > 0 && timeSlotsForLocation.every(time => isSlotBlocked(bookingData.date!, time)) && (
+                              <div className="mb-3 rounded-lg bg-error/10 text-error text-sm font-body p-3">
+                                Cette journée n'est pas disponible à la réservation. Merci de choisir une autre date.
+                              </div>
+                            )}
+                            <div className="grid grid-cols-2 gap-2">
+                              {timeSlotsForLocation.map(time => {
+                                const blocked = isSlotBlocked(bookingData.date!, time)
+                                return (
+                                  <button
+                                    key={time}
+                                    onClick={() => !blocked && setBookingData(prev => ({ ...prev, timeSlot: time }))}
+                                    disabled={blocked}
+                                    className={`py-3 rounded-lg text-sm font-body transition-all ${
+                                      bookingData.timeSlot === time ? 'bg-sage text-cream' : blocked ? 'bg-error/5 text-dark/30 line-through cursor-not-allowed' : 'bg-sand text-dark hover:bg-gold/20'
+                                    }`}
+                                  >
+                                    {time}
+                                    {blocked && <span className="block text-xs no-underline opacity-70">Indisponible</span>}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </>
                         ) : (
                           <div className="bg-sand rounded-xl p-8 text-center">
                             <Calendar className="w-8 h-8 text-dark/30 mx-auto mb-2" />

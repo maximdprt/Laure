@@ -6,7 +6,6 @@ import { allSoins, PREMIUM_OPTION_PRICE, DEPOSIT_PERCENTAGE, getSoinById } from 
 import { useReservations } from '../hooks/useReservations'
 import { useCreneauxHoraires } from '../hooks/useCreneauxHoraires'
 import { useCreneauxBloques } from '../hooks/useCreneauxBloques'
-import { estJourBloqueManuel } from '../constants/blocagesManuels'
 import { createPaymentIntent, createReservation } from '../lib/supabaseAPI'
 import { toLocalDateKey, getNowInParis, createCalendarDate, isSameCalendarDay, isOnOrAfterToday } from '../lib/dateUtils'
 import { supabase } from '../lib/supabase'
@@ -139,9 +138,6 @@ const Reservation = () => {
   const { heures: heuresDomicile, loading: loadingDomicile } = useCreneauxHoraires('domicile')
   const { isBlocked, isDayFullyBlocked, blockedSlots } = useCreneauxBloques()
 
-  // Journée fermée en dur dans le code (src/constants/blocagesManuels.ts)
-  const isJourBloque = (date: Date) => estJourBloqueManuel(toLocalDateKey(date))
-
   // Initialiser Stripe une seule fois
   const stripePromise = useMemo(() => 
     stripePublishableKey ? loadStripe(stripePublishableKey) : null,
@@ -196,8 +192,6 @@ const Reservation = () => {
   const isSlotBlocked = (date: Date, time: string) => {
     const key = toLocalDateKey(date)
 
-    if (isJourBloque(date)) return true
-
     if (bookingData.locationType && isBlocked(date, time, bookingData.locationType)) return true
 
     // Vérifie les créneaux occupés par des réservations confirmées
@@ -211,7 +205,6 @@ const Reservation = () => {
 
   // Journée rendue indisponible par l'admin (jour bloqué, tous les créneaux bloqués, ou complet)
   const isDayUnavailable = (date: Date) => {
-    if (isJourBloque(date)) return true
     if (!bookingData.locationType) return false
     if (isDayFullyBlocked(date, timeSlotsForLocation, bookingData.locationType)) return true
     if (timeSlotsForLocation.length === 0) return false

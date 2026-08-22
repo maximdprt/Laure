@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase, fetchAllRows } from '../lib/supabase'
 import type { LocationType } from '../constants/services'
 import { toLocalDateKey } from '../lib/dateUtils'
-import { estCreneauBloqueManuel, estJourBloqueManuel } from '../constants/blocagesManuels'
 import type { CreneauBloque } from '../types/database'
 
 const normalizeHeure = (value: string) => value.slice(0, 5)
@@ -17,19 +16,28 @@ export const useCreneauxBloques = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Lecture paginée : au-delà du plafond de lignes de l'API Supabase, un select
+  // simple renvoie une liste tronquée et des dates bloquées repassent en "libre".
   const fetchBlockedSlots = async () => {
-    const { data, error: fetchError } = await supabase
-      .from('creneaux_bloques')
-      .select('*')
+    const { data, error: fetchError } = await fetchAllRows<CreneauBloque>((from, to) =>
+      supabase
+        .from('creneaux_bloques')
+        .select('*')
+        .order('date', { ascending: true })
+        .order('heure', { ascending: true })
+        .order('lieu', { ascending: true })
+        .range(from, to)
+    )
 
     if (fetchError) {
-      setError(fetchError.message)
+      const message = (fetchError as { message?: string }).message || 'Erreur inconnue'
+      setError(message)
       console.error('Erreur récupération créneaux bloqués:', fetchError)
       return
     }
 
     setError(null)
-    setBlockedSlots((data || []) as CreneauBloque[])
+    setBlockedSlots(data)
   }
 
   useEffect(() => {
@@ -58,17 +66,11 @@ export const useCreneauxBloques = () => {
     }
   }, [])
 
-  // Blocage manuel (défini dans le code) : non modifiable depuis l'espace admin
-  const isBlockedManuel = (date: Date, heure: string, lieu: LocationType) => {
-    const dateKey = toLocalDateKey(date)
-    return estJourBloqueManuel(dateKey) || estCreneauBloqueManuel(dateKey, heure, lieu)
-  }
-
+  // Tous les blocages viennent de la base : chacun reste donc réversible depuis
+  // l'espace admin. Aucune date n'est figée dans le code.
   const isBlocked = (date: Date, heure: string, lieu: LocationType) => {
     const dateKey = toLocalDateKey(date)
     const heureKey = normalizeHeure(heure)
-    if (estJourBloqueManuel(dateKey)) return true
-    if (estCreneauBloqueManuel(dateKey, heureKey, lieu)) return true
     return blockedSlots.some(slot =>
       slot.date === dateKey &&
       slot.lieu === lieu &&
@@ -181,7 +183,6 @@ export const useCreneauxBloques = () => {
     loading,
     error,
     isBlocked,
-    isBlockedManuel,
     isDayFullyBlocked,
     toggleBlockedSlot,
     setSlotsBlocked,

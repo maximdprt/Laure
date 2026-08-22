@@ -1,7 +1,7 @@
 // ==================== HOOK: useReservations (Temps réel) ====================
 
 import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase, fetchAllRows } from '../lib/supabase'
 import { ReservationWithDetails } from '../types/database'
 
 export const useReservations = () => {
@@ -19,18 +19,24 @@ export const useReservations = () => {
     // Récupère les réservations initiales
     const fetchReservations = async () => {
       try {
-        const { data, error: fetchError } = await supabase
-          .from('reservations')
-          .select('*, services(*)')
-          .not('statut', 'in', '("annulée","no-show")')
-          .order('date', { ascending: true })
-          .order('heure', { ascending: true })
+        // Pagination : sans elle, l'API Supabase tronque la liste au-delà de son
+        // plafond de lignes et les réservations les plus lointaines disparaissent.
+        const { data, error: fetchError } = await fetchAllRows<ReservationWithDetails>((from, to) =>
+          supabase
+            .from('reservations')
+            .select('*, services(*)')
+            .not('statut', 'in', '("annulée","no-show")')
+            .order('date', { ascending: true })
+            .order('heure', { ascending: true })
+            .order('id', { ascending: true })
+            .range(from, to)
+        )
 
         if (fetchError) {
-          setError(fetchError.message)
+          setError((fetchError as { message?: string }).message || 'Erreur inconnue')
           console.error('Erreur fetch:', fetchError)
         } else {
-          setReservations(data || [])
+          setReservations(data)
         }
       } catch (err) {
         setError('Erreur lors de la récupération')

@@ -6,7 +6,6 @@ import { useReservations } from '../hooks/useReservations'
 import { useAllCreneauxHoraires } from '../hooks/useCreneauxHoraires'
 import { useCreneauxBloques } from '../hooks/useCreneauxBloques'
 import { useAvis } from '../hooks/useAvis'
-import { estJourBloqueManuel } from '../constants/blocagesManuels'
 import ReservationsList from '../components/ReservationsList'
 import type { Avis } from '../types'
 import type { LocationType } from '../constants/services'
@@ -29,10 +28,7 @@ const Admin = () => {
   const [newTimeSlotCabinet, setNewTimeSlotCabinet] = useState('')
   const [newTimeSlotDomicile, setNewTimeSlotDomicile] = useState('')
 
-  const { isBlocked, isBlockedManuel, toggleBlockedSlot, isDayFullyBlocked, setDayBlocked, error: creneauxBloquesError } = useCreneauxBloques()
-
-  // Jour ferme en dur dans le code (src/constants/blocagesManuels.ts)
-  const isJourBloqueManuel = (date: Date) => estJourBloqueManuel(toLocalDateKey(date))
+  const { isBlocked, toggleBlockedSlot, isDayFullyBlocked, setDayBlocked, error: creneauxBloquesError } = useCreneauxBloques()
   const {
     publishedAvis: avisList,
     pendingAvis: pendingAvisList,
@@ -71,6 +67,16 @@ const Admin = () => {
   const heuresCurrent = useMemo(
     () => (locationCalendarType === 'cabinet' ? heuresCabinet : heuresDomicile),
     [locationCalendarType, heuresCabinet, heuresDomicile]
+  )
+
+  // Bloquer une journée écrit une ligne par créneau. On prend TOUS les créneaux du
+  // lieu (même désactivés) : sinon, réactiver un créneau plus tard rouvrirait
+  // silencieusement toutes les journées déjà fermées.
+  const heuresToutesCabinet = useMemo(() => creneauxCabinet.map(c => c.heure), [creneauxCabinet])
+  const heuresToutesDomicile = useMemo(() => creneauxDomicile.map(c => c.heure), [creneauxDomicile])
+  const heuresToutesCurrent = useMemo(
+    () => (locationCalendarType === 'cabinet' ? heuresToutesCabinet : heuresToutesDomicile),
+    [locationCalendarType, heuresToutesCabinet, heuresToutesDomicile]
   )
 
   const handleAjouterCreneau = async (lieu: LocationType, valeur: string) => {
@@ -203,7 +209,7 @@ const Admin = () => {
 
   // Bloque/débloque tous les créneaux du lieu affiché pour la journée
   const toggleBlockEntireDay = async (date: Date) => {
-    if (heuresCurrent.length === 0) {
+    if (heuresToutesCurrent.length === 0) {
       alert(
         `Aucun créneau actif pour "${locationCalendarType === 'cabinet' ? 'Cabinet' : 'Domicile'}".\n\n` +
         'Ajoutez des créneaux dans Paramètres avant de bloquer cette journée.'
@@ -212,7 +218,7 @@ const Admin = () => {
     }
     const fullyBlocked = isDayFullyBlocked(date, heuresCurrent, locationCalendarType)
     try {
-      await setDayBlocked(date, heuresCurrent, locationCalendarType, !fullyBlocked)
+      await setDayBlocked(date, heuresToutesCurrent, locationCalendarType, !fullyBlocked)
     } catch (err) {
       console.error(err)
       alert(`Impossible de bloquer/débloquer cette journée.\n\n${describeError(err)}`)
@@ -221,14 +227,14 @@ const Admin = () => {
 
   // Bloque/débloque la journée sur les deux lieux à la fois
   const toggleBlockGlobalDay = async (date: Date) => {
-    if (heuresCabinet.length === 0 && heuresDomicile.length === 0) {
+    if (heuresToutesCabinet.length === 0 && heuresToutesDomicile.length === 0) {
       alert('Aucun créneau actif. Ajoutez des créneaux dans Paramètres avant de bloquer cette journée.')
       return
     }
     const fullyBlocked = isJourBloque(date)
     try {
-      if (heuresCabinet.length > 0) await setDayBlocked(date, heuresCabinet, 'cabinet', !fullyBlocked)
-      if (heuresDomicile.length > 0) await setDayBlocked(date, heuresDomicile, 'domicile', !fullyBlocked)
+      if (heuresToutesCabinet.length > 0) await setDayBlocked(date, heuresToutesCabinet, 'cabinet', !fullyBlocked)
+      if (heuresToutesDomicile.length > 0) await setDayBlocked(date, heuresToutesDomicile, 'domicile', !fullyBlocked)
     } catch (err) {
       console.error(err)
       alert(`Impossible de bloquer/débloquer ce jour.\n\n${describeError(err)}`)
@@ -241,7 +247,7 @@ const Admin = () => {
 
   // Journée fermée sur les deux lieux (ou fermée en dur dans le code)
   const isJourBloque = (date: Date) =>
-    isJourBloqueManuel(date) || (
+    (
       (heuresCabinet.length > 0 || heuresDomicile.length > 0) &&
       isLieuFullyBlocked(date, heuresCabinet, 'cabinet') &&
       isLieuFullyBlocked(date, heuresDomicile, 'domicile')
@@ -436,22 +442,17 @@ const Admin = () => {
                     <button
                       type="button"
                       onClick={() => toggleBlockGlobalDay(selectedDate)}
-                      disabled={isJourBloqueManuel(selectedDate)}
-                      title={isJourBloqueManuel(selectedDate) ? 'Blocage défini dans le code (src/constants/blocagesManuels.ts)' : undefined}
-                      className={`w-full py-2.5 px-3 rounded-lg text-xs font-body font-medium flex items-center justify-center gap-2 ${isJourBloqueManuel(selectedDate) ? 'bg-error/60 text-cream cursor-not-allowed' : isJourBloque(selectedDate) ? 'bg-error text-cream' : 'bg-dark text-cream hover:bg-error'}`}
+                      className={`w-full py-2.5 px-3 rounded-lg text-xs font-body font-medium flex items-center justify-center gap-2 ${isJourBloque(selectedDate) ? 'bg-error text-cream' : 'bg-dark text-cream hover:bg-error'}`}
                     >
                       <Ban className="w-4 h-4" />
-                      {isJourBloqueManuel(selectedDate)
-                        ? 'Jour bloqué (défini dans le code)'
-                        : isJourBloque(selectedDate)
-                          ? 'Débloquer ce jour (cabinet + domicile)'
-                          : 'Bloquer toute la journée (cabinet + domicile)'}
+                      {isJourBloque(selectedDate)
+                        ? 'Débloquer ce jour (cabinet + domicile)'
+                        : 'Bloquer toute la journée (cabinet + domicile)'}
                     </button>
                     <button
                       type="button"
                       onClick={() => toggleBlockEntireDay(selectedDate)}
-                      disabled={isJourBloqueManuel(selectedDate)}
-                      className={`w-full py-2 px-3 rounded-lg text-xs font-body ${isJourBloqueManuel(selectedDate) ? 'bg-sand/50 text-dark/30 cursor-not-allowed' : isDayFullyBlocked(selectedDate, heuresCurrent, locationCalendarType) ? 'bg-error/20 text-error' : 'bg-sand text-dark hover:bg-error/10 hover:text-error'}`}
+                      className={`w-full py-2 px-3 rounded-lg text-xs font-body ${isDayFullyBlocked(selectedDate, heuresCurrent, locationCalendarType) ? 'bg-error/20 text-error' : 'bg-sand text-dark hover:bg-error/10 hover:text-error'}`}
                     >
                       {isDayFullyBlocked(selectedDate, heuresCurrent, locationCalendarType)
                         ? `Débloquer tous les créneaux ${locationCalendarType === 'cabinet' ? 'Cabinet' : 'Domicile'}`
@@ -460,7 +461,6 @@ const Admin = () => {
                     {isJourBloque(selectedDate) && (
                       <p className="text-[11px] font-body text-error">
                         Journée bloquée : les clients ne peuvent plus la sélectionner sur le site.
-                        {isJourBloqueManuel(selectedDate) && ' Pour la rouvrir, retirez-la de src/constants/blocagesManuels.ts.'}
                       </p>
                     )}
                   </div>
@@ -479,17 +479,17 @@ const Admin = () => {
                             heureFormatted === normalizeTime(time) &&
                             r.lieu === locationCalendarType
                         })
-                        const dayBlocked = isJourBloque(selectedDate)
-                        const manuel = isBlockedManuel(selectedDate, time, locationCalendarType)
                         const blocked = isSlotBlocked(selectedDate, time)
-                        const locked = !!res || dayBlocked || manuel
+                        // Seul un créneau déjà réservé reste verrouillé : tout le reste se bascule librement,
+                        // y compris sur une journée entièrement fermée (pour rouvrir une seule heure).
+                        const locked = !!res
                         return (
                           <button key={time} onClick={() => !locked && toggleBlockSlot(selectedDate, time)} disabled={locked}
-                            title={dayBlocked ? 'Journée entièrement bloquée' : manuel ? 'Blocage défini dans le code (src/constants/blocagesManuels.ts)' : undefined}
-                            className={`py-2 px-3 rounded-lg text-xs font-body ${res ? 'bg-gold/20 text-gold cursor-not-allowed' : blocked ? `bg-error/10 text-error${locked ? ' cursor-not-allowed' : ''}` : 'bg-sand text-dark hover:bg-sage/20'}`}>
+                            title={locked ? 'Créneau réservé : annulez la réservation pour pouvoir le bloquer' : blocked ? 'Cliquez pour rouvrir ce créneau' : 'Cliquez pour bloquer ce créneau'}
+                            className={`py-2 px-3 rounded-lg text-xs font-body ${res ? 'bg-gold/20 text-gold cursor-not-allowed' : blocked ? 'bg-error/10 text-error' : 'bg-sand text-dark hover:bg-sage/20'}`}>
                             {time}
                             {res && <span className="block text-[10px]">Réservé</span>}
-                            {blocked && !res && <span className="block text-[10px]">{dayBlocked ? 'Jour bloqué' : manuel ? 'Bloqué (code)' : 'Bloqué'}</span>}
+                            {blocked && !res && <span className="block text-[10px]">Bloqué</span>}
                           </button>
                         )
                       })}

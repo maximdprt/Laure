@@ -45,6 +45,20 @@ export const HOME_FAQ_ITEMS: HomeFaqItem[] = [
       'Les techniques utilisées visent à relâcher les tensions, favoriser la récupération et accompagner la préparation à l’effort. Ce n’est pas un acte médical ni kinésithérapique.'
   },
   {
+    question: 'Peut-on avoir un massage près de la plage à Lacanau ?',
+    directAnswer:
+      'Oui : le cabinet se trouve à environ 800 m de la plage centrale de Lacanau Océan, et le massage à domicile permet d’être massé directement dans votre location proche de la plage.',
+    answer:
+      'Les séances se déroulent en intérieur, dans un cadre calme et chauffé, ce qui reste plus confortable qu’en extérieur pour un massage aux huiles. Après une session de surf, vous pouvez venir au cabinet à pied depuis le front de mer, ou demander une intervention à domicile.'
+  },
+  {
+    question: 'Y a-t-il un spa ou un institut de massage à Lacanau ?',
+    directAnswer:
+      'Massage Aura Performance est un cabinet de massage individuel à Lacanau Océan, et non un spa avec hammam ou sauna : chaque séance est privative et entièrement personnalisée.',
+    answer:
+      'Vous ne partagez l’espace avec personne et le soin est construit autour de votre besoin du jour — récupération sportive, détente profonde ou rééquilibrage énergétique avec chromothérapie. C’est une alternative au spa pour qui cherche un accompagnement sur mesure plutôt qu’un parcours d’installations.'
+  },
+  {
     question: 'Comment prendre rendez-vous pour un massage à Lacanau ?',
     directAnswer:
       'Réservez en ligne sur ce site, par téléphone au 07 59 70 19 41 ou par email ; en été, anticipez car les créneaux partent vite.',

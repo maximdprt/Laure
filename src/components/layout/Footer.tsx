@@ -153,8 +153,8 @@ const Footer = () => {
         <div className="pt-6 border-t border-cream/20">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-cream/60 text-xs">
-              © {currentYear} <span className="text-gold">Massage Lacanau - Massage Aura Performance</span> - Laure Dupuch. Tous droits réservés. Site réalisé par{' '}
-              <a href="https://axior-agency.fr" className="text-cream/80 hover:text-gold transition-colors">Axior</a>.
+              © {currentYear} <span className="text-gold">Massage Lacanau - Massage Aura Performance</span> - Laure Dupuch. Tous droits réservés. ·{' '}
+              <a href="https://axior-agency.fr" className="text-cream/80 hover:text-gold transition-colors">Axior</a>
             </p>
             <div className="flex gap-6 text-xs">
               <Link to="/mentions-legales" className="text-cream/60 hover:text-gold transition-colors">
